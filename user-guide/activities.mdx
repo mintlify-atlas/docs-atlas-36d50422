@@ -1,0 +1,256 @@
+---
+title: "Activities and Timeline"
+description: "Track interactions and history with the activity timeline"
+icon: "clock-rotate-left"
+---
+
+Activities in Twenty provide a complete history of all interactions with your contacts and companies. The timeline shows emails, calls, meetings, notes, and tasks in chronological order.
+
+## What are activities?
+
+Activities are records of interactions and events related to your CRM records. They help you:
+
+- Track communication history
+- See what happened and when
+- Plan follow-up actions
+- Collaborate with your team
+
+### Activity types
+
+Twenty tracks several types of activities:
+
+- **Emails**: Synced from your connected email accounts
+- **Calendar events**: Meetings and calls from your calendar
+- **Notes**: Manual notes you add about interactions
+- **Tasks**: To-do items related to records
+- **Comments**: Team discussions on records
+
+## Viewing the timeline
+
+The activity timeline appears on every record's detail page:
+
+<Steps>
+  <Step title="Open a record">
+    Click on any company, person, or opportunity to open its detail page.
+  </Step>
+  
+  <Step title="View the timeline">
+    The timeline is displayed on the right side of the page, showing activities in reverse chronological order (newest first).
+  </Step>
+  
+  <Step title="Filter activities">
+    Use the filter buttons above the timeline to show only specific activity types.
+  </Step>
+</Steps>
+
+## Adding activities
+
+You can manually add activities to any record:
+
+<Tabs>
+  <Tab title="Adding a note">
+    <Steps>
+      <Step title="Click add note">
+        In the timeline, click the **+ Note** button.
+      </Step>
+      
+      <Step title="Write your note">
+        Type your note content. You can use rich text formatting:
+        - **Bold** and *italic* text
+        - Bullet lists
+        - @mentions to notify team members
+      </Step>
+      
+      <Step title="Save the note">
+        Click **Save** or press Cmd/Ctrl + Enter.
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Adding a task">
+    <Steps>
+      <Step title="Click add task">
+        Click the **+ Task** button in the timeline.
+      </Step>
+      
+      <Step title="Enter task details">
+        Provide:
+        - Task title
+        - Due date
+        - Assigned to (team member)
+        - Priority (low, medium, high)
+      </Step>
+      
+      <Step title="Create task">
+        Click **Create** to add the task to the timeline.
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Logging a call">
+    <Steps>
+      <Step title="Click log activity">
+        Click the **+ Activity** button and select **Call**.
+      </Step>
+      
+      <Step title="Add call details">
+        Enter:
+        - Call duration
+        - Call outcome
+        - Notes from the call
+      </Step>
+      
+      <Step title="Save activity">
+        Click **Save** to add the call to the timeline.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Email integration
+
+When you connect your email account, Twenty automatically:
+
+- Syncs emails to/from contacts in your CRM
+- Displays emails in the timeline
+- Links emails to the relevant records
+
+<Info>
+  See [Email Integration](/user-guide/calendar-emails/email-integration) for setup instructions.
+</Info>
+
+### Email in timeline
+
+Emails appear in the timeline with:
+- Subject line
+- Sender and recipients
+- Email preview
+- Timestamp
+
+Click on any email to view the full content.
+
+## Calendar events
+
+Meetings and calls from your synced calendar automatically appear in the timeline:
+
+- Past events show as completed activities
+- Upcoming events show with a countdown
+- Event details include attendees, time, and location
+
+<Tip>
+  Connect your calendar to automatically track all customer meetings.
+</Tip>
+
+## Tasks and reminders
+
+Tasks help you track follow-up actions:
+
+### Task properties
+
+- **Title**: What needs to be done
+- **Due date**: When it should be completed
+- **Assigned to**: Who is responsible
+- **Priority**: Low, medium, or high
+- **Status**: To do, in progress, done
+
+### Task notifications
+
+You receive notifications for:
+- Tasks assigned to you
+- Tasks due today or overdue
+- Tasks completed by others
+
+## Filtering the timeline
+
+Narrow down what you see in the timeline:
+
+<Tabs>
+  <Tab title="By activity type">
+    Click the filter buttons above the timeline:
+    - **All**: Show everything
+    - **Emails**: Only emails
+    - **Meetings**: Only calendar events
+    - **Notes**: Only notes
+    - **Tasks**: Only tasks
+  </Tab>
+  
+  <Tab title="By date range">
+    Use the date picker to show activities from:
+    - Last 7 days
+    - Last 30 days
+    - This quarter
+    - All time
+    - Custom range
+  </Tab>
+  
+  <Tab title="By team member">
+    Filter to show only activities:
+    - Created by specific users
+    - Assigned to specific users
+    - Involving specific users
+  </Tab>
+</Tabs>
+
+## Comments and collaboration
+
+Comments let your team discuss records:
+
+1. Click **Add comment** in the timeline
+2. Type your message
+3. Use @mentions to notify specific team members
+4. Click **Post** to add the comment
+
+Comments appear in the timeline and team members receive notifications for @mentions.
+
+## Activity notifications
+
+Stay informed about activities:
+
+- **In-app notifications**: Red badge on the bell icon
+- **Email digests**: Daily or weekly summaries
+- **Browser notifications**: Real-time alerts (if enabled)
+
+Configure notification preferences in Settings → Notifications.
+
+## Bulk operations
+
+Manage multiple activities at once:
+
+- **Mark tasks complete**: Select multiple tasks and mark as done
+- **Reassign tasks**: Change the assignee for several tasks
+- **Delete activities**: Remove obsolete entries
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Log all important interactions">
+    Take a moment after calls or meetings to add notes while details are fresh.
+  </Accordion>
+  
+  <Accordion title="Use task assignments">
+    Assign tasks to ensure follow-ups don't fall through the cracks.
+  </Accordion>
+  
+  <Accordion title="@mention team members">
+    Use @mentions in notes and comments to loop in colleagues who need to know.
+  </Accordion>
+  
+  <Accordion title="Set due dates">
+    Always add due dates to tasks so they appear in your task list.
+  </Accordion>
+  
+  <Accordion title="Review timelines before calls">
+    Check the timeline before customer calls to refresh your memory on past interactions.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Email Integration" icon="envelope" href="/user-guide/calendar-emails/email-integration">
+    Connect your email to sync messages
+  </Card>
+  <Card title="Calendar Sync" icon="calendar" href="/user-guide/calendar-emails/calendar-sync">
+    Sync your calendar with Twenty
+  </Card>
+</CardGroup>

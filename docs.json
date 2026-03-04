@@ -56,7 +56,9 @@
             "group": "Getting Started",
             "pages": [
               "user-guide/workspace-setup",
-              "user-guide/navigation"
+              "user-guide/navigation",
+              "user-guide/dashboards",
+              "user-guide/activities"
             ]
           },
           {
@@ -103,6 +105,13 @@
             "pages": [
               "user-guide/permissions/roles",
               "user-guide/permissions/access-control"
+            ]
+          },
+          {
+            "group": "Account & Billing",
+            "pages": [
+              "user-guide/settings/account-settings",
+              "user-guide/billing"
             ]
           }
         ]
