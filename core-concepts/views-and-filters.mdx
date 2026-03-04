@@ -1,0 +1,465 @@
+---
+title: "Views and Filters"
+description: "Organize and visualize your data"
+---
+
+Views in Twenty let you organize, filter, sort, and visualize your data in different ways. Create multiple views of the same object to match different workflows and use cases.
+
+## View types
+
+Twenty supports multiple visualization modes for your data:
+
+### Table view
+
+The classic spreadsheet-like interface for working with records.
+
+- **Grid layout**: Rows are records, columns are fields
+- **Inline editing**: Click any cell to edit directly
+- **Column management**: Show, hide, resize, and reorder columns
+- **Bulk selection**: Select multiple records for batch operations
+- **Quick filters**: Filter bar at the top for rapid filtering
+
+<Info>
+  Table view is the default and most versatile view type. Use it for data entry, bulk updates, and detailed record management.
+</Info>
+
+### Kanban view
+
+Visual board organized by a SELECT field with drag-and-drop.
+
+- **Columns**: One column per option in your SELECT field
+- **Cards**: Each record is a card you can drag between columns
+- **Stage management**: Move records through pipeline stages visually
+- **Card customization**: Choose which fields display on cards
+
+**Perfect for:**
+- Sales pipelines (stages: Prospecting → Proposal → Closed)
+- Project management (statuses: To Do → In Progress → Done)
+- Support tickets (priorities: Low → Medium → High → Urgent)
+
+<Tip>
+  Create a kanban view for any object with a SELECT field. Common choices are `status`, `stage`, or `priority` fields.
+</Tip>
+
+### Calendar view
+
+Timeline visualization for date-based records.
+
+- **Month/week/day views**: Different time granularities
+- **Date field mapping**: Choose which date field to display
+- **Event cards**: Click to view or edit record details
+- **Drag to reschedule**: Move events to different dates
+
+**Ideal for:**
+- Tasks with due dates
+- Meetings and events
+- Opportunities with close dates
+- Project milestones
+
+### Widget views
+
+Embeddable views for custom page layouts.
+
+- Display specific fields from a related record
+- Embed filtered lists within record detail pages
+- Create custom dashboards with multiple widgets
+
+## Creating and managing views
+
+<Steps>
+  <Step title="Navigate to an object">
+    Go to any object page (e.g., Companies, People, Opportunities).
+  </Step>
+  
+  <Step title="Open view selector">
+    Click the view dropdown in the top toolbar (shows current view name).
+  </Step>
+  
+  <Step title="Create new view">
+    Click "+ New View" and configure:
+    
+    - **Name**: Give your view a descriptive name
+    - **Type**: Choose Table, Kanban, or Calendar
+    - **Icon**: Select an icon for quick identification
+    - **Visibility**: Personal (only you) or Shared (team-wide)
+  </Step>
+  
+  <Step title="Configure view settings">
+    Set up filters, sorting, grouping, and visible fields for your view.
+  </Step>
+</Steps>
+
+### View settings
+
+Each view has independent settings:
+
+- **Filters**: Which records to show
+- **Sorting**: Order of records
+- **Grouping**: Organize records by field values (table view)
+- **Visible fields**: Which columns to display (table view)
+- **Column order**: Arrangement of fields
+- **Column widths**: Size of each column
+
+## Filtering records
+
+Filters let you show only records that match specific criteria.
+
+### Adding filters
+
+<Steps>
+  <Step title="Click the filter button">
+    In the view toolbar, click the filter icon or "Add Filter".
+  </Step>
+  
+  <Step title="Choose a field">
+    Select which field to filter by from the dropdown.
+  </Step>
+  
+  <Step title="Select operator">
+    Choose the comparison operator based on field type.
+  </Step>
+  
+  <Step title="Enter value">
+    Provide the value to filter against.
+  </Step>
+</Steps>
+
+### Filter operators by field type
+
+<Tabs>
+  <Tab title="Text">
+    - **Contains**: Text includes substring
+    - **Does not contain**: Text excludes substring
+    - **Is**: Exact match
+    - **Is not**: Not equal to
+    - **Starts with**: Text begins with
+    - **Ends with**: Text concludes with
+    - **Is empty**: Field has no value
+    - **Is not empty**: Field has a value
+  </Tab>
+  
+  <Tab title="Number & Currency">
+    - **Equals**: Exact match
+    - **Not equals**: Not equal to
+    - **Greater than**: Greater than value
+    - **Greater than or equal**: Greater than or equal to value
+    - **Less than**: Less than value
+    - **Less than or equal**: Less than or equal to value
+    - **Is empty**: No value set
+    - **Is not empty**: Has a value
+  </Tab>
+  
+  <Tab title="Date & DateTime">
+    - **Is**: Exact date match
+    - **Is before**: Earlier than date
+    - **Is after**: Later than date
+    - **Is within**: Last/next X days
+    - **Is relative to today**: Today, yesterday, tomorrow
+    - **Is empty**: No date set
+    - **Is not empty**: Date is set
+  </Tab>
+  
+  <Tab title="Select & Multi-Select">
+    - **Is**: Equals specific option(s)
+    - **Is not**: Not equal to option(s)
+    - **Contains**: Includes any of (multi-select)
+    - **Does not contain**: Excludes all of (multi-select)
+    - **Is empty**: No selection
+    - **Is not empty**: Has selection
+  </Tab>
+  
+  <Tab title="Boolean">
+    - **Is**: True or False
+  </Tab>
+  
+  <Tab title="Relation">
+    - **Is**: Related to specific record(s)
+    - **Is not**: Not related to record(s)
+    - **Is empty**: No relation
+    - **Is not empty**: Has relation
+  </Tab>
+</Tabs>
+
+### Multiple filters and logic
+
+Combine filters with AND/OR logic:
+
+<CodeGroup>
+```typescript AND Logic (All conditions must match)
+// Show opportunities where:
+stage = "Proposal" AND
+amount > 50000 AND
+closeDate <= "2026-03-31"
+```
+
+```typescript OR Logic (Any condition matches)
+// Show companies where:
+industry = "Technology" OR
+industry = "Software" OR
+annualRevenue > 10000000
+```
+
+```typescript Nested Groups
+// Show tasks where:
+(priority = "High" OR priority = "Urgent") AND
+status != "Completed" AND
+assignedTo = currentUser
+```
+</CodeGroup>
+
+<Steps>
+  <Step title="Add multiple filters">
+    Click "Add Filter" multiple times to create additional conditions.
+  </Step>
+  
+  <Step title="Toggle logic operator">
+    Click "AND" / "OR" button to switch between requiring all or any filters to match.
+  </Step>
+  
+  <Step title="Create filter groups">
+    Click "Add Group" to create nested filter logic for complex queries.
+  </Step>
+</Steps>
+
+<Tip>
+  Save commonly used filter combinations as separate views for quick access.
+</Tip>
+
+## Sorting records
+
+Control the order records appear in your view.
+
+### Single field sorting
+
+1. Click on any column header in table view
+2. Choose ascending (A→Z, 1→9) or descending (Z→A, 9→1)
+3. Icon appears in header showing sort direction
+
+### Multi-field sorting
+
+<Steps>
+  <Step title="Open sort menu">
+    Click the sort button in the view toolbar.
+  </Step>
+  
+  <Step title="Add sort fields">
+    Choose fields to sort by in order of priority:
+    
+    ```typescript Example: Multi-level sort
+    1. Sort by priority (High → Low)
+    2. Then by dueDate (Soonest first)
+    3. Then by name (A → Z)
+    ```
+  </Step>
+  
+  <Step title="Set sort direction">
+    For each field, choose ascending or descending order.
+  </Step>
+</Steps>
+
+<Info>
+  Sort order is preserved when you save the view. Each view can have its own sorting configuration.
+</Info>
+
+## Grouping records
+
+Group records by field values to organize data hierarchically.
+
+### Available for grouping
+
+- **SELECT fields**: Group by status, stage, category
+- **BOOLEAN fields**: Group by true/false
+- **RELATION fields**: Group by related record
+- **DATE fields**: Group by day, week, month, quarter, year
+
+### Using groups
+
+<Steps>
+  <Step title="Click group button">
+    In table view toolbar, click the group icon.
+  </Step>
+  
+  <Step title="Choose field">
+    Select which field to group by.
+  </Step>
+  
+  <Step title="Set granularity (dates only)">
+    For date fields, choose grouping level:
+    - Day
+    - Week
+    - Month
+    - Quarter
+    - Year
+  </Step>
+</Steps>
+
+Groups appear as collapsible sections in table view:
+
+```typescript Example: Grouped view
+▼ High Priority (12 records)
+  - Task 1
+  - Task 2
+  ...
+
+▼ Medium Priority (24 records)
+  - Task 13
+  - Task 14
+  ...
+
+▼ Low Priority (8 records)
+  - Task 37
+  - Task 38
+  ...
+```
+
+<Tip>
+  Combine grouping with filters and sorting for powerful data organization. For example: Group by status, filter to current week, sort by priority.
+</Tip>
+
+## Column management (Table view)
+
+### Show/hide columns
+
+1. Click the column settings icon (grid icon) in toolbar
+2. Toggle checkboxes to show or hide fields
+3. Hidden fields don't appear in the view but data is preserved
+
+### Reorder columns
+
+- **Drag column headers**: Click and drag header to new position
+- **Column settings menu**: Use up/down arrows in settings panel
+
+### Resize columns
+
+- **Drag border**: Hover over column border in header, drag to resize
+- **Auto-fit**: Double-click column border to auto-size to content
+- **Set width**: Right-click header for exact pixel width
+
+### Pin columns
+
+Keep important columns visible while scrolling:
+
+1. Right-click column header
+2. Select "Pin column"
+3. Pinned columns freeze on the left side
+
+<Info>
+  Column settings are saved per view. Different views can show different fields in different orders.
+</Info>
+
+## View visibility and sharing
+
+### Personal views
+
+- Only you can see and edit
+- Perfect for your individual workflows
+- Don't clutter team's view list
+
+### Shared views
+
+- Visible to everyone in the workspace
+- Team members can use but not edit (unless they have permissions)
+- Great for standardized reports and common workflows
+
+<Steps>
+  <Step title="Open view settings">
+    Click the three dots next to view name.
+  </Step>
+  
+  <Step title="Toggle visibility">
+    Switch between "Personal" and "Shared".
+  </Step>
+  
+  <Step title="Set as default (optional)">
+    Make this the default view that opens for all users.
+  </Step>
+</Steps>
+
+<Warning>
+  Shared views can be edited by workspace admins. Create personal copies of shared views if you need custom configurations.
+</Warning>
+
+## Best practices
+
+### View organization
+
+1. **Create purpose-specific views**: "My Open Tasks", "This Week's Opportunities", "Overdue Items"
+2. **Use descriptive names**: "Q1 Pipeline (>$50k)" is better than "View 3"
+3. **Limit shared views**: Only share views that benefit the whole team
+4. **Set sensible defaults**: The default view should be useful for most team members
+
+### Performance tips
+
+<Tip>
+  For large datasets, use filters to limit the number of records loaded. Views with 1,000+ records can be slow.
+</Tip>
+
+- Filter before grouping or sorting
+- Hide unused columns to speed up rendering
+- Use date filters to show only recent records
+- Limit displayed fields in kanban cards
+
+### Common view patterns
+
+<Tabs>
+  <Tab title="Sales Pipeline">
+    **View: Active Opportunities**
+    - Type: Kanban
+    - Group by: Stage
+    - Filter: closeDate within next 90 days
+    - Sort: amount (descending)
+  </Tab>
+  
+  <Tab title="Task Management">
+    **View: My This Week**
+    - Type: Table
+    - Filter: assignedTo = currentUser AND status != "Completed"
+    - Group by: priority
+    - Sort: dueDate (ascending)
+  </Tab>
+  
+  <Tab title="Customer Support">
+    **View: Open Tickets**
+    - Type: Table
+    - Filter: status IN ["Open", "In Progress"]
+    - Group by: priority
+    - Sort: createdAt (newest first)
+  </Tab>
+  
+  <Tab title="Events Calendar">
+    **View: Upcoming Events**
+    - Type: Calendar
+    - Date field: eventDate
+    - Filter: eventDate > today
+    - Initial view: Month
+  </Tab>
+</Tabs>
+
+## Keyboard shortcuts
+
+Speed up view navigation with shortcuts:
+
+- `Cmd/Ctrl + K`: Open command palette → quick view switching
+- `Cmd/Ctrl + F`: Focus search/filter box
+- `Cmd/Ctrl + Click`: Select multiple records
+- `Shift + Click`: Select range of records
+- `Arrow keys`: Navigate between cells (table view)
+- `Enter`: Edit selected cell (table view)
+- `Esc`: Cancel edit
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Objects and fields" icon="database" href="/core-concepts/objects-and-fields">
+    Understand the data structure behind your views
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/core-concepts/workflows">
+    Automate actions when records match view filters
+  </Card>
+  <Card title="API filtering" icon="code" href="/developers/api/graphql-api">
+    Apply filters programmatically via API
+  </Card>
+  <Card title="Permissions" icon="shield-halved" href="/core-concepts/permissions">
+    Control who can see which records in views
+  </Card>
+</CardGroup>

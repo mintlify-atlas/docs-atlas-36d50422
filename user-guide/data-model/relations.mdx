@@ -1,0 +1,447 @@
+---
+title: Defining Relations
+description: Connect your data with relationships
+icon: link
+---
+
+Relations connect your objects together, creating a powerful network of data that reflects your business relationships.
+
+## Understanding Relations
+
+Relations link records between objects:
+
+- A **Company** has many **People** (employees, contacts)
+- A **Person** belongs to a **Company**
+- A **Project** has many **Tasks**
+- An **Opportunity** belongs to a **Company**
+
+Relations help you:
+- Navigate between connected records
+- See all related information in one place
+- Build comprehensive reports
+- Create workflows that span objects
+
+## Types of Relations
+
+Twenty supports two types of relations:
+
+### One-to-Many Relations
+
+One record connects to multiple records in another object.
+
+**Examples:**
+- One Company → Many People
+- One Project → Many Tasks
+- One Account → Many Opportunities
+
+**Characteristics:**
+- The "many" side can only link to one record on the "one" side
+- Most common relationship type
+- Creates parent-child hierarchies
+
+### Many-to-Many Relations
+
+Multiple records connect to multiple records.
+
+**Examples:**
+- Projects ↔ Team Members (people work on multiple projects)
+- Products ↔ Categories (products can be in multiple categories)
+- Opportunities ↔ Contacts (deals involve multiple people)
+
+**Characteristics:**
+- Records on both sides can have multiple connections
+- More flexible but more complex
+- Creates network structures
+
+## Creating a Relation
+
+<Steps>
+  <Step title="Navigate to object settings">
+    Go to **Settings → Data Model → Objects** and select the object where you want to add the relation.
+  </Step>
+  
+  <Step title="Go to Fields tab">
+    Click the **Fields** tab to see all fields.
+  </Step>
+  
+  <Step title="Create new field">
+    Click **+ New Field** and select **Relation** as the field type.
+  </Step>
+  
+  <Step title="Choose related object">
+    Select which object you want to connect to.
+    
+    **Example:** For a Projects object, you might relate to:
+    - Companies (which client)
+    - People (team members)
+    - Opportunities (related deals)
+  </Step>
+  
+  <Step title="Configure relation type">
+    Choose the relationship type:
+    
+    **One-to-Many:**
+    ```
+    Project → Company
+    (Each project belongs to one company)
+    ```
+    
+    **Many-to-Many:**
+    ```
+    Project ↔ People
+    (Projects have multiple team members, people work on multiple projects)
+    ```
+  </Step>
+  
+  <Step title="Name the relation">
+    Give the relation a clear name:
+    
+    **From this object:**
+    ```
+    Field name: Company
+    (Shows "Company" field on Project records)
+    ```
+    
+    **Inverse field (optional):**
+    ```
+    Field name: Projects
+    (Shows "Projects" field on Company records)
+    ```
+  </Step>
+  
+  <Step title="Save the relation">
+    Click **Save** to create the relation field. Both objects now have relation fields.
+  </Step>
+</Steps>
+
+<Info>
+When you create a relation, Twenty can automatically create the inverse field on the related object.
+</Info>
+
+## Relation Field Settings
+
+### Basic Configuration
+
+<CardGroup cols={2}>
+  <Card title="Field Name" icon="tag">
+    What you call this relation from this object's perspective
+  </Card>
+  
+  <Card title="Related Object" icon="cube">
+    Which object this field connects to
+  </Card>
+  
+  <Card title="Relation Type" icon="arrows-left-right">
+    One-to-many or many-to-many
+  </Card>
+  
+  <Card title="Inverse Field" icon="arrow-right-arrow-left">
+    Name of the field on the related object pointing back
+  </Card>
+</CardGroup>
+
+### Display Options
+
+- **Icon** - Visual identifier in the interface
+- **Description** - Explain what the relation represents
+- **Position** - Where the field appears in views
+
+## Working with Relations
+
+### Adding Related Records
+
+In a relation field:
+
+1. Click the relation field
+2. Search for existing records or create new ones
+3. Select the record(s) to link
+4. The relation appears on both records
+
+### Viewing Related Records
+
+**In table views:**
+- Relation fields show linked record names
+- Click to navigate to the related record
+- See count when multiple records are linked
+
+**In record details:**
+- Related records appear in the sidebar
+- See all connections at a glance
+- Click to navigate or add more
+
+**In timeline:**
+- Activity from related records can appear in timeline
+- Track changes across connected records
+
+### Removing Relations
+
+To unlink records:
+
+1. Open the record with the relation
+2. Click the relation field
+3. Click the X next to the linked record
+4. The relation is removed (records are not deleted)
+
+<Warning>
+Removing a relation only removes the link. Both records still exist.
+</Warning>
+
+## Example Scenarios
+
+### Scenario 1: Company → People (One-to-Many)
+
+**Setup:**
+```yaml
+Object: People
+Relation Field: Company
+Type: One-to-Many
+Related Object: Companies
+Inverse Field: Employees
+```
+
+**Result:**
+- Each Person record has a "Company" field
+- Each Company record has an "Employees" field showing all people
+- A person can only work for one company (in this model)
+
+**Use Case:**
+Track which company each contact works for. View all employees when looking at a company record.
+
+### Scenario 2: Projects ↔ People (Many-to-Many)
+
+**Setup:**
+```yaml
+Object: Projects
+Relation Field: Team Members
+Type: Many-to-Many
+Related Object: People
+Inverse Field: Projects
+```
+
+**Result:**
+- Each Project can have multiple Team Members
+- Each Person can be assigned to multiple Projects
+- Both sides show all connections
+
+**Use Case:**
+Assign people to projects. See all projects a person is working on from their record.
+
+### Scenario 3: Multi-Level Relations
+
+Connect multiple objects in a chain:
+
+```yaml
+Opportunity → Company → People
+```
+
+**Setup:**
+```yaml
+1. Opportunity → Company (one-to-many)
+   Field: Account
+   Inverse: Opportunities
+
+2. Company → People (one-to-many)
+   Field: Company
+   Inverse: Employees
+```
+
+**Result:**
+- See which company an opportunity belongs to
+- See all people at that company
+- Create workflows that span all three objects
+
+## Relation Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the right relation type">
+    Think about your business logic:
+    
+    **One-to-Many when:**
+    - Records have a clear parent-child relationship
+    - The "many" side belongs to only one parent
+    - Example: Tasks belong to one Project
+    
+    **Many-to-Many when:**
+    - Both sides can have multiple connections
+    - No strict hierarchy exists
+    - Example: Products can be in multiple Categories
+  </Accordion>
+  
+  <Accordion title="Name relations from the record's perspective">
+    Use names that make sense when viewing the record:
+    
+    ✅ **On Project record:**
+    - "Company" (which company owns this project)
+    - "Team Members" (who's working on it)
+    
+    ✅ **On Company record:**
+    - "Projects" (what projects they have)
+    - "Employees" (who works there)
+    
+    Avoid generic names like "Related Items" or "Links".
+  </Accordion>
+  
+  <Accordion title="Create inverse fields">
+    Always create the inverse field so you can navigate both directions:
+    
+    ```
+    Project → Company (shows company on project)
+    Company → Projects (shows projects on company)
+    ```
+    
+    This creates a true bidirectional relationship.
+  </Accordion>
+  
+  <Accordion title="Document complex relationships">
+    Use field descriptions to explain:
+    - What the relation represents
+    - When to use it
+    - Any business rules
+    
+    Example:
+    ```
+    Field: Primary Contact
+    Description: "Main point of contact for this opportunity. 
+                  Must be an employee of the related company."
+    ```
+  </Accordion>
+  
+  <Accordion title="Consider performance with many-to-many">
+    Many-to-many relations are powerful but can impact performance:
+    - Use for legitimate many-to-many scenarios
+    - Avoid if one-to-many would work
+    - Consider if you need to track additional info about the connection
+  </Accordion>
+  
+  <Accordion title="Plan your data model">
+    Sketch relationships before building:
+    
+    ```
+    Company
+      ↓ (1-to-many)
+    People
+      ↓ (1-to-many)
+    Opportunities
+      ↓ (1-to-many)
+    Activities
+    ```
+    
+    Understanding the full structure helps avoid restructuring later.
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Relation Patterns
+
+### Self-Referencing Relations
+
+An object can relate to itself:
+
+**Example - Organizational Hierarchy:**
+```yaml
+Object: People
+Relation Field: Manager
+Type: One-to-Many
+Related Object: People (same object)
+Inverse Field: Direct Reports
+```
+
+**Result:**
+- Each person can have a manager
+- Each person can have direct reports
+- Creates org chart structure
+
+### Junction Objects
+
+For many-to-many relations with additional data:
+
+**Example - Project Assignments:**
+
+Instead of direct many-to-many, create a junction object:
+
+```yaml
+Project → Assignment ← Person
+
+Assignment object includes:
+- Role (on this project)
+- Allocation (% of time)
+- Start Date
+- End Date
+```
+
+This lets you track more than just the connection.
+
+### Cascading Relations
+
+Chain multiple relations:
+
+```yaml
+Opportunity → Company → Account Manager
+```
+
+In workflows, you can access:
+- The opportunity details
+- The company information
+- The account manager's info
+
+All through the relation chain.
+
+## Relation Filters
+
+Use relations in view filters:
+
+```yaml
+Show me all Projects where:
+- Company.Industry = "Technology"
+- Team Members.Role = "Designer"
+```
+
+Relation filters let you query across objects.
+
+<Card title="Learn More" icon="filter" href="/user-guide/views/filters-and-sorting">
+See the Filters guide for advanced filtering →
+</Card>
+
+## Managing Relations
+
+### Editing Relations
+
+<Warning>
+You cannot change a relation's type or target object after creation. Create a new relation and migrate data instead.
+</Warning>
+
+You can edit:
+- Field name
+- Description
+- Icon
+- Display settings
+
+### Deleting Relations
+
+<Warning>
+Deleting a relation field removes all links between records. The records themselves are not deleted.
+</Warning>
+
+To delete:
+
+1. Go to **Settings → Data Model → Objects → [Object] → Fields**
+2. Select the relation field
+3. Click **Delete**
+4. Confirm the action
+
+Both sides of the relation are removed.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Table Views" icon="table" href="/user-guide/views/table-views">
+    Work with related records in table views
+  </Card>
+  
+  <Card title="Workflow Automation" icon="bolt" href="/user-guide/workflows/automation">
+    Create workflows that use relations
+  </Card>
+  
+  <Card title="Filters and Sorting" icon="filter" href="/user-guide/views/filters-and-sorting">
+    Filter by related record properties
+  </Card>
+</CardGroup>

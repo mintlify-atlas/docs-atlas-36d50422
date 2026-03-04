@@ -1,0 +1,418 @@
+---
+title: "AI Email Generation"
+description: "Generate professional email drafts with AI assistance"
+---
+
+## Overview
+
+Twenty's AI email generation helps you write emails faster by generating professional drafts based on context and your instructions. Whether you're reaching out to a new lead, following up on a meeting, or sending a proposal, AI can help you craft the perfect message.
+
+## How It Works
+
+The AI email generator:
+
+1. **Analyzes context** - Reviews the contact, company, and related records
+2. **Understands your goal** - Takes your prompt or instructions
+3. **Generates a draft** - Creates a professional email matching your intent
+4. **Allows customization** - Lets you refine tone, length, and content
+
+## Using AI Email Generation
+
+### From a Contact or Company Record
+
+<Steps>
+  <Step title="Open a Record">
+    Navigate to a contact or company where you want to send an email.
+  </Step>
+  <Step title="Click Compose Email">
+    In the activity panel, click **Compose Email** or **Send Email**.
+  </Step>
+  <Step title="Click the AI Button">
+    Look for the AI sparkle icon in the email composer.
+  </Step>
+  <Step title="Enter Your Prompt">
+    Describe what you want to say. Examples:
+    - "Write a cold outreach email introducing our product"
+    - "Follow up on last week's meeting about the Q1 proposal"
+    - "Ask if they're available for a call next Tuesday"
+  </Step>
+  <Step title="Generate and Review">
+    Click **Generate**. The AI will create a draft based on your prompt and the record's context.
+  </Step>
+  <Step title="Customize and Send">
+    Edit the draft as needed, then click **Send**.
+  </Step>
+</Steps>
+
+### From Workflows
+
+Automate email generation in workflows:
+
+1. Create a workflow with an email action
+2. Enable **AI Email Generation**
+3. Provide a prompt template with variables
+4. The workflow generates and sends emails automatically
+
+Example workflow:
+```plaintext
+Trigger: New lead created
+Action: Generate and send welcome email
+Prompt: "Write a friendly welcome email to {{firstName}}, 
+        mentioning their interest in {{productInterest}}"
+```
+
+## Prompt Examples
+
+### Cold Outreach
+
+**Prompt:**
+```
+Write a cold outreach email introducing Twenty CRM to {{firstName}}.
+Mention that I noticed their company {{companyName}} recently raised
+funding and might need a better CRM solution. Keep it under 150 words.
+```
+
+**Generated Email:**
+```
+Subject: Better CRM for {{companyName}}'s growth
+
+Hi {{firstName}},
+
+I noticed {{companyName}} recently announced your Series A funding—
+congratulations! As you scale your team, you'll likely need a CRM that
+can keep up with your growth.
+
+Twenty is an open-source CRM built for fast-growing companies. Unlike
+traditional CRMs, Twenty is:
+- Fully customizable to your workflow
+- Developer-friendly with a GraphQL API
+- Affordable and transparent pricing
+
+Would you be open to a quick 15-minute call to see if Twenty could help
+{{companyName}} manage relationships as you scale?
+
+Best,
+[Your name]
+```
+
+### Follow-Up
+
+**Prompt:**
+```
+Follow up on our meeting last Tuesday where we discussed their need
+for better pipeline visibility. Mention the demo I promised to send.
+Keep it brief and friendly.
+```
+
+**Generated Email:**
+```
+Subject: Demo and next steps
+
+Hi {{firstName}},
+
+Great chatting with you last Tuesday about {{companyName}}'s pipeline
+visibility challenges.
+
+As promised, here's a quick demo video showing how Twenty's custom
+views and dashboards could give your team real-time insight into your
+sales pipeline: [demo link]
+
+Let me know if you'd like to see this in action with your actual data.
+Happy to set up a personalized walkthrough anytime this week.
+
+Cheers,
+[Your name]
+```
+
+### Meeting Request
+
+**Prompt:**
+```
+Ask {{firstName}} if they're available for a 30-minute intro call
+next week to discuss how Twenty could help with their sales process.
+Be professional but approachable.
+```
+
+**Generated Email:**
+```
+Subject: Quick call about {{companyName}}'s sales process?
+
+Hi {{firstName}},
+
+I'd love to learn more about how {{companyName}} currently manages
+your sales process and share some ideas on how Twenty might help.
+
+Would you have 30 minutes sometime next week for a quick intro call?
+I'm flexible on timing—happy to work around your schedule.
+
+Looking forward to connecting!
+
+Best,
+[Your name]
+```
+
+### Thank You
+
+**Prompt:**
+```
+Thank {{firstName}} for taking our call yesterday and reiterate the
+key points we discussed about pricing and implementation timeline.
+```
+
+**Generated Email:**
+```
+Subject: Thanks for your time yesterday
+
+Hi {{firstName}},
+
+Thanks for taking the time to speak with me yesterday about Twenty.
+
+As we discussed:
+- Pricing: $15/user/month on our Growth plan
+- Implementation: Typically 2-3 weeks with our onboarding support
+- Custom fields: Unlimited, with full API access
+
+I'll send over that case study you asked about by end of week.
+
+Let me know if any other questions come up!
+
+Best,
+[Your name]
+```
+
+## Customizing Tone and Style
+
+### Tone Instructions
+
+Adjust the email tone with prompt modifiers:
+
+- **Formal:** "Write a formal email..."
+- **Friendly:** "Write a casual, friendly email..."
+- **Professional:** "Write a professional but warm email..."
+- **Brief:** "Write a short, direct email..."
+- **Detailed:** "Write a comprehensive email..."
+
+### Length Control
+
+Specify desired length:
+
+- "Keep it under 100 words"
+- "Write 2-3 short paragraphs"
+- "Make it brief—just a few sentences"
+- "Provide detailed information"
+
+### Style Preferences
+
+Add style instructions:
+
+- "Use bullet points for key features"
+- "Include a clear call-to-action"
+- "Add a subject line suggestion"
+- "Don't use sales-y language"
+- "Make it conversational"
+
+## Advanced Features
+
+### Context Variables
+
+The AI has access to:
+
+- Contact name, title, company
+- Recent activities and notes
+- Previous email threads
+- Custom field data
+- Related records
+
+Reference these in prompts:
+```
+Mention that {{firstName}} is the {{jobTitle}} at {{companyName}}
+and reference our conversation about {{customField}}
+```
+
+### Multi-Step Generation
+
+Refine drafts iteratively:
+
+1. Generate initial draft
+2. Click **Regenerate** with modifications:
+   - "Make it more formal"
+   - "Shorten the second paragraph"
+   - "Add more details about pricing"
+3. Continue until satisfied
+
+### Email Templates with AI
+
+Combine templates with AI:
+
+1. Create a template structure
+2. Use AI to fill in dynamic content
+3. Variables are replaced with context
+
+Example template:
+```
+Subject: {{subject}}
+
+{{ai_intro}}
+
+{{product_description}}
+
+{{ai_call_to_action}}
+
+{{signature}}
+```
+
+## Best Practices
+
+### 1. Provide Context
+
+Better prompts = better emails:
+
+**Vague:**
+```
+Write an email
+```
+
+**Specific:**
+```
+Write a follow-up email to {{firstName}} about the pricing proposal
+I sent last week. Mention that I'm offering a 20% discount if they
+sign by end of month. Keep it friendly but professional.
+```
+
+### 2. Review and Edit
+
+Always review AI-generated content:
+
+- Check for accuracy
+- Verify contact information
+- Ensure tone is appropriate
+- Add personal touches
+- Fix any errors
+
+### 3. Personalize
+
+Add human elements:
+
+- Reference specific conversations
+- Include personal anecdotes
+- Use the recipient's own words
+- Add a personal sign-off
+
+### 4. Test Different Prompts
+
+Experiment with variations:
+
+- Try different tones
+- Adjust length
+- Test various structures
+- Learn what works best
+
+### 5. Use in Workflows
+
+Automate repetitive emails:
+
+- Welcome sequences
+- Follow-up cadences
+- Meeting confirmations
+- Status updates
+
+## Limitations
+
+### What AI Email Generation Cannot Do
+
+- **Send emails automatically** - You must review and send
+- **Access external data** - Only uses data in Twenty
+- **Make business decisions** - You choose the message
+- **Replace personal touch** - Always review and customize
+
+### When Not to Use AI
+
+- Highly sensitive communications
+- Legal or compliance matters
+- Personal condolences or celebrations
+- Complex negotiations
+- When authenticity is critical
+
+<Warning>
+Always review AI-generated emails before sending. AI can make mistakes or miss important context that only you would know.
+</Warning>
+
+## Configuration
+
+### For Cloud Users
+
+AI email generation is enabled by default. Configure preferences in:
+
+**Settings** > **AI** > **Email Generation**
+
+- Default tone
+- Default length
+- Auto-generation triggers
+
+### For Self-Hosted Users
+
+Enable email generation:
+
+```bash
+# .env configuration
+AI_ENABLED=true
+AI_EMAIL_GENERATION_ENABLED=true
+
+# Model selection (optional)
+AI_EMAIL_MODEL=gpt-4
+```
+
+## Troubleshooting
+
+### Email Not Generating
+
+If generation fails:
+
+1. Check AI features are enabled
+2. Verify sufficient AI credits/quota
+3. Ensure prompt is clear and specific
+4. Check internet connectivity
+5. Review error message for details
+
+### Poor Quality Results
+
+If generated emails are low quality:
+
+1. Provide more context in your prompt
+2. Be more specific about tone and style
+3. Include relevant variables
+4. Try regenerating with modifications
+5. Use a more advanced model (GPT-4 vs GPT-3.5)
+
+### Incorrect Information
+
+If emails contain wrong details:
+
+1. Verify record data is accurate
+2. Check variable names in prompt
+3. Update contact/company information
+4. Be explicit about what to include
+
+## Privacy and Security
+
+- **Data handling** - Email content is sent to AI provider for generation
+- **No storage** - Prompts and drafts are not saved by AI provider
+- **Encryption** - All data is encrypted in transit
+- **Compliance** - Meets GDPR and SOC 2 requirements
+
+<Tip>
+For maximum privacy, self-host Twenty and use a local AI model provider.
+</Tip>
+
+## Implementation Details
+
+Email generation uses:
+
+- AI agent execution service: `ai-agent-execution/services/agent-async-executor.service.ts`
+- Smart models (GPT-4 or Claude) for quality
+- Context from Twenty's GraphQL API
+- Token-based usage billing
+
+<Card title="Need Help?" icon="question" href="https://discord.gg/cx5n4Jzs57">
+  Get help with AI email generation on Discord.
+</Card>

@@ -1,0 +1,770 @@
+---
+title: REST API
+description: Use the REST API for simple integrations
+icon: brackets-curly
+---
+
+Twenty provides a REST API as an alternative to GraphQL for simpler integrations and quick access to your CRM data.
+
+## Overview
+
+The REST API offers:
+- **Simple HTTP methods** - Standard GET, POST, PATCH, DELETE
+- **JSON format** - Familiar request and response structure
+- **Same authentication** - Uses API keys like GraphQL
+- **Auto-generated** - Automatically derived from GraphQL schema
+- **Full CRUD** - Complete data access
+
+## Base URL
+
+<CodeGroup>
+```bash Production
+https://api.twenty.com/rest
+```
+
+```bash Self-Hosted
+https://your-domain.com/rest
+```
+
+```bash Local Development
+http://localhost:3000/rest
+```
+</CodeGroup>
+
+## Authentication
+
+Include your API key in the Authorization header:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+Generate an API key at **Settings** → **API & Webhooks** in your Twenty workspace.
+
+## Endpoints
+
+REST endpoints follow the pattern:
+
+```
+{BASE_URL}/{object-name}/{id?}
+```
+
+Examples:
+- `/rest/people` - People collection
+- `/rest/people/{id}` - Specific person
+- `/rest/companies` - Companies collection
+- `/rest/opportunities/{id}` - Specific opportunity
+
+## CRUD Operations
+
+### List Records (GET)
+
+Retrieve multiple records:
+
+```bash
+curl https://api.twenty.com/rest/people \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "jobTitle": "Software Engineer",
+      "createdAt": "2024-03-04T10:00:00Z",
+      "updatedAt": "2024-03-04T10:00:00Z"
+    }
+  ],
+  "pageInfo": {
+    "hasNextPage": true,
+    "hasPreviousPage": false,
+    "startCursor": "cursor-start",
+    "endCursor": "cursor-end"
+  }
+}
+```
+
+### Get One Record (GET)
+
+Retrieve a specific record:
+
+```bash
+curl https://api.twenty.com/rest/people/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "+1-555-0100",
+    "jobTitle": "Software Engineer",
+    "company": {
+      "id": "company-id",
+      "name": "Acme Corp"
+    },
+    "createdAt": "2024-03-04T10:00:00Z",
+    "updatedAt": "2024-03-04T10:00:00Z"
+  }
+}
+```
+
+### Create Record (POST)
+
+Create a new record:
+
+```bash
+curl -X POST https://api.twenty.com/rest/people \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane@example.com",
+    "jobTitle": "Product Manager"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "new-record-id",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "email": "jane@example.com",
+    "jobTitle": "Product Manager",
+    "createdAt": "2024-03-04T11:00:00Z",
+    "updatedAt": "2024-03-04T11:00:00Z"
+  }
+}
+```
+
+### Update Record (PATCH)
+
+Update an existing record:
+
+```bash
+curl -X PATCH https://api.twenty.com/rest/people/record-id \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jobTitle": "Senior Product Manager",
+    "phone": "+1-555-0200"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "record-id",
+    "jobTitle": "Senior Product Manager",
+    "phone": "+1-555-0200",
+    "updatedAt": "2024-03-04T12:00:00Z"
+  }
+}
+```
+
+### Delete Record (DELETE)
+
+Soft-delete a record:
+
+```bash
+curl -X DELETE https://api.twenty.com/rest/people/record-id \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "record-id",
+    "deletedAt": "2024-03-04T13:00:00Z"
+  }
+}
+```
+
+<Note>
+  Delete operations are soft deletes. Records are marked as deleted but not permanently removed.
+</Note>
+
+## Query Parameters
+
+### Filtering
+
+Filter records using query parameters:
+
+```bash
+# Filter by field value
+curl "https://api.twenty.com/rest/people?filter[email][contains]=example.com" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Multiple filters
+curl "https://api.twenty.com/rest/people?filter[jobTitle][contains]=engineer&filter[email][isNot]=null" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Sorting
+
+Sort results:
+
+```bash
+# Sort by one field
+curl "https://api.twenty.com/rest/people?orderBy[createdAt]=DESC" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Sort by multiple fields
+curl "https://api.twenty.com/rest/companies?orderBy[employees]=DESC&orderBy[name]=ASC" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Pagination
+
+```bash
+# First page (default limit: 50)
+curl "https://api.twenty.com/rest/people?limit=10" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Next page using cursor
+curl "https://api.twenty.com/rest/people?limit=10&after=cursor-from-previous-page" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Select Fields
+
+Request specific fields:
+
+```bash
+curl "https://api.twenty.com/rest/people?fields=id,firstName,lastName,email" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Batch Operations
+
+### Create Multiple Records
+
+```bash
+curl -X POST https://api.twenty.com/rest/batch/people \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+      "firstName": "Alice",
+      "email": "alice@example.com"
+    },
+    {
+      "firstName": "Bob",
+      "email": "bob@example.com"
+    }
+  ]'
+```
+
+### Find Duplicates
+
+```bash
+curl -X POST https://api.twenty.com/rest/people/duplicates \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com"
+  }'
+```
+
+### Merge Records
+
+```bash
+curl -X PATCH https://api.twenty.com/rest/people/merge \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sourceId": "duplicate-record-id",
+    "targetId": "primary-record-id"
+  }'
+```
+
+## Advanced Features
+
+### Group By
+
+Group records by field:
+
+```bash
+curl "https://api.twenty.com/rest/opportunities/groupBy?field=stage" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "stage": "PROSPECTING",
+      "count": 15,
+      "sum": { "amount": 150000 }
+    },
+    {
+      "stage": "QUALIFIED",
+      "count": 8,
+      "sum": { "amount": 220000 }
+    }
+  ]
+}
+```
+
+### Restore Deleted Records
+
+```bash
+curl -X PATCH https://api.twenty.com/rest/restore/people/record-id \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Client Libraries
+
+### JavaScript/TypeScript
+
+```javascript
+const axios = require('axios');
+
+class TwentyRestClient {
+  constructor(apiKey, baseUrl = 'https://api.twenty.com') {
+    this.client = axios.create({
+      baseURL: `${baseUrl}/rest`,
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+  
+  async findMany(object, params = {}) {
+    const response = await this.client.get(`/${object}`, { params });
+    return response.data;
+  }
+  
+  async findOne(object, id) {
+    const response = await this.client.get(`/${object}/${id}`);
+    return response.data;
+  }
+  
+  async create(object, data) {
+    const response = await this.client.post(`/${object}`, data);
+    return response.data;
+  }
+  
+  async update(object, id, data) {
+    const response = await this.client.patch(`/${object}/${id}`, data);
+    return response.data;
+  }
+  
+  async delete(object, id) {
+    const response = await this.client.delete(`/${object}/${id}`);
+    return response.data;
+  }
+}
+
+// Usage
+const client = new TwentyRestClient(process.env.TWENTY_API_KEY);
+
+const people = await client.findMany('people', {
+  limit: 10,
+  'filter[email][contains]': 'example.com',
+});
+
+const person = await client.create('people', {
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+});
+```
+
+### Python
+
+```python
+import requests
+
+class TwentyRestClient:
+    def __init__(self, api_key, base_url="https://api.twenty.com"):
+        self.base_url = f"{base_url}/rest"
+        self.headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+    
+    def find_many(self, object_name, params=None):
+        response = requests.get(
+            f"{self.base_url}/{object_name}",
+            headers=self.headers,
+            params=params
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def find_one(self, object_name, record_id):
+        response = requests.get(
+            f"{self.base_url}/{object_name}/{record_id}",
+            headers=self.headers
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def create(self, object_name, data):
+        response = requests.post(
+            f"{self.base_url}/{object_name}",
+            headers=self.headers,
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def update(self, object_name, record_id, data):
+        response = requests.patch(
+            f"{self.base_url}/{object_name}/{record_id}",
+            headers=self.headers,
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def delete(self, object_name, record_id):
+        response = requests.delete(
+            f"{self.base_url}/{object_name}/{record_id}",
+            headers=self.headers
+        )
+        response.raise_for_status()
+        return response.json()
+
+# Usage
+client = TwentyRestClient(os.environ["TWENTY_API_KEY"])
+
+people = client.find_many("people", params={
+    "limit": 10,
+    "filter[email][contains]": "example.com"
+})
+
+person = client.create("people", {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+})
+```
+
+## Request Examples
+
+### Create with Relations
+
+Create a record with relations to other records:
+
+```bash
+curl -X POST https://api.twenty.com/rest/people \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "company": {
+      "connect": "company-id"
+    }
+  }'
+```
+
+### Update Relations
+
+```bash
+curl -X PATCH https://api.twenty.com/rest/people/person-id \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "company": {
+      "connect": "new-company-id"
+    }
+  }'
+```
+
+### Complex Filtering
+
+```bash
+# AND conditions
+curl "https://api.twenty.com/rest/people?filter[email][isNot]=null&filter[jobTitle][contains]=engineer" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Date range
+curl "https://api.twenty.com/rest/opportunities?filter[createdAt][gte]=2024-01-01&filter[createdAt][lte]=2024-12-31" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Numeric comparison
+curl "https://api.twenty.com/rest/opportunities?filter[amount][gt]=10000" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Response Format
+
+### Success Response
+
+All successful responses include a `data` field:
+
+```json
+{
+  "data": { /* record or array of records */ },
+  "pageInfo": { /* pagination info (for list queries) */ }
+}
+```
+
+### Error Response
+
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "error": "Bad Request",
+  "details": {
+    "field": "email",
+    "message": "Email is required"
+  }
+}
+```
+
+## Status Codes
+
+<ResponseField name="200" type="OK">
+  Request successful
+</ResponseField>
+
+<ResponseField name="201" type="Created">
+  Resource created successfully
+</ResponseField>
+
+<ResponseField name="400" type="Bad Request">
+  Invalid request data
+</ResponseField>
+
+<ResponseField name="401" type="Unauthorized">
+  Missing or invalid API key
+</ResponseField>
+
+<ResponseField name="403" type="Forbidden">
+  Insufficient permissions
+</ResponseField>
+
+<ResponseField name="404" type="Not Found">
+  Resource not found
+</ResponseField>
+
+<ResponseField name="429" type="Too Many Requests">
+  Rate limit exceeded
+</ResponseField>
+
+<ResponseField name="500" type="Internal Server Error">
+  Server error
+</ResponseField>
+
+## Rate Limiting
+
+The REST API shares rate limits with the GraphQL API:
+
+- **Default** - 100 requests per minute
+- **Response headers** - Include rate limit information
+
+```bash
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1709546460
+```
+
+### Handle Rate Limits
+
+```javascript
+async function makeRequestWithRetry(url, options) {
+  try {
+    const response = await fetch(url, options);
+    
+    if (response.status === 429) {
+      const resetTime = response.headers.get('X-RateLimit-Reset');
+      const waitTime = (resetTime * 1000) - Date.now();
+      
+      console.log(`Rate limited. Waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Retry
+      return await fetch(url, options);
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
+}
+```
+
+## REST vs GraphQL
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>REST API</th>
+      <th>GraphQL API</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Simplicity</td>
+      <td>Simpler, more familiar</td>
+      <td>More powerful, steeper learning curve</td>
+    </tr>
+    <tr>
+      <td>Flexibility</td>
+      <td>Fixed response structure</td>
+      <td>Request exactly what you need</td>
+    </tr>
+    <tr>
+      <td>Relations</td>
+      <td>Limited nested data</td>
+      <td>Deep nested queries</td>
+    </tr>
+    <tr>
+      <td>Type Safety</td>
+      <td>Manual types needed</td>
+      <td>Auto-generated types</td>
+    </tr>
+    <tr>
+      <td>Real-time</td>
+      <td>Not supported</td>
+      <td>Subscriptions available</td>
+    </tr>
+    <tr>
+      <td>Best For</td>
+      <td>Simple integrations, quick scripts</td>
+      <td>Complex apps, custom UIs</td>
+    </tr>
+  </tbody>
+</table>
+
+## Use Cases
+
+### REST is ideal for:
+
+- Quick scripts and automations
+- Simple integrations
+- Environments without GraphQL support
+- Webhook handlers
+- Testing and debugging
+
+### GraphQL is better for:
+
+- Complex nested data queries
+- Custom frontend applications
+- Real-time features
+- Type-safe development
+- Efficient data loading
+
+## Examples
+
+### Shell Script Integration
+
+```bash
+#!/bin/bash
+
+API_KEY="your-api-key"
+BASE_URL="https://api.twenty.com/rest"
+
+# Create person
+PERSON_ID=$(curl -s -X POST "$BASE_URL/people" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com"
+  }' | jq -r '.data.id')
+
+echo "Created person: $PERSON_ID"
+
+# Get person
+curl -s "$BASE_URL/people/$PERSON_ID" \
+  -H "Authorization: Bearer $API_KEY" | jq '.data'
+```
+
+### Node.js Integration
+
+```javascript
+const axios = require('axios');
+
+const API_KEY = process.env.TWENTY_API_KEY;
+const BASE_URL = 'https://api.twenty.com/rest';
+
+const client = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+});
+
+async function main() {
+  // Create company
+  const company = await client.post('/companies', {
+    name: 'Acme Corp',
+    website: 'https://acme.com',
+  });
+  
+  console.log('Created company:', company.data.data.id);
+  
+  // Create person at company
+  const person = await client.post('/people', {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@acme.com',
+    company: {
+      connect: company.data.data.id,
+    },
+  });
+  
+  console.log('Created person:', person.data.data.id);
+  
+  // List all people at company
+  const people = await client.get('/people', {
+    params: {
+      'filter[company][id][eq]': company.data.data.id,
+    },
+  });
+  
+  console.log('People at company:', people.data.data.length);
+}
+
+main().catch(console.error);
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="GraphQL API" icon="diagram-project" href="/developers/api/graphql-api">
+    More powerful GraphQL alternative
+  </Card>
+  <Card title="JavaScript SDK" icon="js" href="/developers/api/sdk">
+    Official SDK with better DX
+  </Card>
+  <Card title="Authentication" icon="shield" href="/developers/api/authentication">
+    API authentication guide
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/developers/extending/webhooks">
+    Set up webhooks
+  </Card>
+</CardGroup>

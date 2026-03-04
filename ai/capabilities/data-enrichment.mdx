@@ -1,0 +1,502 @@
+---
+title: "AI Data Enrichment"
+description: "Automatically enrich contact and company records with AI-powered data discovery"
+---
+
+## Overview
+
+AI data enrichment automatically fills in missing information about your contacts and companies. Instead of manually researching each record, Twenty's AI can find and populate data like job titles, company size, industry, social profiles, and more.
+
+## What Gets Enriched
+
+AI can discover and add:
+
+### For Contacts (People)
+
+- **Job information**
+  - Current job title
+  - Company name
+  - Department
+  - Seniority level
+
+- **Contact details**
+  - Email addresses
+  - Phone numbers
+  - Location/timezone
+
+- **Social profiles**
+  - LinkedIn URL
+  - Twitter handle
+  - GitHub profile
+  - Other professional networks
+
+- **Background**
+  - Education
+  - Previous companies
+  - Years of experience
+
+### For Companies
+
+- **Company details**
+  - Official name
+  - Industry/sector
+  - Company size (employee count)
+  - Founded year
+
+- **Location**
+  - Headquarters address
+  - Country/region
+  - Office locations
+
+- **Business information**
+  - Website URL
+  - Description
+  - Funding stage
+  - Revenue range
+
+- **Online presence**
+  - LinkedIn page
+  - Twitter account
+  - Logo URL
+
+## How It Works
+
+The enrichment process:
+
+1. **Analyze existing data** - AI reviews what you already have
+2. **Search intelligently** - Queries public data sources
+3. **Verify information** - Cross-references multiple sources
+4. **Populate fields** - Updates records with discovered data
+5. **Flag uncertainty** - Marks low-confidence matches for review
+
+<Note>
+AI enrichment uses publicly available information only. It does not access private databases or paid data providers unless you've configured integrations.
+</Note>
+
+## Using AI Enrichment
+
+### Manual Enrichment
+
+Enrich individual records on demand:
+
+<Steps>
+  <Step title="Open a Record">
+    Navigate to a contact or company record you want to enrich.
+  </Step>
+  <Step title="Click Enrich with AI">
+    In the record header or actions menu, click **Enrich with AI** (sparkle icon).
+  </Step>
+  <Step title="Review Suggestions">
+    AI will display suggested data to add:
+    - Green checkmarks indicate high confidence
+    - Yellow warnings indicate uncertain data
+    - You can accept or reject each field
+  </Step>
+  <Step title="Apply Changes">
+    Click **Apply All** to add all suggestions, or select individual fields to update.
+  </Step>
+  <Step title="Verify Results">
+    Review the updated record and make any manual corrections needed.
+  </Step>
+</Steps>
+
+### Bulk Enrichment
+
+Enrich multiple records at once:
+
+<Steps>
+  <Step title="Select Records">
+    In a table view, select multiple contacts or companies using checkboxes.
+  </Step>
+  <Step title="Open Bulk Actions">
+    Click the bulk actions menu at the top of the view.
+  </Step>
+  <Step title="Choose Enrich with AI">
+    Select **Enrich Selected Records**.
+  </Step>
+  <Step title="Configure Options">
+    Choose which fields to enrich:
+    - All empty fields
+    - Specific fields only
+    - Overwrite existing data (optional)
+  </Step>
+  <Step title="Start Enrichment">
+    Click **Start Enrichment**. Progress is shown in real-time.
+  </Step>
+  <Step title="Review Results">
+    Once complete, review records marked for manual review.
+  </Step>
+</Steps>
+
+<Tip>
+Bulk enrichment runs in the background. You can continue working while records are being enriched.
+</Tip>
+
+### Automatic Enrichment in Workflows
+
+Automate enrichment for new records:
+
+1. Create a workflow with a "Record Created" trigger
+2. Add an "Enrich with AI" action
+3. Configure which fields to populate
+4. Activate the workflow
+
+Example workflow:
+```plaintext
+Trigger: New contact created
+Condition: Email is not empty
+Action: Enrich with AI
+  - Find job title
+  - Find company
+  - Find LinkedIn profile
+  - Find location
+```
+
+Now every new contact is automatically enriched when created.
+
+## Enrichment Examples
+
+### Before and After: Contact
+
+**Before enrichment:**
+```
+Name: Sarah Chen
+Email: sarah.chen@acmecorp.com
+Company: [empty]
+Title: [empty]
+LinkedIn: [empty]
+Location: [empty]
+```
+
+**After enrichment:**
+```
+Name: Sarah Chen
+Email: sarah.chen@acmecorp.com
+Company: Acme Corporation
+Title: VP of Engineering
+LinkedIn: linkedin.com/in/sarahchen
+Location: San Francisco, CA
+Phone: [not found]
+```
+
+### Before and After: Company
+
+**Before enrichment:**
+```
+Name: Acme Corp
+Website: acmecorp.com
+Industry: [empty]
+Size: [empty]
+Location: [empty]
+Description: [empty]
+```
+
+**After enrichment:**
+```
+Name: Acme Corporation
+Website: acmecorp.com
+Industry: Enterprise Software
+Size: 500-1000 employees
+Location: San Francisco, CA, USA
+Founded: 2015
+Description: Acme Corporation provides cloud-based project
+             management solutions for enterprise teams.
+LinkedIn: linkedin.com/company/acme-corp
+Twitter: @acmecorp
+```
+
+## Advanced Features
+
+### Enrichment Confidence Scores
+
+Each enriched field has a confidence score:
+
+- **High (90-100%)** - Very likely accurate, auto-applied
+- **Medium (70-89%)** - Probably accurate, review recommended
+- **Low (below 70%)** - Uncertain, requires manual verification
+
+You can configure auto-apply thresholds in settings.
+
+### Field Priority
+
+Specify which fields to enrich first:
+
+1. Critical fields (email, phone, job title)
+2. Important fields (company, location)
+3. Nice-to-have (social profiles, background)
+
+This helps when enrichment credits are limited.
+
+### Source Attribution
+
+Twenty tracks where enriched data came from:
+
+- Public LinkedIn profiles
+- Company websites
+- Social media profiles
+- Public databases
+
+View sources in the field history.
+
+### Overwrite Protection
+
+By default, enrichment won't overwrite existing data. Configure this:
+
+- **Never overwrite** - Keep existing values
+- **Overwrite if empty** - Only fill blank fields (default)
+- **Always overwrite** - Replace with enriched data
+- **Overwrite if newer** - Update only if newer information found
+
+## Enrichment Strategies
+
+### Strategy 1: New Lead Enrichment
+
+Enrich leads immediately when they enter your CRM:
+
+```plaintext
+Workflow: New Lead Enrichment
+Trigger: Lead created (from form, import, or API)
+Actions:
+  1. Enrich contact with AI (email, title, location)
+  2. If company found, enrich company data
+  3. If high-value lead, notify sales rep
+```
+
+### Strategy 2: Scheduled Refresh
+
+Keep data fresh with periodic enrichment:
+
+```plaintext
+Workflow: Monthly Data Refresh
+Trigger: Scheduled (1st of month)
+Filter: Active contacts updated >90 days ago
+Action: Enrich with AI (job title, company, location)
+```
+
+### Strategy 3: Pre-Meeting Research
+
+Enrich contacts before scheduled meetings:
+
+```plaintext
+Workflow: Meeting Prep
+Trigger: Meeting scheduled (24 hours before)
+Actions:
+  1. Enrich contact and company with AI
+  2. Generate meeting brief
+  3. Send summary to meeting owner
+```
+
+### Strategy 4: Incomplete Record Cleanup
+
+Find and fix incomplete records:
+
+```plaintext
+Workflow: Cleanup Incomplete Records
+Trigger: Scheduled (weekly)
+Filter: Contacts with missing title OR missing company
+Action: Enrich with AI (all fields)
+```
+
+## Best Practices
+
+### 1. Start with High-Value Records
+
+Prioritize enrichment:
+
+- Active opportunities
+- Recent leads
+- Key accounts
+- Incomplete records with engagement
+
+### 2. Verify Critical Data
+
+Always manually verify:
+
+- Email addresses before sending
+- Phone numbers before calling
+- Job titles in proposals
+- Company names in contracts
+
+### 3. Combine with Other Sources
+
+Use AI enrichment alongside:
+
+- Form submissions (most accurate)
+- LinkedIn Sales Navigator
+- Email signatures
+- Business cards
+
+### 4. Monitor Data Quality
+
+Regularly review:
+
+- Enrichment accuracy rates
+- Fields with low confidence
+- Records needing manual review
+- Outdated information
+
+### 5. Set Budget Limits
+
+Control enrichment costs:
+
+- Set monthly enrichment caps
+- Prioritize important records
+- Use scheduled refreshes sparingly
+- Monitor AI credit usage
+
+## Limitations
+
+### What AI Enrichment Cannot Do
+
+- **Access private data** - Only uses public information
+- **Guarantee accuracy** - Data may be outdated or incorrect
+- **Find unlisted contacts** - Requires some public presence
+- **Enrich every field** - Some data may not be available
+
+### When Enrichment May Fail
+
+- Very common names (e.g., "John Smith")
+- Contacts with no online presence
+- Recently changed jobs
+- Companies with minimal public information
+- Non-English names or companies
+
+<Warning>
+AI enrichment provides suggestions, not verified facts. Always verify critical information before using it in important communications or decisions.
+</Warning>
+
+## Configuration
+
+### For Cloud Users
+
+Configure enrichment preferences:
+
+**Settings** > **AI** > **Data Enrichment**
+
+- Auto-enrichment triggers
+- Confidence thresholds
+- Fields to enrich
+- Overwrite settings
+- Monthly budget
+
+### For Self-Hosted Users
+
+Enable data enrichment:
+
+```bash
+# .env configuration
+AI_ENABLED=true
+AI_ENRICHMENT_ENABLED=true
+
+# Model configuration
+AI_ENRICHMENT_MODEL=gpt-4
+
+# Optional: External enrichment APIs
+CLEARBIT_API_KEY=your_key
+HUNTER_API_KEY=your_key
+```
+
+## Troubleshooting
+
+### No Data Found
+
+If enrichment finds nothing:
+
+1. Verify the contact/company has online presence
+2. Check spelling of names
+3. Provide more initial data (email, website)
+4. Try manual enrichment with different search terms
+
+### Incorrect Data
+
+If enriched data is wrong:
+
+1. Report the issue (helps improve AI)
+2. Manually correct the record
+3. Mark fields as "verified" to prevent overwriting
+4. Adjust confidence threshold
+
+### Slow Enrichment
+
+If enrichment is taking too long:
+
+1. Reduce number of fields to enrich
+2. Enrich smaller batches
+3. Use scheduled workflows for non-urgent enrichment
+4. Check API rate limits
+
+### Quota Exceeded
+
+If you hit enrichment limits:
+
+1. Check usage in **Settings** > **AI** > **Usage**
+2. Prioritize critical records
+3. Increase monthly budget
+4. Wait for quota reset
+
+## Privacy and Compliance
+
+### Data Sources
+
+AI enrichment uses:
+
+- Publicly available information
+- Website content
+- Social media profiles
+- Business directories
+- Public APIs (if configured)
+
+### GDPR Compliance
+
+Enrichment respects privacy:
+
+- Uses only public data
+- Supports right to erasure
+- Allows opt-out configuration
+- Logs all enrichment activities
+
+### Data Accuracy
+
+You are responsible for:
+
+- Verifying enriched data accuracy
+- Complying with data protection laws
+- Providing opt-out mechanisms
+- Maintaining data quality
+
+<Note>
+Before enriching records, ensure you have the legal right to collect and store the data for your business purposes.
+</Note>
+
+## Cost Management
+
+Enrichment consumes AI credits based on:
+
+- Number of records enriched
+- Number of fields per record
+- Model used (GPT-4 vs GPT-3.5)
+- Complexity of search
+
+Typical costs:
+- Contact enrichment: ~$0.05-0.10 per record
+- Company enrichment: ~$0.10-0.20 per record
+- Bulk enrichment: Volume discounts may apply
+
+<Tip>
+Use the "cost preview" feature before bulk enrichment to estimate expenses.
+</Tip>
+
+## Future Enhancements
+
+Upcoming enrichment features:
+
+- Real-time enrichment on page load
+- Custom enrichment rules
+- Integration with paid data providers
+- Technographic data (tech stack)
+- Intent signals
+- Predictive scoring
+
+<Card title="Share Feedback" icon="comments" href="https://github.com/twentyhq/twenty/discussions">
+  Have suggestions for data enrichment? Let us know on GitHub.
+</Card>

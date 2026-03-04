@@ -1,0 +1,847 @@
+---
+title: Troubleshooting
+description: Common issues and solutions for self-hosted Twenty instances
+icon: wrench
+---
+
+Resolve common issues when self-hosting Twenty and learn debugging techniques.
+
+## Connection Issues
+
+### Database Connection Failed
+
+**Symptoms:**
+- Server fails to start
+- Error: `ECONNREFUSED` or `could not connect to server`
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Verify PostgreSQL is running">
+    ```bash
+    # Check if PostgreSQL is accessible
+    pg_isready -h localhost -p 5432
+
+    # Docker Compose
+    docker compose ps db
+    docker compose logs db
+
+    # Kubernetes
+    kubectl get pods -n twenty -l app=twenty-postgres
+    kubectl logs -n twenty -l app=twenty-postgres
+    ```
+  </Accordion>
+
+  <Accordion title="Check connection string">
+    Verify your `PG_DATABASE_URL` format:
+    ```
+    postgres://username:password@host:port/database
+    ```
+
+    Common mistakes:
+    - Wrong host (use `db` in Docker, not `localhost`)
+    - Special characters in password need URL encoding
+    - Port mismatch (default is 5432)
+  </Accordion>
+
+  <Accordion title="Test database connection">
+    ```bash
+    # Docker Compose
+    docker compose exec server psql $PG_DATABASE_URL -c "SELECT 1;"
+
+    # Direct connection
+    psql postgres://postgres:postgres@localhost:5432/default -c "SELECT 1;"
+    ```
+  </Accordion>
+
+  <Accordion title="Create database if missing">
+    ```bash
+    # Docker Compose
+    docker compose exec db createdb -U postgres default
+
+    # Local PostgreSQL
+    createdb -U postgres default
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Redis Connection Failed
+
+**Symptoms:**
+- Worker fails to start
+- Error: `Redis connection failed`
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Verify Redis is running">
+    ```bash
+    # Check Redis
+    redis-cli ping
+    # Should return: PONG
+
+    # Docker Compose
+    docker compose ps redis
+    docker compose logs redis
+
+    # Kubernetes
+    kubectl get pods -n twenty -l app=twenty-redis
+    kubectl logs -n twenty -l app=twenty-redis
+    ```
+  </Accordion>
+
+  <Accordion title="Test Redis connection">
+    ```bash
+    # Docker Compose
+    docker compose exec server redis-cli -u $REDIS_URL ping
+
+    # Direct connection
+    redis-cli -u redis://localhost:6379 ping
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Migration Issues
+
+### Migrations Failed to Run
+
+**Symptoms:**
+- Server starts but database schema is incorrect
+- Error: `relation does not exist`
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Run migrations manually">
+    ```bash
+    # Docker Compose
+    docker compose exec server yarn database:migrate:prod
+
+    # Kubernetes
+    kubectl exec -n twenty deployment/twenty-server -- yarn database:migrate:prod
+
+    # Local development
+    npx nx run twenty-server:database:migrate:prod
+    ```
+  </Accordion>
+
+  <Accordion title="Reset database (development only)">
+    <Warning>
+      This will delete all data!
+    </Warning>
+
+    ```bash
+    # Docker Compose
+    docker compose exec server yarn database:reset
+
+    # Local development
+    npx nx database:reset twenty-server
+    ```
+  </Accordion>
+
+  <Accordion title="Check migration status">
+    ```bash
+    # Docker Compose
+    docker compose exec db psql -U postgres default -c \
+      "SELECT * FROM typeorm_migrations ORDER BY timestamp DESC LIMIT 5;"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Migration Lock Issues
+
+**Symptoms:**
+- Migrations stuck or timeout
+- Error: `could not obtain lock`
+
+**Solutions:**
+
+```bash
+# Check for locks
+docker compose exec db psql -U postgres default -c \
+  "SELECT * FROM pg_locks WHERE NOT granted;"
+
+# Kill blocking queries (use with caution)
+docker compose exec db psql -U postgres default -c \
+  "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction';"
+```
+
+## Performance Issues
+
+### Slow Query Performance
+
+**Symptoms:**
+- Pages load slowly
+- API requests timeout
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check database performance">
+    ```bash
+    # View slow queries
+    docker compose exec db psql -U postgres default -c \
+      "SELECT query, mean_exec_time, calls FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 10;"
+
+    # Check active connections
+    docker compose exec db psql -U postgres default -c \
+      "SELECT count(*) FROM pg_stat_activity;"
+    ```
+  </Accordion>
+
+  <Accordion title="Optimize database">
+    ```bash
+    # Analyze tables
+    docker compose exec db psql -U postgres default -c "ANALYZE;"
+
+    # Vacuum database
+    docker compose exec db psql -U postgres default -c "VACUUM ANALYZE;"
+
+    # Check database size
+    docker compose exec db psql -U postgres default -c \
+      "SELECT pg_size_pretty(pg_database_size('default'));"
+    ```
+  </Accordion>
+
+  <Accordion title="Check Redis cache">
+    ```bash
+    # Redis stats
+    docker compose exec redis redis-cli INFO stats
+
+    # Cache hit rate
+    docker compose exec redis redis-cli INFO stats | grep keyspace
+
+    # Clear cache if needed
+    docker compose exec redis redis-cli FLUSHDB
+    ```
+  </Accordion>
+
+  <Accordion title="Review resource limits">
+    ```bash
+    # Docker Compose - check container stats
+    docker stats
+
+    # Kubernetes - check pod resources
+    kubectl top pods -n twenty
+    kubectl describe pod <pod-name> -n twenty
+    ```
+
+    Increase resources if needed:
+    - Add resource limits in docker-compose.yml
+    - Increase Kubernetes resource requests/limits
+  </Accordion>
+</AccordionGroup>
+
+### High Memory Usage
+
+**Solutions:**
+
+```bash
+# Check memory usage
+docker stats --no-stream
+
+# Restart services to clear memory
+docker compose restart server worker
+
+# Kubernetes: restart pods
+kubectl rollout restart deployment/twenty-server -n twenty
+kubectl rollout restart deployment/twenty-worker -n twenty
+```
+
+## Authentication Issues
+
+### Unable to Sign In
+
+**Symptoms:**
+- Login fails with generic error
+- OAuth redirect fails
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check APP_SECRET">
+    Ensure `APP_SECRET` is set and consistent across all services:
+    ```bash
+    # Docker Compose
+    docker compose exec server env | grep APP_SECRET
+    docker compose exec worker env | grep APP_SECRET
+    ```
+  </Accordion>
+
+  <Accordion title="Verify OAuth configuration">
+    For Google/Microsoft OAuth:
+    - Callback URLs must match exactly
+    - Client ID and secret must be correct
+    - OAuth app must be published/verified
+
+    ```bash
+    # Check OAuth settings
+    docker compose exec server env | grep AUTH_GOOGLE
+    ```
+  </Accordion>
+
+  <Accordion title="Check JWT token settings">
+    ```bash
+    # Verify token expiration settings
+    docker compose exec server env | grep TOKEN_EXPIRES
+    ```
+
+    Ensure tokens aren't expiring too quickly.
+  </Accordion>
+</AccordionGroup>
+
+### Session Expired Immediately
+
+**Solutions:**
+
+- Check Redis is running and accessible
+- Verify `REDIS_URL` is correct
+- Check system time is synchronized (NTP)
+- Verify browser cookies are enabled
+
+## File Upload Issues
+
+### Files Not Uploading
+
+**Symptoms:**
+- File upload fails silently
+- 500 error on upload
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check storage configuration">
+    ```bash
+    # Verify storage type
+    docker compose exec server env | grep STORAGE_TYPE
+
+    # For local storage, check permissions
+    docker compose exec server ls -la /app/packages/twenty-server/.local-storage
+    ```
+  </Accordion>
+
+  <Accordion title="For S3 storage">
+    Verify:
+    - S3 credentials are correct
+    - Bucket exists and is accessible
+    - Bucket CORS policy allows uploads
+    - IAM permissions include `s3:PutObject`
+
+    ```bash
+    # Check S3 settings
+    docker compose exec server env | grep STORAGE_S3
+    ```
+  </Accordion>
+
+  <Accordion title="Check volume mounts">
+    ```bash
+    # Docker Compose
+    docker compose exec server df -h
+    docker volume inspect twenty_server-local-data
+
+    # Kubernetes
+    kubectl describe pvc twenty-storage -n twenty
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Email Issues
+
+### Emails Not Sending
+
+**Symptoms:**
+- Password reset emails not received
+- Invitation emails not sent
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check email driver">
+    ```bash
+    docker compose exec server env | grep EMAIL_DRIVER
+    ```
+
+    For development, `EMAIL_DRIVER=logger` outputs to logs instead of sending.
+  </Accordion>
+
+  <Accordion title="Test SMTP connection">
+    ```bash
+    # Test SMTP from container
+    docker compose exec server curl -v telnet://$EMAIL_SMTP_HOST:$EMAIL_SMTP_PORT
+    ```
+  </Accordion>
+
+  <Accordion title="Check worker logs">
+    Email sending happens in background jobs:
+    ```bash
+    docker compose logs -f worker | grep email
+    ```
+  </Accordion>
+
+  <Accordion title="Verify email configuration">
+    Common issues:
+    - Wrong SMTP port (use 587 for TLS, 465 for SSL)
+    - Authentication required but credentials missing
+    - App-specific password needed (Gmail)
+    - Firewall blocking outbound SMTP
+  </Accordion>
+</AccordionGroup>
+
+## Worker Issues
+
+### Background Jobs Not Processing
+
+**Symptoms:**
+- Webhooks not firing
+- Emails queued but not sent
+- Imports/exports stuck
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check worker is running">
+    ```bash
+    # Docker Compose
+    docker compose ps worker
+    docker compose logs -f worker
+
+    # Kubernetes
+    kubectl get pods -n twenty -l app=twenty-worker
+    kubectl logs -n twenty -l app=twenty-worker -f
+    ```
+  </Accordion>
+
+  <Accordion title="Verify Redis connection">
+    Workers need Redis for job queues:
+    ```bash
+    docker compose exec worker redis-cli -u $REDIS_URL ping
+    ```
+  </Accordion>
+
+  <Accordion title="Check job queues">
+    ```bash
+    # View queue stats
+    docker compose exec redis redis-cli KEYS bull:*
+    docker compose exec redis redis-cli LLEN bull:default:wait
+    ```
+  </Accordion>
+
+  <Accordion title="Restart worker">
+    ```bash
+    # Docker Compose
+    docker compose restart worker
+
+    # Kubernetes
+    kubectl rollout restart deployment/twenty-worker -n twenty
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Debugging Techniques
+
+### Enable Debug Logs
+
+Increase log verbosity:
+
+```bash
+# Update .env or ConfigMap
+LOG_LEVELS=error,warn,log,debug
+LOGGER_DRIVER=console
+```
+
+Restart services to apply:
+
+```bash
+docker compose restart server worker
+```
+
+### Access Container Shell
+
+<CodeGroup>
+```bash Docker Compose
+# Server
+docker compose exec server /bin/sh
+
+# Worker
+docker compose exec worker /bin/sh
+
+# Database
+docker compose exec db /bin/bash
+```
+
+```bash Kubernetes
+# Server
+kubectl exec -it -n twenty deployment/twenty-server -- /bin/sh
+
+# Worker
+kubectl exec -it -n twenty deployment/twenty-worker -- /bin/sh
+
+# Database
+kubectl exec -it -n twenty statefulset/twenty-postgres -- /bin/bash
+```
+</CodeGroup>
+
+### Check Service Health
+
+```bash
+# Health endpoint
+curl http://localhost:3000/healthz
+
+# GraphQL endpoint
+curl http://localhost:3000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ __typename }"}'  
+
+# REST API
+curl http://localhost:3000/rest/people \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Inspect Database Schema
+
+```bash
+# List all tables
+docker compose exec db psql -U postgres default -c "\dt"
+
+# Check specific table
+docker compose exec db psql -U postgres default -c "\d+ metadata.objectMetadata"
+
+# View recent migrations
+docker compose exec db psql -U postgres default -c \
+  "SELECT * FROM typeorm_migrations ORDER BY timestamp DESC LIMIT 5;"
+```
+
+## Common Error Messages
+
+### "APP_SECRET must be set"
+
+**Cause:** Missing or empty `APP_SECRET` environment variable
+
+**Solution:**
+```bash
+# Generate secure secret
+openssl rand -base64 32
+
+# Add to .env
+APP_SECRET=your-generated-secret-here
+
+# Restart
+docker compose restart server worker
+```
+
+### "Port 3000 already in use"
+
+**Cause:** Another service is using port 3000
+
+**Solution:**
+
+<CodeGroup>
+```bash Find Process
+# Find what's using the port
+lsof -i :3000
+# or
+netstat -tulpn | grep :3000
+```
+
+```bash Change Port
+# Update docker-compose.yml
+services:
+  server:
+    ports:
+      - "3001:3000"  # Map to different host port
+
+# Update SERVER_URL
+SERVER_URL=http://localhost:3001
+```
+</CodeGroup>
+
+### "Relation does not exist"
+
+**Cause:** Database schema not initialized or migrations not run
+
+**Solution:**
+```bash
+# Run migrations
+docker compose exec server yarn database:migrate:prod
+
+# Or reset database (development only)
+docker compose exec server yarn database:reset
+```
+
+### "Invalid token" or "Unauthorized"
+
+**Cause:** Token validation failed
+
+**Solutions:**
+- Verify `APP_SECRET` matches across server and worker
+- Check token hasn't expired
+- Regenerate API key if using API authentication
+- Clear browser cookies and sign in again
+
+## Performance Debugging
+
+### High CPU Usage
+
+**Investigation:**
+
+```bash
+# Check which process is using CPU
+docker stats --no-stream
+
+# View slow queries
+docker compose exec db psql -U postgres default -c \
+  "SELECT query, calls, total_exec_time, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 10;"
+```
+
+**Solutions:**
+- Add database indexes for frequently queried fields
+- Optimize GraphQL queries
+- Enable Redis caching
+- Scale worker replicas
+
+### High Memory Usage
+
+**Investigation:**
+
+```bash
+# Memory usage by container
+docker stats --no-stream
+
+# Node.js heap usage
+docker compose exec server node -e "console.log(process.memoryUsage())"
+```
+
+**Solutions:**
+- Increase container memory limits
+- Restart services periodically
+- Check for memory leaks in logs
+- Scale horizontally instead of vertically
+
+### Disk Space Issues
+
+**Investigation:**
+
+```bash
+# Check disk usage
+docker compose exec server df -h
+
+# Database size
+docker compose exec db psql -U postgres default -c \
+  "SELECT pg_size_pretty(pg_database_size('default'));"
+
+# Docker volume size
+docker system df -v
+```
+
+**Solutions:**
+- Clean up old Docker images: `docker image prune -a`
+- Archive old data
+- Increase volume size
+- Configure log rotation
+
+## Webhook Issues
+
+### Webhooks Not Firing
+
+**Symptoms:**
+- External systems not receiving events
+- Webhook jobs stuck in queue
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check webhook configuration">
+    Query webhooks via GraphQL:
+    ```graphql
+    query {
+      webhooks {
+        id
+        targetUrl
+        operation
+        isActive
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Check worker logs">
+    ```bash
+    docker compose logs -f worker | grep webhook
+    ```
+  </Accordion>
+
+  <Accordion title="Test webhook endpoint">
+    Verify target URL is accessible:
+    ```bash
+    docker compose exec server curl -X POST https://your-webhook-url.com/webhook \
+      -H "Content-Type: application/json" \
+      -d '{"test": true}'
+    ```
+  </Accordion>
+
+  <Accordion title="Check webhook queue">
+    ```bash
+    # View webhook jobs in Redis
+    docker compose exec redis redis-cli KEYS bull:webhook*
+    docker compose exec redis redis-cli LLEN bull:webhook:wait
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Data Integrity Issues
+
+### Metadata Sync Issues
+
+**Symptoms:**
+- Custom objects not appearing
+- Field changes not reflected
+
+**Solution:**
+
+```bash
+# Sync metadata manually
+docker compose exec server yarn command workspace:sync-metadata
+
+# Kubernetes
+kubectl exec -n twenty deployment/twenty-server -- yarn command workspace:sync-metadata
+```
+
+### Data Inconsistencies
+
+**Investigation:**
+
+```bash
+# Check for orphaned records
+docker compose exec db psql -U postgres default -c \
+  "SELECT COUNT(*) FROM core.person WHERE workspaceId NOT IN (SELECT id FROM core.workspace);"
+
+# Validate foreign key constraints
+docker compose exec db psql -U postgres default -c \
+  "SELECT conname, conrelid::regclass FROM pg_constraint WHERE contype = 'f';"
+```
+
+## Docker-Specific Issues
+
+### Cannot Pull Docker Image
+
+**Solutions:**
+
+```bash
+# Check Docker Hub rate limits
+docker pull twentycrm/twenty:latest
+
+# Login if using private registry
+docker login
+
+# Try specific version
+docker pull twentycrm/twenty:v0.2.1
+```
+
+### Volume Permission Issues
+
+**Symptoms:**
+- Cannot write files
+- Permission denied errors
+
+**Solution:**
+
+```bash
+# Check volume ownership
+docker compose exec server ls -la /app/packages/twenty-server/.local-storage
+
+# Fix permissions
+docker compose exec server chown -R node:node /app/packages/twenty-server/.local-storage
+```
+
+## Kubernetes-Specific Issues
+
+### Pods in CrashLoopBackOff
+
+**Investigation:**
+
+```bash
+# Check pod status
+kubectl describe pod <pod-name> -n twenty
+
+# View logs
+kubectl logs <pod-name> -n twenty --previous
+```
+
+**Common causes:**
+- Database not ready (check init containers)
+- Missing secrets or ConfigMaps
+- Insufficient resources
+- Failed health checks
+
+### PVC Not Binding
+
+**Investigation:**
+
+```bash
+# Check PVC status
+kubectl get pvc -n twenty
+kubectl describe pvc <pvc-name> -n twenty
+
+# Check storage class
+kubectl get storageclass
+```
+
+**Solutions:**
+- Ensure storage class exists and is default
+- Check PV availability
+- Verify access mode matches (ReadWriteMany for shared storage)
+
+## Getting Help
+
+### Collect Diagnostic Information
+
+Before asking for help, gather:
+
+```bash
+# Version information
+docker compose exec server cat package.json | grep version
+
+# System info
+uname -a
+docker --version
+
+# Logs
+docker compose logs > twenty-logs.txt
+
+# Configuration (remove secrets!)
+docker compose config
+```
+
+### Community Support
+
+<CardGroup cols={2}>
+  <Card title="Discord" icon="discord" href="https://discord.gg/cx5n4Jzs57">
+    Join our Discord community for real-time help
+  </Card>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/twentyhq/twenty/issues">
+    Report bugs and request features
+  </Card>
+  <Card title="Documentation" icon="book" href="https://docs.twenty.com">
+    Browse the full documentation
+  </Card>
+  <Card title="Discussions" icon="comments" href="https://github.com/twentyhq/twenty/discussions">
+    Ask questions in GitHub Discussions
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/developers/self-hosting/configuration">
+    Review configuration options
+  </Card>
+  <Card title="Docker Compose" icon="docker" href="/developers/self-hosting/docker-compose">
+    Docker deployment guide
+  </Card>
+  <Card title="Kubernetes" icon="dharmachakra" href="/developers/self-hosting/kubernetes">
+    Kubernetes deployment guide
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/developers/self-hosting/configuration">
+    Set up monitoring
+  </Card>
+</CardGroup>

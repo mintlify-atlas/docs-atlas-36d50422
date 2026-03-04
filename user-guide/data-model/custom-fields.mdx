@@ -1,0 +1,534 @@
+---
+title: Adding Custom Fields
+description: Add fields to capture the data you need
+icon: input-text
+---
+
+Fields define what information you capture for each record. Twenty offers a variety of field types to match any data structure.
+
+## Understanding Fields
+
+Fields are the individual data points in your objects:
+
+- **Text** - Names, descriptions, notes
+- **Number** - Quantities, prices, scores
+- **Date** - Deadlines, birthdays, timestamps
+- **Select** - Status, priority, category
+- **Relation** - Links to other records
+- And many more...
+
+## Adding a Field
+
+<Steps>
+  <Step title="Navigate to object settings">
+    Go to **Settings → Data Model → Objects** and select your object.
+  </Step>
+  
+  <Step title="Go to Fields tab">
+    Click the **Fields** tab to see all fields for this object.
+  </Step>
+  
+  <Step title="Click New Field">
+    Select **+ New Field** in the top right.
+  </Step>
+  
+  <Step title="Choose field type">
+    Select the type that matches your data (Text, Number, Date, etc.).
+  </Step>
+  
+  <Step title="Configure field settings">
+    Set the field name, description, and type-specific options.
+  </Step>
+  
+  <Step title="Save the field">
+    Click **Save** to add the field to your object.
+  </Step>
+</Steps>
+
+<Info>
+New fields appear in table views automatically. You can reorder them in the view settings.
+</Info>
+
+## Field Types
+
+### Basic Field Types
+
+<Tabs>
+  <Tab title="Text">
+    Store short or long text content.
+    
+    **Use cases:**
+    - Names and titles
+    - Descriptions
+    - Email addresses
+    - URLs
+    - Notes and comments
+    
+    **Options:**
+    - No specific configuration required
+    - Supports multi-line text
+    - Full-text searchable
+    
+    **Example:**
+    ```
+    Field: Project Description
+    Value: "Redesign the company website with modern UI"
+    ```
+  </Tab>
+  
+  <Tab title="Number">
+    Store numeric values with optional formatting.
+    
+    **Use cases:**
+    - Quantities
+    - Prices and amounts
+    - Percentages
+    - Scores and ratings
+    
+    **Options:**
+    - Decimal places
+    - Number format
+    
+    **Example:**
+    ```
+    Field: Budget
+    Value: 50000
+    Display: $50,000.00
+    ```
+  </Tab>
+  
+  <Tab title="True/False">
+    Store boolean (yes/no) values.
+    
+    **Use cases:**
+    - Feature flags
+    - Completion status
+    - Yes/no questions
+    - Active/inactive states
+    
+    **Options:**
+    - Default value (true or false)
+    
+    **Example:**
+    ```
+    Field: Is Active
+    Value: true
+    Display: ✓ (checkmark)
+    ```
+  </Tab>
+  
+  <Tab title="Date">
+    Store date values without time.
+    
+    **Use cases:**
+    - Birthdays
+    - Deadlines
+    - Start/end dates
+    - Milestones
+    
+    **Options:**
+    - Date format (follows workspace settings)
+    
+    **Example:**
+    ```
+    Field: Project Deadline
+    Value: 2026-06-15
+    Display: June 15, 2026
+    ```
+  </Tab>
+  
+  <Tab title="Date and Time">
+    Store precise timestamps.
+    
+    **Use cases:**
+    - Meeting times
+    - Created/updated timestamps
+    - Event start/end times
+    - Scheduled tasks
+    
+    **Options:**
+    - Time zone (follows workspace settings)
+    - Date and time format
+    
+    **Example:**
+    ```
+    Field: Meeting Time
+    Value: 2026-06-15T14:30:00Z
+    Display: June 15, 2026 at 2:30 PM
+    ```
+  </Tab>
+</Tabs>
+
+### Advanced Field Types
+
+<AccordionGroup>
+  <Accordion title="Select (Single)">
+    Choose one option from a predefined list.
+    
+    **Configuration:**
+    1. Add options with labels and colors
+    2. Set a default option (optional)
+    3. Reorder options as needed
+    
+    **Example - Project Status:**
+    ```yaml
+    Options:
+      - Not Started (gray)
+      - In Progress (blue)
+      - On Hold (yellow)
+      - Completed (green)
+    Default: Not Started
+    ```
+    
+    <Tip>
+    Use colors strategically to show status at a glance. Green for positive states, red for issues, yellow for warnings.
+    </Tip>
+  </Accordion>
+  
+  <Accordion title="Multi-Select">
+    Choose multiple options from a list.
+    
+    **Use cases:**
+    - Tags and categories
+    - Skills and capabilities
+    - Product features
+    - Team roles
+    
+    **Example - Project Tags:**
+    ```yaml
+    Options:
+      - High Priority
+      - Client-Facing
+      - Internal
+      - Revenue-Generating
+      - Research
+    ```
+    
+    Records can have any combination of these tags.
+  </Accordion>
+  
+  <Accordion title="Relation">
+    Link to records in another object.
+    
+    **Types:**
+    - **One-to-many** - A company has many people
+    - **Many-to-many** - Projects have many team members, people work on many projects
+    
+    **Configuration:**
+    1. Select the related object
+    2. Choose relation type
+    3. Name the relation field
+    4. Optionally create the inverse relation
+    
+    <Card title="Learn More" icon="link" href="/user-guide/data-model/relations">
+      See the Relations guide for detailed examples
+    </Card>
+  </Accordion>
+  
+  <Accordion title="Rating">
+    Store star ratings (1-5 scale).
+    
+    **Use cases:**
+    - Lead quality scores
+    - Customer satisfaction
+    - Priority rankings
+    - Performance ratings
+    
+    **Example:**
+    ```
+    Field: Lead Quality
+    Value: 4
+    Display: ★★★★☆
+    ```
+  </Accordion>
+  
+  <Accordion title="Files">
+    Attach documents and files to records.
+    
+    **Use cases:**
+    - Contracts and agreements
+    - Presentations
+    - Images and screenshots
+    - Documents and PDFs
+    
+    **Features:**
+    - Multiple files per field
+    - File preview
+    - Version history
+    - Direct download
+  </Accordion>
+  
+  <Accordion title="Array">
+    Store a list of text values.
+    
+    **Use cases:**
+    - Email aliases
+    - Phone numbers
+    - URLs
+    - Keywords
+    
+    **Example:**
+    ```yaml
+    Field: Contact Emails
+    Values:
+      - john@company.com
+      - john.doe@personal.com
+      - j.doe@consulting.com
+    ```
+  </Accordion>
+  
+  <Accordion title="JSON">
+    Store structured data in JSON format.
+    
+    **Use cases:**
+    - API responses
+    - Configuration data
+    - Complex nested data
+    - Integration payloads
+    
+    **Example:**
+    ```json
+    {
+      "features": ["sso", "api", "webhooks"],
+      "limits": {
+        "users": 100,
+        "storage": "50GB"
+      }
+    }
+    ```
+    
+    <Warning>
+    JSON fields are not searchable or filterable in views.
+    </Warning>
+  </Accordion>
+  
+  <Accordion title="Unique ID">
+    Auto-generated unique identifier.
+    
+    **Use cases:**
+    - Record IDs
+    - External system IDs
+    - Reference numbers
+    
+    **Features:**
+    - Automatically generated
+    - Guaranteed unique
+    - UUID format
+    - Read-only
+  </Accordion>
+</AccordionGroup>
+
+## Field Settings
+
+When configuring a field, set these properties:
+
+### Basic Settings
+
+<CardGroup cols={2}>
+  <Card title="Name" icon="tag">
+    The field label shown in the interface. Use clear, descriptive names.
+  </Card>
+  
+  <Card title="Description" icon="file-lines">
+    Explain what the field is for. Helps team members use it correctly.
+  </Card>
+  
+  <Card title="Icon" icon="icons">
+    Visual identifier for the field in views and forms.
+  </Card>
+  
+  <Card title="Type" icon="shapes">
+    The kind of data stored (Text, Number, Date, etc.). Cannot be changed after creation.
+  </Card>
+</CardGroup>
+
+### Field Behavior
+
+- **Required** - Field must have a value (coming soon)
+- **Unique** - Each record must have a different value (coming soon)
+- **Default value** - Automatically populated for new records
+
+### Display Options
+
+- **Show in table** - Include in default table views
+- **Position** - Order in forms and views
+- **Width** - Column width in table views
+
+## Field Validation
+
+Some field types have built-in validation:
+
+| Field Type | Validation |
+|------------|------------|
+| Number | Must be numeric |
+| Date | Must be valid date |
+| Date/Time | Must be valid timestamp |
+| Select | Must be one of the options |
+| Relation | Must reference existing record |
+
+## Example: Building a Complete Object
+
+Let's add fields to a **Contract** object:
+
+### Essential Fields
+
+```yaml
+1. Contract Name (Text)
+   - Label identifier field
+   - Example: "Annual Service Agreement - Acme Corp"
+
+2. Contract Type (Select)
+   - Options: Service Agreement, NDA, Master Agreement, SOW
+   - Default: Service Agreement
+
+3. Status (Select)
+   - Options: Draft, Under Review, Active, Expired, Terminated
+   - Default: Draft
+   - Colors: Gray, Yellow, Green, Red, Red
+
+4. Company (Relation)
+   - Links to Companies object
+   - One-to-many relationship
+
+5. Contract Value (Number)
+   - Format: Currency
+   - Example: 50000
+
+6. Start Date (Date)
+   - When contract begins
+
+7. End Date (Date)
+   - When contract expires
+
+8. Auto-Renew (True/False)
+   - Default: false
+
+9. Owner (Relation)
+   - Links to People object
+   - Account manager responsible
+
+10. Contract File (Files)
+    - Attach PDF of signed contract
+
+11. Terms (Text)
+    - Multi-line description of key terms
+
+12. Renewal Notice Days (Number)
+    - Days before expiry to send notice
+    - Default: 30
+```
+
+## Managing Fields
+
+### Editing Fields
+
+1. Go to **Settings → Data Model → Objects → [Object] → Fields**
+2. Click the field you want to edit
+3. Modify settings (some restrictions apply)
+4. Save changes
+
+<Warning>
+You cannot change a field's type after creation. Create a new field and migrate data instead.
+</Warning>
+
+### Reordering Fields
+
+In the Fields tab:
+
+1. Click and drag the handle icon (☰)
+2. Move the field to desired position
+3. Order affects display in forms and default views
+
+### Deactivating Fields
+
+To hide a field without deleting data:
+
+1. Click the field in settings
+2. Select **Deactivate**
+3. Field data is preserved but hidden from views
+
+### Deleting Fields
+
+<Warning>
+Deleting a field permanently removes all data. This cannot be undone.
+</Warning>
+
+Standard system fields cannot be deleted.
+
+## Field Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the right field type">
+    Select types that match your data:
+    - ✅ Use Number for prices, not Text
+    - ✅ Use Date for deadlines, not Text
+    - ✅ Use Select for statuses, not Text
+    - ✅ Use Relation to link objects, not Text
+    
+    Proper types enable filtering, sorting, and validation.
+  </Accordion>
+  
+  <Accordion title="Name fields clearly">
+    Use descriptive names that make sense to all users:
+    - ✅ "Project Budget"
+    - ❌ "Budget"
+    - ✅ "Contract End Date"
+    - ❌ "Date2"
+  </Accordion>
+  
+  <Accordion title="Write helpful descriptions">
+    Explain what goes in the field:
+    ```
+    ✅ "Annual contract value in USD, excluding one-time fees"
+    ❌ "Contract value"
+    ```
+  </Accordion>
+  
+  <Accordion title="Set defaults wisely">
+    Default values save time:
+    - Status fields: Start with "Draft" or "New"
+    - Boolean fields: Set to most common value
+    - Dates: Use "Today" for creation date fields
+  </Accordion>
+  
+  <Accordion title="Use Select for limited options">
+    If a field has a fixed set of values, use Select:
+    - Priority: Low, Medium, High
+    - Status: Open, In Progress, Closed
+    - Type: categorized options
+    
+    This enables better filtering and prevents typos.
+  </Accordion>
+  
+  <Accordion title="Don't over-complicate">
+    Start with essential fields only:
+    1. Add core fields needed for basic workflows
+    2. Use the object for a while
+    3. Add more fields based on actual needs
+    
+    Too many fields makes data entry overwhelming.
+  </Accordion>
+</AccordionGroup>
+
+## Field Limits
+
+- Maximum fields per object: 100
+- Field name length: 100 characters
+- Text field max length: Unlimited
+- Select options per field: 50
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Defining Relations" icon="link" href="/user-guide/data-model/relations">
+    Connect objects with relationships
+  </Card>
+  
+  <Card title="Table Views" icon="table" href="/user-guide/views/table-views">
+    Work with your fields in table format
+  </Card>
+  
+  <Card title="Filters and Sorting" icon="filter" href="/user-guide/views/filters-and-sorting">
+    Use fields to filter and organize data
+  </Card>
+</CardGroup>

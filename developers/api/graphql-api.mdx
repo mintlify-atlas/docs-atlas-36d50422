@@ -1,0 +1,942 @@
+---
+title: GraphQL API
+description: Query and mutate data with GraphQL
+icon: diagram-project
+---
+
+Twenty's primary API is a GraphQL API that provides flexible, efficient access to your CRM data.
+
+## Overview
+
+The GraphQL API offers:
+- **Flexible queries** - Request exactly the data you need
+- **Type safety** - Strongly typed schema with introspection
+- **Real-time updates** - GraphQL subscriptions for live data
+- **Batching** - Efficient data loading with DataLoader
+- **Two endpoints** - Core API (data) and Metadata API (schema)
+
+## API Endpoints
+
+<CodeGroup>
+```bash Core API (Production)
+https://api.twenty.com/graphql
+```
+
+```bash Core API (Self-Hosted)
+https://your-domain.com/graphql
+```
+
+```bash Metadata API
+https://api.twenty.com/metadata
+```
+
+```bash Local Development
+http://localhost:3000/graphql
+http://localhost:3000/metadata
+```
+</CodeGroup>
+
+## Authentication
+
+Include your API key in the Authorization header:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+Generate an API key at **Settings** → **API & Webhooks** in your Twenty workspace.
+
+## GraphQL Playground
+
+Explore the API interactively:
+
+1. Navigate to `http://localhost:3000/graphql` (for local development)
+2. Add authorization header in the playground
+3. Use the built-in documentation explorer
+4. Try example queries
+
+<Note>
+  The GraphQL playground is only available in development mode for security reasons.
+</Note>
+
+## Core API
+
+The Core API provides access to workspace data.
+
+### Querying Records
+
+#### Find Many Records
+
+```graphql
+query GetPeople {
+  people(filter: {
+    email: { contains: "@example.com" }
+  }, orderBy: {
+    createdAt: DESC
+  }, limit: 10) {
+    edges {
+      node {
+        id
+        firstName
+        lastName
+        email
+        jobTitle
+        company {
+          id
+          name
+        }
+        createdAt
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+```
+
+#### Find One Record
+
+```graphql
+query GetPerson {
+  person(id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890") {
+    id
+    firstName
+    lastName
+    email
+    phone
+    activities {
+      edges {
+        node {
+          id
+          title
+          type
+          completedAt
+        }
+      }
+    }
+  }
+}
+```
+
+### Creating Records
+
+#### Create One
+
+```graphql
+mutation CreatePerson {
+  createPerson(data: {
+    firstName: "John"
+    lastName: "Doe"
+    email: "john@example.com"
+    jobTitle: "Software Engineer"
+    company: {
+      connect: "company-id"
+    }
+  }) {
+    id
+    firstName
+    lastName
+    email
+    createdAt
+  }
+}
+```
+
+#### Create Many
+
+```graphql
+mutation CreateMultiplePeople {
+  createPeople(data: [
+    {
+      firstName: "John"
+      lastName: "Doe"
+      email: "john@example.com"
+    },
+    {
+      firstName: "Jane"
+      lastName: "Smith"
+      email: "jane@example.com"
+    }
+  ]) {
+    id
+    firstName
+    email
+  }
+}
+```
+
+### Updating Records
+
+#### Update One
+
+```graphql
+mutation UpdatePerson {
+  updatePerson(
+    id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    data: {
+      jobTitle: "Senior Software Engineer"
+      phone: "+1-555-0100"
+    }
+  ) {
+    id
+    jobTitle
+    phone
+    updatedAt
+  }
+}
+```
+
+#### Update Many
+
+```graphql
+mutation UpdateMultiplePeople {
+  updatePeople(
+    filter: {
+      company: { id: { eq: "company-id" } }
+    }
+    data: {
+      jobTitle: "Team Member"
+    }
+  ) {
+    id
+    jobTitle
+  }
+}
+```
+
+### Deleting Records
+
+```graphql
+mutation DeletePerson {
+  deletePerson(id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890") {
+    id
+  }
+}
+```
+
+<Note>
+  Delete operations are soft deletes by default. Records are marked as deleted but not permanently removed.
+</Note>
+
+## Advanced Queries
+
+### Filtering
+
+Supported filter operators:
+
+<ParamField path="eq" type="any">
+  Equals
+</ParamField>
+
+<ParamField path="neq" type="any">
+  Not equals
+</ParamField>
+
+<ParamField path="in" type="array">
+  In array
+</ParamField>
+
+<ParamField path="contains" type="string">
+  Contains substring (case-insensitive)
+</ParamField>
+
+<ParamField path="startsWith" type="string">
+  Starts with string
+</ParamField>
+
+<ParamField path="endsWith" type="string">
+  Ends with string
+</ParamField>
+
+<ParamField path="gt" type="number | date">
+  Greater than
+</ParamField>
+
+<ParamField path="gte" type="number | date">
+  Greater than or equal
+</ParamField>
+
+<ParamField path="lt" type="number | date">
+  Less than
+</ParamField>
+
+<ParamField path="lte" type="number | date">
+  Less than or equal
+</ParamField>
+
+<ParamField path="is" type="null">
+  Is null
+</ParamField>
+
+<ParamField path="isNot" type="null">
+  Is not null
+</ParamField>
+
+#### Complex Filter Example
+
+```graphql
+query FilteredPeople {
+  people(filter: {
+    and: [
+      { email: { isNot: null } }
+      { 
+        or: [
+          { jobTitle: { contains: "engineer" } }
+          { jobTitle: { contains: "developer" } }
+        ]
+      }
+      { createdAt: { gte: "2024-01-01T00:00:00Z" } }
+    ]
+  }) {
+    edges {
+      node {
+        id
+        firstName
+        lastName
+        jobTitle
+      }
+    }
+  }
+}
+```
+
+### Sorting
+
+```graphql
+query SortedCompanies {
+  companies(orderBy: [
+    { employees: DESC }
+    { name: ASC }
+  ]) {
+    edges {
+      node {
+        id
+        name
+        employees
+      }
+    }
+  }
+}
+```
+
+### Pagination
+
+Twenty uses cursor-based pagination:
+
+```graphql
+query PaginatedPeople($cursor: String) {
+  people(first: 10, after: $cursor) {
+    edges {
+      node {
+        id
+        firstName
+        lastName
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+  }
+}
+```
+
+Fetch next page:
+
+```graphql
+query NextPage {
+  people(first: 10, after: "cursor-from-previous-page") {
+    edges {
+      node {
+        id
+        firstName
+      }
+    }
+  }
+}
+```
+
+### Aggregations
+
+```graphql
+query OpportunityStats {
+  opportunitiesAggregate {
+    count
+    sum {
+      amount
+    }
+    avg {
+      amount
+    }
+    min {
+      amount
+    }
+    max {
+      amount
+    }
+  }
+}
+```
+
+### Relations
+
+Query related data:
+
+```graphql
+query PersonWithRelations {
+  person(id: "person-id") {
+    id
+    firstName
+    lastName
+    
+    # Related company
+    company {
+      id
+      name
+      website
+    }
+    
+    # Related activities
+    activities {
+      edges {
+        node {
+          id
+          title
+          type
+          completedAt
+        }
+      }
+    }
+    
+    # Related opportunities
+    opportunities {
+      edges {
+        node {
+          id
+          name
+          amount
+          stage
+        }
+      }
+    }
+  }
+}
+```
+
+## Metadata API
+
+The Metadata API manages your workspace schema.
+
+### Get Objects
+
+```graphql
+query GetObjects {
+  objects {
+    edges {
+      node {
+        id
+        nameSingular
+        namePlural
+        labelSingular
+        labelPlural
+        description
+        icon
+        isCustom
+        isActive
+      }
+    }
+  }
+}
+```
+
+### Get Fields
+
+```graphql
+query GetFieldsForObject {
+  fields(filter: {
+    objectMetadataId: { eq: "object-id" }
+  }) {
+    edges {
+      node {
+        id
+        name
+        label
+        type
+        description
+        isNullable
+        defaultValue
+      }
+    }
+  }
+}
+```
+
+### Create Custom Object
+
+```graphql
+mutation CreateObject {
+  createObject(input: {
+    nameSingular: "project"
+    namePlural: "projects"
+    labelSingular: "Project"
+    labelPlural: "Projects"
+    description: "Customer projects"
+    icon: "folder"
+  }) {
+    id
+    nameSingular
+    namePlural
+  }
+}
+```
+
+### Create Custom Field
+
+```graphql
+mutation CreateField {
+  createField(input: {
+    objectMetadataId: "object-id"
+    name: "budget"
+    label: "Budget"
+    type: CURRENCY
+    description: "Project budget"
+  }) {
+    id
+    name
+    label
+    type
+  }
+}
+```
+
+## Subscriptions
+
+Receive real-time updates:
+
+```graphql
+subscription OnPersonCreated {
+  personCreated {
+    id
+    firstName
+    lastName
+    email
+  }
+}
+```
+
+### Using Subscriptions
+
+<CodeGroup>
+```javascript Apollo Client
+import { ApolloClient, InMemoryCache, split, HttpLink } from '@apollo/client';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
+
+const httpLink = new HttpLink({
+  uri: 'https://api.twenty.com/graphql',
+  headers: {
+    authorization: `Bearer ${API_KEY}`,
+  },
+});
+
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: 'wss://api.twenty.com/graphql',
+    connectionParams: {
+      authorization: `Bearer ${API_KEY}`,
+    },
+  })
+);
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+const client = new ApolloClient({
+  link: splitLink,
+  cache: new InMemoryCache(),
+});
+
+// Subscribe to events
+client.subscribe({
+  query: gql`
+    subscription OnPersonCreated {
+      personCreated {
+        id
+        firstName
+        email
+      }
+    }
+  `,
+}).subscribe({
+  next(data) {
+    console.log('New person created:', data);
+  },
+  error(err) {
+    console.error('Subscription error:', err);
+  },
+});
+```
+
+```javascript WebSocket
+const WebSocket = require('ws');
+
+const ws = new WebSocket('wss://api.twenty.com/graphql', {
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+  },
+});
+
+ws.on('open', () => {
+  // Subscribe
+  ws.send(JSON.stringify({
+    type: 'connection_init',
+  }));
+  
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    id: '1',
+    payload: {
+      query: `
+        subscription {
+          personCreated {
+            id
+            firstName
+            email
+          }
+        }
+      `,
+    },
+  }));
+});
+
+ws.on('message', (data) => {
+  const message = JSON.parse(data);
+  if (message.type === 'next') {
+    console.log('New person:', message.payload.data);
+  }
+});
+```
+</CodeGroup>
+
+## Using with cURL
+
+Query the API using cURL:
+
+```bash
+curl https://api.twenty.com/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "query": "query { people { edges { node { id firstName lastName } } } }"
+  }'
+```
+
+With variables:
+
+```bash
+curl https://api.twenty.com/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "query": "query GetPerson($id: UUID!) { person(id: $id) { id firstName } }",
+    "variables": { "id": "person-id" }
+  }'
+```
+
+## Error Handling
+
+### Error Response Format
+
+```json
+{
+  "errors": [
+    {
+      "message": "Field 'email' is required",
+      "extensions": {
+        "code": "BAD_USER_INPUT",
+        "field": "email"
+      },
+      "path": ["createPerson"]
+    }
+  ],
+  "data": null
+}
+```
+
+### Common Error Codes
+
+- **UNAUTHENTICATED** - Invalid or missing API key
+- **FORBIDDEN** - Insufficient permissions
+- **BAD_USER_INPUT** - Invalid input data
+- **NOT_FOUND** - Resource doesn't exist
+- **INTERNAL_SERVER_ERROR** - Server error
+
+### Handling Errors
+
+```javascript
+const { ApolloClient, gql } = require('@apollo/client');
+
+async function createPerson(data) {
+  try {
+    const result = await client.mutate({
+      mutation: gql`
+        mutation CreatePerson($data: PersonInput!) {
+          createPerson(data: $data) {
+            id
+            firstName
+          }
+        }
+      `,
+      variables: { data },
+    });
+    return result.data.createPerson;
+  } catch (error) {
+    if (error.graphQLErrors) {
+      error.graphQLErrors.forEach(({ message, extensions }) => {
+        console.error(`GraphQL Error: ${message}`);
+        console.error(`Code: ${extensions.code}`);
+      });
+    }
+    if (error.networkError) {
+      console.error('Network Error:', error.networkError);
+    }
+    throw error;
+  }
+}
+```
+
+## Schema Introspection
+
+### Get Schema
+
+```graphql
+query GetSchema {
+  __schema {
+    types {
+      name
+      kind
+      description
+      fields {
+        name
+        type {
+          name
+          kind
+        }
+      }
+    }
+  }
+}
+```
+
+### Get Type Information
+
+```graphql
+query GetPersonType {
+  __type(name: "Person") {
+    name
+    fields {
+      name
+      type {
+        name
+        kind
+      }
+      description
+    }
+  }
+}
+```
+
+## Rate Limiting
+
+The API implements rate limiting to ensure fair usage:
+
+- **Default limit** - 100 requests per minute per API key
+- **Configurable** - Can be adjusted via `API_RATE_LIMITING_*` env vars
+- **Headers** - Rate limit info in response headers
+
+```bash
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1709546460
+```
+
+### Handle Rate Limits
+
+```javascript
+async function makeRequest(query, variables) {
+  try {
+    return await client.query({ query, variables });
+  } catch (error) {
+    if (error.extensions?.code === 'RATE_LIMIT_EXCEEDED') {
+      const resetTime = error.extensions.resetAt;
+      const waitTime = resetTime - Date.now();
+      
+      console.log(`Rate limited. Waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Retry request
+      return await client.query({ query, variables });
+    }
+    throw error;
+  }
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Request Only Needed Fields" icon="filter">
+    Reduce payload size by selecting only required fields
+  </Card>
+  <Card title="Use Variables" icon="dollar-sign">
+    Always use variables instead of string interpolation
+  </Card>
+  <Card title="Batch Requests" icon="layer-group">
+    Use batching for multiple operations
+  </Card>
+  <Card title="Cache Responses" icon="database">
+    Cache query results when appropriate
+  </Card>
+</CardGroup>
+
+### Query Optimization
+
+```graphql
+# Good: Only request needed fields
+query OptimizedQuery {
+  people {
+    edges {
+      node {
+        id
+        firstName
+        email
+      }
+    }
+  }
+}
+
+# Bad: Request all fields
+query UnoptimizedQuery {
+  people {
+    edges {
+      node {
+        id
+        firstName
+        lastName
+        email
+        phone
+        jobTitle
+        # ... many more fields
+      }
+    }
+  }
+}
+```
+
+### Use Fragments
+
+```graphql
+fragment PersonFields on Person {
+  id
+  firstName
+  lastName
+  email
+  company {
+    id
+    name
+  }
+}
+
+query GetPeople {
+  people {
+    edges {
+      node {
+        ...PersonFields
+      }
+    }
+  }
+}
+
+query GetPerson($id: UUID!) {
+  person(id: $id) {
+    ...PersonFields
+    phone
+    activities {
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+  }
+}
+```
+
+## Code Generation
+
+Generate TypeScript types from your schema:
+
+### Using GraphQL Code Generator
+
+```bash
+npm install -D @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-operations
+```
+
+```yaml codegen.yml
+schema:
+  - https://api.twenty.com/graphql:
+      headers:
+        Authorization: Bearer ${TWENTY_API_KEY}
+generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+```
+
+```bash
+npx graphql-codegen
+```
+
+### Use Generated Types
+
+```typescript
+import { GetPeopleQuery, CreatePersonMutation } from './generated/graphql';
+
+const people: GetPeopleQuery = await client.query({
+  query: GET_PEOPLE_QUERY,
+});
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="REST API" icon="brackets-curly" href="/developers/api/rest-api">
+    Simpler REST alternative
+  </Card>
+  <Card title="JavaScript SDK" icon="js" href="/developers/api/sdk">
+    Use the Twenty SDK
+  </Card>
+  <Card title="Authentication" icon="shield" href="/developers/api/authentication">
+    API authentication guide
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/developers/extending/webhooks">
+    Set up webhooks
+  </Card>
+</CardGroup>

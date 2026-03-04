@@ -1,0 +1,554 @@
+---
+title: Workflow Triggers
+description: Start workflows based on events
+icon: play
+---
+
+Triggers determine when your workflows run. Choose the right trigger to automate at exactly the right moment.
+
+## Understanding Triggers
+
+Triggers are events that start workflow execution:
+
+- **Database events** - Record created, updated, or deleted
+- **Field changes** - Specific field value changes
+- **Scheduled times** - Run on a schedule
+- **Manual triggers** - Start workflows on demand
+- **Webhooks** - External systems trigger workflows
+
+Each trigger type suits different automation scenarios.
+
+## Trigger Types
+
+### Record Created
+
+Runs when a new record is created.
+
+**Configuration:**
+```yaml
+Trigger: Record Created
+Object: Opportunities
+Conditions: (optional filters)
+```
+
+**Use cases:**
+- Assign new leads to sales reps
+- Send welcome emails to new customers
+- Create default tasks for new projects
+- Notify team of new support tickets
+
+**Example:**
+```yaml
+Trigger: New lead created
+Object: Leads
+
+Actions:
+  - Set Owner based on territory
+  - Calculate initial lead score
+  - Add to nurture campaign
+  - Send notification to sales team
+```
+
+<Tip>
+Use conditions to filter which new records trigger the workflow. For example, only leads from specific sources.
+</Tip>
+
+### Record Updated
+
+Runs when any field on a record changes.
+
+**Configuration:**
+```yaml
+Trigger: Record Updated
+Object: Projects
+Conditions:
+  - Only when specific fields change (optional)
+  - Other filter conditions
+```
+
+**Use cases:**
+- Update related records when parent changes
+- Recalculate scores based on new data
+- Log changes to audit trail
+- Sync data to external systems
+
+**Example:**
+```yaml
+Trigger: Project updated
+Object: Projects
+Conditions:
+  - Any field except "Last Modified" changed
+
+Actions:
+  - Update "Last Modified" field
+  - Log change in timeline
+  - Notify project manager if budget changed
+```
+
+<Warning>
+Be careful with update triggers. If your workflow updates the same record, it can create an infinite loop.
+</Warning>
+
+### Field Changed
+
+Runs when a specific field's value changes.
+
+**Configuration:**
+```yaml
+Trigger: Field Changed
+Object: Opportunities
+Field: Stage
+From: Any (or specific value)
+To: Any (or specific value)
+```
+
+**Use cases:**
+- React to status changes
+- Trigger actions when deals progress
+- Automate when tasks complete
+- Handle stage-specific logic
+
+**Example:**
+```yaml
+Trigger: Opportunity stage changed
+Object: Opportunities
+Field: Stage
+From: "Proposal"
+To: "Negotiation"
+
+Actions:
+  - Create task: "Prepare contract"
+  - Set Close Date: 14 days from now
+  - Notify sales manager
+  - Update Company.Status = "Negotiating"
+```
+
+**Advanced field change detection:**
+
+<Tabs>
+  <Tab title="Any Change">
+    Trigger when field changes to any new value:
+    ```yaml
+    Field: Status
+    From: Any
+    To: Any
+    ```
+  </Tab>
+  
+  <Tab title="Specific Value">
+    Trigger only when field changes to specific value:
+    ```yaml
+    Field: Stage
+    From: Any
+    To: "Closed Won"
+    ```
+  </Tab>
+  
+  <Tab title="Specific Transition">
+    Trigger only for specific change:
+    ```yaml
+    Field: Priority
+    From: "Low"
+    To: "High"
+    ```
+  </Tab>
+  
+  <Tab title="Not Empty">
+    Trigger when field gets a value:
+    ```yaml
+    Field: Email
+    From: Empty
+    To: Any
+    ```
+  </Tab>
+</Tabs>
+
+### Record Deleted
+
+Runs when a record is deleted.
+
+**Configuration:**
+```yaml
+Trigger: Record Deleted
+Object: Projects
+```
+
+**Use cases:**
+- Clean up related records
+- Archive data before deletion
+- Notify stakeholders
+- Update counters and summaries
+
+**Example:**
+```yaml
+Trigger: Project deleted
+Object: Projects
+
+Actions:
+  - Delete all related tasks
+  - Archive project files
+  - Notify project team
+  - Update company project count
+```
+
+<Info>
+Deleted record data is available to the workflow, so you can access field values in actions.
+</Info>
+
+### Scheduled Trigger
+
+Runs at specified times, regardless of record changes.
+
+**Configuration:**
+```yaml
+Trigger: Scheduled
+Frequency:
+  - Daily at specific time
+  - Weekly on specific day
+  - Monthly on specific date
+  - Custom cron expression
+```
+
+**Use cases:**
+- Daily summary emails
+- Weekly status reports
+- Monthly cleanups
+- Reminder notifications
+- Recurring task creation
+
+**Example:**
+```yaml
+Trigger: Scheduled
+Frequency: Daily at 9:00 AM
+
+Actions:
+  Find all tasks where:
+    - Due Date = Today
+    - Status ≠ "Completed"
+  
+  For each task:
+    - Send reminder email to assignee
+    - Create notification
+```
+
+**Schedule options:**
+
+<AccordionGroup>
+  <Accordion title="Hourly">
+    Run every hour or every N hours:
+    ```yaml
+    Every 1 hour
+    Every 4 hours
+    Every 12 hours
+    ```
+  </Accordion>
+  
+  <Accordion title="Daily">
+    Run once per day at specific time:
+    ```yaml
+    Every day at 9:00 AM
+    Every day at 6:00 PM
+    Weekdays at 8:00 AM
+    ```
+  </Accordion>
+  
+  <Accordion title="Weekly">
+    Run on specific days:
+    ```yaml
+    Every Monday at 9:00 AM
+    Every Friday at 5:00 PM
+    Mondays and Thursdays at 10:00 AM
+    ```
+  </Accordion>
+  
+  <Accordion title="Monthly">
+    Run on specific dates:
+    ```yaml
+    1st of every month at 9:00 AM
+    15th of every month at 12:00 PM
+    Last day of month at 11:59 PM
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+Scheduled workflows run in your workspace's timezone. Set timezone in workspace settings.
+</Tip>
+
+### Manual Trigger
+
+Runs when you explicitly start it.
+
+**Configuration:**
+```yaml
+Trigger: Manual
+Available on: (Select which objects/views)
+```
+
+**Use cases:**
+- Bulk operations on selected records
+- On-demand data exports
+- Manual quality checks
+- Ad-hoc notifications
+
+**Example:**
+```yaml
+Trigger: Manual (Button in Opportunities view)
+Name: "Generate Proposal"
+
+Actions:
+  - Create proposal document
+  - Populate with opportunity data
+  - Generate PDF
+  - Send email with attachment
+  - Update Stage = "Proposal Sent"
+```
+
+**Running manual workflows:**
+
+1. Select records in a view
+2. Click **Workflows** in action bar
+3. Choose workflow to run
+4. Confirm execution
+
+### Webhook Trigger
+
+Runs when an external system sends a webhook.
+
+**Configuration:**
+```yaml
+Trigger: Webhook
+Webhook URL: (generated automatically)
+Authentication: API key or HMAC
+```
+
+**Use cases:**
+- Integrate with external services
+- React to form submissions
+- Handle payment events
+- Process third-party notifications
+
+**Example:**
+```yaml
+Trigger: Webhook from Stripe
+Event: payment.succeeded
+
+Actions:
+  - Find opportunity by customer ID
+  - Update Stage = "Closed Won"
+  - Set Amount = [webhook.amount]
+  - Send confirmation email
+  - Create onboarding task
+```
+
+## Trigger Conditions
+
+Add filters to control when triggers fire:
+
+### Basic Conditions
+
+```yaml
+Trigger: Opportunity created
+Conditions:
+  - Amount > 50000
+  - Stage = "Qualification"
+  - Owner is not empty
+```
+
+Workflow only runs for records meeting ALL conditions.
+
+### Advanced Conditions
+
+<Tabs>
+  <Tab title="Multiple Conditions">
+    Use AND/OR logic:
+    ```yaml
+    Conditions:
+      (Priority = "High" OR Amount > 100000)
+      AND Status = "Active"
+      AND Owner is not empty
+    ```
+  </Tab>
+  
+  <Tab title="Related Record Conditions">
+    Filter based on related records:
+    ```yaml
+    Conditions:
+      Company.Industry = "Technology"
+      AND Company.Annual Revenue > 1000000
+      AND Owner.Team = "Enterprise Sales"
+    ```
+  </Tab>
+  
+  <Tab title="Date Conditions">
+    Use relative dates:
+    ```yaml
+    Conditions:
+      Close Date is this month
+      AND Created Date > 30 days ago
+      AND Last Contact is in the past
+    ```
+  </Tab>
+  
+  <Tab title="Change Detection">
+    Check what changed:
+    ```yaml
+    Conditions:
+      Stage changed from "Proposal" to "Negotiation"
+      AND Amount increased
+      AND Owner changed
+    ```
+  </Tab>
+</Tabs>
+
+## Combining Multiple Triggers
+
+Some workflows need multiple trigger types:
+
+**Option 1: Separate workflows**
+
+Create distinct workflows for each trigger:
+```yaml
+Workflow 1: "Update Score on Create"
+Trigger: Record created
+
+Workflow 2: "Update Score on Change"
+Trigger: Field changed (any scoring field)
+```
+
+**Option 2: Shared logic**
+
+Use one workflow with multiple entry points (coming soon):
+```yaml
+Workflow: "Maintain Lead Score"
+Triggers:
+  - Record created
+  - Field changed: Company Size
+  - Field changed: Industry
+  - Field changed: Job Title
+
+Actions:
+  - Calculate score (shared logic)
+  - Update lead record
+```
+
+## Trigger Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the most specific trigger">
+    More specific = better performance:
+    
+    ✅ **Good:**
+    ```yaml
+    Trigger: Stage field changed
+    From: Any
+    To: "Closed Won"
+    ```
+    
+    ❌ **Less efficient:**
+    ```yaml
+    Trigger: Record updated
+    Condition: Stage = "Closed Won"
+    ```
+    
+    Both work, but field change is more efficient.
+  </Accordion>
+  
+  <Accordion title="Add conditions to reduce executions">
+    Filter early to avoid unnecessary runs:
+    ```yaml
+    Trigger: Lead created
+    Conditions:
+      - Lead Source is not empty
+      - Email is not empty
+      - Country in supported list
+    ```
+    
+    Saves processing on incomplete/invalid records.
+  </Accordion>
+  
+  <Accordion title="Prevent infinite loops">
+    If workflow updates records, add safeguards:
+    
+    **Problem:**
+    ```yaml
+    Trigger: Lead updated
+    Action: Update Lead.Score
+    ```
+    → Triggers itself infinitely!
+    
+    **Solution 1: Field-specific trigger**
+    ```yaml
+    Trigger: Field changed (not Score)
+    Action: Update Lead.Score
+    ```
+    
+    **Solution 2: Condition check**
+    ```yaml
+    Trigger: Lead updated
+    Condition: Score Updated < 1 hour ago (is false)
+    Action: Update Lead.Score
+    ```
+  </Accordion>
+  
+  <Accordion title="Use scheduled triggers wisely">
+    Schedule during low-usage times:
+    - Run heavy workflows at night
+    - Avoid peak business hours
+    - Spread executions throughout the day
+    
+    ```yaml
+    ✅ Good: Daily at 2:00 AM
+    ❌ Avoid: Every 5 minutes during 9-5
+    ```
+  </Accordion>
+  
+  <Accordion title="Test with realistic data">
+    Test triggers with:
+    - Typical record values
+    - Edge cases (empty fields, max values)
+    - Different user permissions
+    - Various timezones (for scheduled)
+  </Accordion>
+</AccordionGroup>
+
+## Trigger Debugging
+
+### Workflow Not Running
+
+**Check:**
+
+1. **Is workflow active?** - Inactive workflows don't run
+2. **Do records meet conditions?** - Review filter criteria  
+3. **Is trigger configured correctly?** - Verify object and event
+4. **Any permission issues?** - Workflow needs access rights
+
+### Workflow Running Too Often
+
+**Solutions:**
+
+1. **Add more specific conditions** - Filter more aggressively
+2. **Use field change instead of update** - More precise trigger
+3. **Add delay/throttling** - Prevent rapid repeated execution
+4. **Check for loops** - Workflow might trigger itself
+
+### Scheduled Workflow Missing
+
+**Check:**
+
+1. **Timezone settings** - Is time correct for your timezone?
+2. **Execution history** - Did it run but find no records?
+3. **Workflow active?** - Must be activated
+4. **Schedule configuration** - Verify frequency settings
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Workflow Actions" icon="bolt" href="/user-guide/workflows/actions">
+    Learn what workflows can do
+  </Card>
+  
+  <Card title="Automation Guide" icon="robot" href="/user-guide/workflows/automation">
+    See complete workflow examples
+  </Card>
+</CardGroup>

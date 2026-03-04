@@ -1,0 +1,210 @@
+---
+title: "Google Workspace Integration"
+description: "Connect Gmail and Google Calendar to sync emails and events with Twenty"
+---
+
+## Overview
+
+The Google Workspace integration allows you to connect your Gmail account and Google Calendar to Twenty. Once connected, you can:
+
+- Sync emails automatically with related contacts and companies
+- View email threads directly in contact and company records
+- Send emails from within Twenty
+- Sync calendar events and meetings
+- Schedule meetings with contacts
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- A Google Workspace account or personal Gmail account
+- Admin access to your Twenty workspace (for initial setup)
+- For self-hosted instances: Google OAuth credentials
+
+## Setting Up Google OAuth
+
+### For Cloud Users
+
+If you're using Twenty Cloud, the OAuth integration is already configured. Simply connect your account:
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to **Settings** > **Accounts** in your Twenty workspace.
+  </Step>
+  <Step title="Connect Google Account">
+    Click **Connect Google Account** and sign in with your Google credentials.
+  </Step>
+  <Step title="Grant Permissions">
+    Review and accept the requested permissions:
+    - Read and send emails
+    - Access calendar events
+    - View contact information
+  </Step>
+  <Step title="Confirm Connection">
+    Once authorized, you'll be redirected back to Twenty. Your account is now connected!
+  </Step>
+</Steps>
+
+### For Self-Hosted Instances
+
+If you're self-hosting Twenty, you need to set up Google OAuth credentials:
+
+<Steps>
+  <Step title="Create Google Cloud Project">
+    1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+    2. Create a new project or select an existing one
+    3. Enable the Gmail API and Google Calendar API
+  </Step>
+  <Step title="Configure OAuth Consent Screen">
+    1. Navigate to **APIs & Services** > **OAuth consent screen**
+    2. Select **External** user type
+    3. Fill in the application details
+    4. Add the following scopes:
+       - `https://www.googleapis.com/auth/gmail.readonly`
+       - `https://www.googleapis.com/auth/gmail.send`
+       - `https://www.googleapis.com/auth/calendar`
+  </Step>
+  <Step title="Create OAuth Credentials">
+    1. Go to **APIs & Services** > **Credentials**
+    2. Click **Create Credentials** > **OAuth client ID**
+    3. Select **Web application**
+    4. Add authorized redirect URIs:
+       ```
+       https://your-domain.com/auth/google-apis/get-access-token
+       ```
+    5. Copy the Client ID and Client Secret
+  </Step>
+  <Step title="Configure Environment Variables">
+    Add the following to your `.env` file:
+    ```bash
+    AUTH_GOOGLE_ENABLED=true
+    AUTH_GOOGLE_CLIENT_ID=your_client_id
+    AUTH_GOOGLE_CLIENT_SECRET=your_client_secret
+    AUTH_GOOGLE_CALLBACK_URL=https://your-domain.com/auth/google/redirect
+    AUTH_GOOGLE_APIS_CALLBACK_URL=https://your-domain.com/auth/google-apis/get-access-token
+    
+    MESSAGING_PROVIDER_GMAIL_ENABLED=true
+    CALENDAR_PROVIDER_GOOGLE_ENABLED=true
+    ```
+  </Step>
+  <Step title="Restart Twenty Server">
+    Restart your Twenty server to apply the changes:
+    ```bash
+    docker-compose restart
+    ```
+  </Step>
+</Steps>
+
+## Email Sync
+
+Once connected, Twenty automatically syncs your Gmail emails:
+
+### How Email Sync Works
+
+1. **Automatic matching** - Twenty matches email addresses with contacts and companies in your CRM
+2. **Thread grouping** - Related emails are grouped into threads for easy navigation
+3. **Real-time sync** - New emails are synced within minutes of arrival
+4. **Bidirectional sync** - Emails sent from Twenty are saved to your Gmail
+
+### Viewing Emails in Twenty
+
+To view emails for a contact or company:
+
+1. Open the contact or company record
+2. Navigate to the **Emails** tab
+3. View all email threads associated with that record
+
+<Tip>
+Emails are automatically linked based on sender/recipient addresses. You can also manually link emails to records.
+</Tip>
+
+### Sending Emails
+
+To send an email from Twenty:
+
+1. Open a contact or company record
+2. Click **Send Email** in the activity panel
+3. Compose your message
+4. Click **Send**
+
+The email will be sent from your connected Gmail account and saved to your Sent folder.
+
+<Note>
+**Required Scopes for Sending Emails:**
+- `https://www.googleapis.com/auth/gmail.send`
+- `https://www.googleapis.com/auth/gmail.compose`
+
+If you don't see the option to send emails, you may need to reconnect your account with the correct scopes.
+</Note>
+
+## Calendar Sync
+
+The Google Calendar integration syncs your calendar events with Twenty:
+
+### Features
+
+- **Two-way sync** - Events created in Twenty appear in Google Calendar and vice versa
+- **Attendee linking** - Calendar attendees are automatically linked to contacts
+- **Meeting scheduling** - Schedule meetings directly from contact records
+- **Availability checking** - View your calendar when scheduling meetings
+
+### Managing Calendar Events
+
+1. Navigate to the **Calendar** view in Twenty
+2. Create, edit, or delete events
+3. Changes sync automatically with Google Calendar
+
+## Permissions and Scopes
+
+The Google integration requires the following OAuth scopes:
+
+| Scope | Purpose |
+|-------|--------|
+| `gmail.readonly` | Read emails from your Gmail account |
+| `gmail.send` | Send emails on your behalf |
+| `gmail.compose` | Create draft emails |
+| `calendar` | Access and manage calendar events |
+| `userinfo.email` | Identify your Google account |
+
+<Warning>
+Twenty only requests the minimum permissions needed. Your credentials are encrypted and never shared with third parties.
+</Warning>
+
+## Troubleshooting
+
+### Emails Not Syncing
+
+If emails aren't appearing in Twenty:
+
+1. Check that your Google account is still connected in **Settings** > **Accounts**
+2. Verify that the email addresses match contacts in your CRM
+3. Check the sync status in account settings
+4. Try disconnecting and reconnecting your account
+
+### Calendar Events Missing
+
+If calendar events aren't syncing:
+
+1. Ensure calendar sync is enabled in your account settings
+2. Check that you've granted calendar permissions
+3. Verify the calendar is not marked as "private" in Google Calendar
+
+### Authentication Errors
+
+If you see authentication errors:
+
+1. The OAuth token may have expired - reconnect your account
+2. For self-hosted instances, verify your OAuth credentials are correct
+3. Check that redirect URIs match exactly in Google Cloud Console
+
+## Implementation Details
+
+The Google Workspace integration is implemented in the Twenty server codebase:
+
+- OAuth flow: `packages/twenty-server/src/engine/core-modules/auth/controllers/google-auth.controller.ts:27`
+- Email sync: `packages/twenty-server/src/modules/messaging/message-import-manager/drivers/gmail/`
+- Calendar sync: `packages/twenty-server/src/modules/calendar/calendar-event-import-manager/drivers/google/`
+
+<Card title="Need Help?" icon="question" href="https://discord.gg/cx5n4Jzs57">
+  Join our Discord community for support and to share feedback.
+</Card>

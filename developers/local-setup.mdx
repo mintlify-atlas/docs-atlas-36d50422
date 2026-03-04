@@ -1,0 +1,272 @@
+---
+title: Local Development Setup
+description: Set up Twenty for local development
+icon: code
+---
+
+Get your local development environment up and running to start contributing to Twenty or customizing it for your needs.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js 24+** (required)
+- **Yarn 4** (4.0.2 or higher)
+- **PostgreSQL** (version 16 recommended)
+- **Redis** (latest stable version)
+- **Git**
+
+<Note>
+  Twenty uses Yarn 4 as its package manager. The project is set up with `packageManager: "yarn@4.9.2"` to ensure version consistency.
+</Note>
+
+## Clone the Repository
+
+First, clone the Twenty repository:
+
+```bash
+git clone https://github.com/twentyhq/twenty.git
+cd twenty
+```
+
+## Install Dependencies
+
+Install all project dependencies using Yarn:
+
+```bash
+yarn install
+```
+
+This will install dependencies for all packages in the monorepo.
+
+## Environment Configuration
+
+### Server Configuration
+
+Create your environment file from the example:
+
+```bash
+cp packages/twenty-server/.env.example packages/twenty-server/.env
+```
+
+Edit `packages/twenty-server/.env` with your local configuration:
+
+```bash
+NODE_ENV=development
+PG_DATABASE_URL=postgres://postgres:postgres@localhost:5432/default
+REDIS_URL=redis://localhost:6379
+APP_SECRET=replace_me_with_a_random_string
+SIGN_IN_PREFILLED=true
+FRONTEND_URL=http://localhost:3001
+```
+
+<Tip>
+  Generate a secure `APP_SECRET` using: `openssl rand -base64 32`
+</Tip>
+
+### Frontend Configuration
+
+The frontend typically doesn't require additional configuration for local development, but you can create an `.env` file if needed:
+
+```bash
+cp packages/twenty-front/.env.example packages/twenty-front/.env
+```
+
+## Database Setup
+
+### Start PostgreSQL and Redis
+
+Make sure PostgreSQL and Redis are running:
+
+<CodeGroup>
+```bash macOS (Homebrew)
+brew services start postgresql@16
+brew services start redis
+```
+
+```bash Linux (systemd)
+sudo systemctl start postgresql
+sudo systemctl start redis
+```
+
+```bash Docker
+docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16
+docker run -d --name redis -p 6379:6379 redis
+```
+</CodeGroup>
+
+### Initialize the Database
+
+Reset and initialize the database:
+
+```bash
+npx nx database:reset twenty-server
+```
+
+This command will:
+- Drop and recreate the database
+- Run all migrations
+- Seed with initial data
+
+## Start Development Server
+
+Start all services (frontend, backend, and worker) at once:
+
+```bash
+yarn start
+```
+
+This command runs:
+- **Frontend** on `http://localhost:3001`
+- **Backend** on `http://localhost:3000`
+- **Worker** for background jobs
+
+<Info>
+  The `yarn start` command uses concurrently to run multiple services. It waits for the backend to be ready before starting the worker.
+</Info>
+
+### Start Individual Services
+
+You can also start services individually:
+
+<CodeGroup>
+```bash Frontend Only
+npx nx start twenty-front
+```
+
+```bash Backend Only
+npx nx start twenty-server
+```
+
+```bash Worker Only
+npx nx run twenty-server:worker
+```
+</CodeGroup>
+
+## Verify Installation
+
+1. Open your browser and navigate to `http://localhost:3001`
+2. Click "Continue with Email"
+3. Use the prefilled credentials to sign in
+4. You should see the Twenty dashboard
+
+## Development Commands
+
+### Testing
+
+```bash
+# Run a single test file (recommended for speed)
+npx jest path/to/test.test.ts --config=packages/PROJECT/jest.config.mjs
+
+# Run all tests for a package
+npx nx test twenty-front
+npx nx test twenty-server
+
+# Run integration tests with database reset
+npx nx run twenty-server:test:integration:with-db-reset
+```
+
+### Code Quality
+
+```bash
+# Lint changes (fastest - always prefer this)
+npx nx lint:diff-with-main twenty-front
+npx nx lint:diff-with-main twenty-server
+
+# Auto-fix linting issues
+npx nx lint:diff-with-main twenty-front --configuration=fix
+
+# Type checking
+npx nx typecheck twenty-front
+npx nx typecheck twenty-server
+
+# Format code
+npx nx fmt twenty-front
+npx nx fmt twenty-server
+```
+
+### Database Operations
+
+```bash
+# Reset database
+npx nx database:reset twenty-server
+
+# Run migrations
+npx nx run twenty-server:database:migrate:prod
+
+# Generate a new migration
+npx nx run twenty-server:typeorm migration:generate \
+  src/database/typeorm/core/migrations/common/[name] \
+  -d src/database/typeorm/core/core.datasource.ts
+
+# Sync metadata
+npx nx run twenty-server:command workspace:sync-metadata
+```
+
+### GraphQL
+
+```bash
+# Generate GraphQL types after schema changes
+npx nx run twenty-front:graphql:generate
+npx nx run twenty-front:graphql:generate --configuration=metadata
+```
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Port already in use">
+    If port 3000 or 3001 is already in use, you can:
+    - Stop the conflicting process
+    - Change the port in your `.env` file:
+      ```bash
+      PORT=3002
+      FRONTEND_URL=http://localhost:3003
+      ```
+  </Accordion>
+
+  <Accordion title="Database connection failed">
+    Verify PostgreSQL is running and the connection string is correct:
+    ```bash
+    psql postgres://postgres:postgres@localhost:5432/default
+    ```
+    If the database doesn't exist, create it:
+    ```bash
+    createdb -U postgres default
+    ```
+  </Accordion>
+
+  <Accordion title="Redis connection failed">
+    Ensure Redis is running:
+    ```bash
+    redis-cli ping
+    # Should return: PONG
+    ```
+  </Accordion>
+
+  <Accordion title="Build errors after pulling latest changes">
+    Clean and reinstall dependencies:
+    ```bash
+    yarn clean
+    yarn install
+    npx nx build twenty-shared
+    yarn start
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="sitemap" href="/developers/architecture">
+    Learn about Twenty's technical architecture
+  </Card>
+  <Card title="Contributing Guide" icon="code-pull-request" href="/developers/contributing/getting-started">
+    Start contributing to Twenty
+  </Card>
+  <Card title="Code Style Guide" icon="paintbrush" href="/developers/contributing/code-style">
+    Follow Twenty's code conventions
+  </Card>
+  <Card title="Testing" icon="flask" href="/developers/contributing/testing">
+    Write and run tests
+  </Card>
+</CardGroup>

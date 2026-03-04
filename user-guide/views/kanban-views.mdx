@@ -1,0 +1,495 @@
+---
+title: Kanban Views
+description: Visualize your pipeline with kanban boards
+icon: columns
+---
+
+Kanban views display your records as cards organized in columns, perfect for visualizing workflows, pipelines, and processes.
+
+## Understanding Kanban Views
+
+Kanban views organize records visually:
+
+- **Columns** - Stages or statuses in your workflow
+- **Cards** - Individual records
+- **Drag & Drop** - Move cards between stages
+- **Swim lanes** - Group cards within columns (coming soon)
+
+Kanban is ideal for:
+- Sales pipelines (stages of a deal)
+- Project workflows (task statuses)
+- Recruitment (candidate stages)
+- Support tickets (resolution progress)
+
+## Creating a Kanban View
+
+<Steps>
+  <Step title="Navigate to your object">
+    Click the object in the sidebar that has a status or stage field.
+  </Step>
+  
+  <Step title="Open view picker">
+    Click the current view name in the top bar.
+  </Step>
+  
+  <Step title="Create new view">
+    Select **+ New View** from the dropdown.
+  </Step>
+  
+  <Step title="Choose Kanban as view type">
+    Select **Kanban** from the view type options.
+  </Step>
+  
+  <Step title="Select the stage field">
+    Choose which select field defines your columns:
+    
+    **Example for Opportunities:**
+    ```
+    Stage field: Deal Stage
+    Columns will be: Qualification, Proposal, Negotiation, Closed Won
+    ```
+  </Step>
+  
+  <Step title="Name your view">
+    Give it a descriptive name:
+    ```
+    Sales Pipeline
+    Project Status Board
+    Hiring Pipeline
+    ```
+  </Step>
+  
+  <Step title="Save the view">
+    Click **Create View**. Your kanban board appears with columns for each option.
+  </Step>
+</Steps>
+
+<Info>
+Kanban views require a Select field to define columns. Each option becomes a column.
+</Info>
+
+## Kanban Board Layout
+
+### Columns
+
+Each column represents a status option:
+
+```
+[🔵 Qualification] [\ud83d\udfe1 Proposal] [🟠 Negotiation] [🟢 Closed Won]
+    Card 1              Card 4            Card 7           Card 9
+    Card 2              Card 5            Card 8          Card 10
+    Card 3              Card 6
+```
+
+**Column header shows:**
+- Column name and color
+- Number of cards
+- Aggregate values (total value, count, etc.)
+
+### Cards
+
+Each card displays:
+
+- **Title** - The record's label identifier
+- **Key fields** - Important information (customizable)
+- **Tags** - Multi-select field values
+- **Assignee** - User avatar
+- **Due date** - With overdue indicator
+
+## Working with Cards
+
+### Moving Cards
+
+Drag and drop to change stages:
+
+<Steps>
+  <Step title="Click and hold a card">
+    Cursor changes to indicate dragging.
+  </Step>
+  
+  <Step title="Drag to new column">
+    Move the card left or right to the desired stage.
+  </Step>
+  
+  <Step title="Drop in position">
+    Release to drop. The card's stage field updates automatically.
+  </Step>
+</Steps>
+
+<Tip>
+Drop cards between existing cards to set the order within a column.
+</Tip>
+
+### Multi-Card Move
+
+Move multiple cards at once:
+
+1. Hold `Cmd/Ctrl` and click cards to select
+2. Drag one selected card
+3. All selected cards move together
+4. Drop in target column
+
+### Opening Cards
+
+Access full record details:
+
+- **Click the card** - Opens record in side panel
+- **Click title** - Opens record in full page
+- **Middle-click** - Opens in new tab
+
+### Card Quick Actions
+
+Hover over a card to see actions:
+
+- **Edit** (✏️) - Quick edit key fields
+- **More** (•••) - Additional actions
+  - Duplicate card
+  - Delete card
+  - Convert to another object
+  - Add to favorites
+
+## Creating Cards
+
+Add new records directly to the board:
+
+### From a Column
+
+1. Click **+ Add card** at the bottom of any column
+2. Enter the card title
+3. Press `Enter` to create
+4. Card appears in that column with the stage pre-set
+
+### Quick Create
+
+1. Press `Cmd/Ctrl+N` anywhere on the board
+2. Enter title and basic info
+3. Choose which column/stage
+4. Save to create
+
+## Configuring Card Display
+
+Customize what appears on cards:
+
+<Steps>
+  <Step title="Open view settings">
+    Click the settings icon in the view header.
+  </Step>
+  
+  <Step title="Go to Card Fields">
+    Select which fields to show on cards.
+  </Step>
+  
+  <Step title="Choose fields">
+    Toggle fields on/off:
+    - ✅ Show most important fields (2-4 fields)
+    - ❌ Don't overcrowd cards
+  </Step>
+  
+  <Step title="Set field order">
+    Drag to reorder how fields appear on cards.
+  </Step>
+</Steps>
+
+### Recommended Card Fields
+
+<CardGroup cols={2}>
+  <Card title="Identifier" icon="tag">
+    Main title/name (always shown)
+  </Card>
+  
+  <Card title="Owner/Assignee" icon="user">
+    Who's responsible (shown as avatar)
+  </Card>
+  
+  <Card title="Due Date" icon="calendar">
+    Deadline or target date
+  </Card>
+  
+  <Card title="Value/Amount" icon="dollar-sign">
+    For opportunities, show deal size
+  </Card>
+  
+  <Card title="Priority" icon="flag">
+    Importance indicator
+  </Card>
+  
+  <Card title="Tags" icon="tags">
+    Categories or attributes
+  </Card>
+</CardGroup>
+
+<Warning>
+Showing too many fields makes cards hard to scan. Keep it to 3-5 key fields.
+</Warning>
+
+## Column Configuration
+
+### Reordering Columns
+
+Change the order of stages:
+
+1. Click and hold the column header
+2. Drag left or right
+3. Drop in new position
+
+Order reflects your workflow stages (e.g., Prospecting → Qualified → Proposal → Closed).
+
+### Column Aggregation
+
+Show summary statistics in column headers:
+
+<Tabs>
+  <Tab title="Count">
+    Number of cards in the column.
+    ```
+    Proposal (8)
+    ```
+  </Tab>
+  
+  <Tab title="Sum">
+    Total of a number field (e.g., opportunity value).
+    ```
+    Negotiation (5 deals - $125,000)
+    ```
+  </Tab>
+  
+  <Tab title="Average">
+    Mean value of a field.
+    ```
+    In Progress (12 tasks - avg 3 days)
+    ```
+  </Tab>
+</Tabs>
+
+To configure:
+
+1. Click the column menu (•••)
+2. Select **Aggregate**
+3. Choose field and operation
+
+### Column Limits
+
+Set WIP (Work in Progress) limits:
+
+<Info>
+WIP limits are coming soon. You'll be able to set max cards per column to manage workload.
+</Info>
+
+## Filtering Kanban Views
+
+Filter which cards appear on the board:
+
+<Steps>
+  <Step title="Click filter icon">
+    Open the filter panel in the view header.
+  </Step>
+  
+  <Step title="Add conditions">
+    Create filters:
+    ```yaml
+    Show only:
+    - Owner = Me
+    - Priority = High
+    - Created > Last 30 days
+    ```
+  </Step>
+  
+  <Step title="Apply filters">
+    Cards matching filters appear on the board.
+  </Step>
+</Steps>
+
+Filtered cards can still move between visible columns.
+
+<Card title="Advanced Filtering" icon="filter" href="/user-guide/views/filters-and-sorting">
+Learn about complex filter conditions →
+</Card>
+
+## Sorting Within Columns
+
+Control the order of cards within each column:
+
+**Available sort options:**
+- Manual (drag to reorder)
+- Created date
+- Updated date
+- Due date
+- Priority
+- Alphabetical
+- Custom number field
+
+To set:
+
+1. Open view settings
+2. Select **Sort by**
+3. Choose field and direction
+
+<Tip>
+Manual sorting lets you prioritize cards by dragging them up or down within a column.
+</Tip>
+
+## Example Kanban Setups
+
+### Sales Pipeline
+
+**Object:** Opportunities
+
+**Stage Field:** Deal Stage
+```yaml
+Columns:
+  - Prospecting
+  - Qualification  
+  - Proposal
+  - Negotiation
+  - Closed Won
+  - Closed Lost
+```
+
+**Card Fields:**
+- Company name
+- Deal value
+- Close date
+- Account owner
+
+**Aggregation:** Sum of deal values per column
+
+### Project Task Board
+
+**Object:** Tasks
+
+**Stage Field:** Status
+```yaml
+Columns:
+  - To Do
+  - In Progress
+  - In Review
+  - Done
+```
+
+**Card Fields:**
+- Task name
+- Assignee
+- Due date
+- Priority
+
+**Aggregation:** Count of tasks
+
+### Recruitment Pipeline
+
+**Object:** Candidates
+
+**Stage Field:** Interview Stage
+```yaml
+Columns:
+  - Applied
+  - Phone Screen
+  - Technical Interview
+  - Final Interview
+  - Offer
+  - Hired
+  - Rejected
+```
+
+**Card Fields:**
+- Candidate name
+- Position
+- Interview date
+- Recruiter
+
+## Kanban Best Practices
+
+<AccordionGroup>
+  <Accordion title="Design your workflow first">
+    Define clear stages before creating the board:
+    1. List all stages in your process
+    2. Put them in order
+    3. Define what qualifies for each stage
+    4. Set up your select field with these options
+    5. Create the kanban view
+  </Accordion>
+  
+  <Accordion title="Keep columns focused">
+    Ideal number of columns: 4-7
+    
+    ✅ **Good:**
+    - New → In Progress → Review → Done
+    
+    ❌ **Too many:**
+    - New → Assigned → In Progress → Blocked → Review → Testing → Approval → Deployed → Done
+    
+    Too many stages make the board hard to use.
+  </Accordion>
+  
+  <Accordion title="Show the right information on cards">
+    Include fields that help with decisions:
+    - Who's responsible
+    - When it's due
+    - How valuable/important
+    - Current status indicators
+    
+    Avoid:
+    - Long text fields
+    - Too many fields (3-5 max)
+    - Fields that rarely change
+  </Accordion>
+  
+  <Accordion title="Use colors meaningfully">
+    Column colors should convey meaning:
+    - 🔵 Blue - Early stages
+    - 🟡 Yellow - In progress
+    - 🟢 Green - Complete/success
+    - 🔴 Red - Issues/rejected
+  </Accordion>
+  
+  <Accordion title="Maintain your board regularly">
+    Keep the board current:
+    - Move cards promptly when stages change
+    - Archive or close completed cards
+    - Review stuck cards weekly
+    - Update card details as needed
+  </Accordion>
+  
+  <Accordion title="Set team conventions">
+    Align on practices:
+    - When to move cards
+    - Who can move what
+    - How to handle blocked items
+    - When to add comments vs. update fields
+  </Accordion>
+</AccordionGroup>
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `↑` `↓` | Navigate between cards in column |
+| `←` `→` | Navigate between columns |
+| `Enter` | Open focused card |
+| `Cmd/Ctrl+N` | Create new card |
+| `Cmd/Ctrl+D` | Duplicate selected card |
+| `Delete` | Delete selected card |
+
+## Performance Tips
+
+For boards with many cards:
+
+- **Use filters** to show subsets (e.g., "My cards only")
+- **Archive old cards** regularly
+- **Limit card fields** to reduce rendering time
+- **Split large pipelines** into multiple views (e.g., by quarter)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Table Views" icon="table" href="/user-guide/views/table-views">
+    Work with the same data in table format
+  </Card>
+  
+  <Card title="Filters and Sorting" icon="filter" href="/user-guide/views/filters-and-sorting">
+    Advanced filtering for kanban views
+  </Card>
+  
+  <Card title="Workflow Automation" icon="bolt" href="/user-guide/workflows/automation">
+    Automate actions when cards move
+  </Card>
+</CardGroup>

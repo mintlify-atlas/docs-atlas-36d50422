@@ -1,0 +1,508 @@
+---
+title: Contributing to Twenty
+description: How to contribute to the Twenty project
+icon: code-pull-request
+---
+
+Join hundreds of developers building the future of open-source CRM. Every contribution makes a difference!
+
+## Why Contribute?
+
+- **Impact thousands** - Twenty is used by companies worldwide
+- **Learn modern tech** - Work with React, NestJS, GraphQL, and more
+- **Join the community** - Connect with developers around the globe
+- **Build your portfolio** - Showcase your contributions
+- **Shape the product** - Help decide what gets built next
+
+## Ways to Contribute
+
+<CardGroup cols={2}>
+  <Card title="Code Contributions" icon="code">
+    Fix bugs, add features, improve performance
+  </Card>
+  <Card title="Documentation" icon="book">
+    Improve docs, write tutorials, create examples
+  </Card>
+  <Card title="Bug Reports" icon="bug">
+    Find and report issues to help improve quality
+  </Card>
+  <Card title="Feature Requests" icon="lightbulb">
+    Suggest new features and improvements
+  </Card>
+  <Card title="Translations" icon="language">
+    Translate Twenty into your language
+  </Card>
+  <Card title="Community Support" icon="users">
+    Help others in Discord and GitHub
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+### 1. Find an Issue
+
+Browse open issues on GitHub:
+
+<Steps>
+  <Step title="Good First Issues">
+    Start with issues labeled [`good first issue`](https://github.com/twentyhq/twenty/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+    
+    These are beginner-friendly issues perfect for first-time contributors.
+  </Step>
+  
+  <Step title="Help Wanted">
+    Check [`help wanted`](https://github.com/twentyhq/twenty/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issues
+    
+    These issues are ready to work on and contributions are welcomed.
+  </Step>
+  
+  <Step title="Bug Reports">
+    Look for bugs labeled [`bug`](https://github.com/twentyhq/twenty/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+    
+    Help fix reported bugs to improve stability.
+  </Step>
+</Steps>
+
+<Tip>
+  **Comment on the issue** before starting work to avoid duplicate efforts. Let maintainers know you're working on it.
+</Tip>
+
+### 2. Set Up Your Environment
+
+Follow the [Local Development Setup](/developers/local-setup) guide to get Twenty running locally.
+
+Quick setup:
+
+```bash
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/twenty.git
+cd twenty
+
+# Install dependencies
+yarn install
+
+# Set up environment
+cp packages/twenty-server/.env.example packages/twenty-server/.env
+
+# Initialize database
+npx nx database:reset twenty-server
+
+# Start development server
+yarn start
+```
+
+### 3. Create a Branch
+
+Create a descriptive branch name:
+
+```bash
+# For features
+git checkout -b feature/add-company-export
+
+# For bug fixes
+git checkout -b fix/email-validation-error
+
+# For documentation
+git checkout -b docs/update-api-guide
+```
+
+### 4. Make Your Changes
+
+Follow our [Code Style Guide](/developers/contributing/code-style) when writing code.
+
+Key principles:
+- **Write tests** - Add tests for new functionality
+- **Follow conventions** - Match existing code patterns
+- **Keep it focused** - One feature/fix per PR
+- **Update docs** - Document new features
+
+### 5. Test Your Changes
+
+Ensure all tests pass:
+
+```bash
+# Run linting (always do this first!)
+npx nx lint:diff-with-main twenty-front
+npx nx lint:diff-with-main twenty-server
+
+# Auto-fix linting issues
+npx nx lint:diff-with-main twenty-front --configuration=fix
+
+# Type checking
+npx nx typecheck twenty-front
+npx nx typecheck twenty-server
+
+# Run tests
+npx nx test twenty-front
+npx nx test twenty-server
+
+# Test specific file
+npx jest path/to/test.test.ts --config=packages/twenty-front/jest.config.mjs
+```
+
+### 6. Commit Your Changes
+
+Write clear, descriptive commit messages:
+
+```bash
+# Good commit messages
+git commit -m "Add CSV export for companies"
+git commit -m "Fix email validation in person form"
+git commit -m "Update GraphQL API documentation"
+
+# Bad commit messages
+git commit -m "fix bug"
+git commit -m "wip"
+git commit -m "update"
+```
+
+<Note>
+  Follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+  - `feat:` - New feature
+  - `fix:` - Bug fix
+  - `docs:` - Documentation changes
+  - `refactor:` - Code refactoring
+  - `test:` - Adding tests
+  - `chore:` - Maintenance tasks
+</Note>
+
+### 7. Submit a Pull Request
+
+Push your branch and open a pull request:
+
+```bash
+# Push to your fork
+git push origin feature/add-company-export
+```
+
+Then on GitHub:
+
+1. Navigate to your fork
+2. Click **Compare & pull request**
+3. Fill out the PR template:
+   - **Title** - Clear, descriptive title
+   - **Description** - What does this PR do?
+   - **Issue** - Link to related issue(s)
+   - **Testing** - How did you test this?
+   - **Screenshots** - For UI changes
+
+## Pull Request Guidelines
+
+### PR Title Format
+
+```
+<type>: <description>
+```
+
+Examples:
+- `feat: Add CSV export for companies`
+- `fix: Resolve email validation error`
+- `docs: Update API authentication guide`
+- `refactor: Simplify person list query logic`
+
+### PR Description Template
+
+```markdown
+## Description
+Brief description of changes
+
+## Related Issue
+Fixes #123
+
+## Changes Made
+- Added CSV export button to companies page
+- Implemented CSV generation logic
+- Added tests for export functionality
+
+## Testing
+- Tested export with 1000+ records
+- Verified CSV format is correct
+- Checked all fields are included
+
+## Screenshots
+(if applicable)
+
+## Checklist
+- [ ] Tests pass
+- [ ] Linting passes
+- [ ] Documentation updated
+- [ ] No breaking changes
+```
+
+### Review Process
+
+1. **Automated checks** - CI runs tests and linting
+2. **Maintainer review** - Core team reviews your code
+3. **Feedback** - Address review comments
+4. **Approval** - Once approved, your PR will be merged!
+
+<Info>
+  Reviews may take a few days. Be patient and responsive to feedback.
+</Info>
+
+## Contribution Types
+
+### Code Contributions
+
+**Bug Fixes**
+- Find bugs in GitHub issues or while using Twenty
+- Reproduce the issue locally
+- Write a test that fails
+- Fix the bug
+- Verify test passes
+- Submit PR
+
+**New Features**
+- Discuss feature in GitHub issue first
+- Get approval from maintainers
+- Implement feature following code style
+- Write comprehensive tests
+- Update documentation
+- Submit PR
+
+**Performance Improvements**
+- Identify performance bottleneck
+- Benchmark current performance
+- Implement optimization
+- Verify improvement with benchmarks
+- Ensure no regressions
+- Submit PR
+
+### Documentation Contributions
+
+Help improve our documentation:
+
+```bash
+# Documentation is in packages/twenty-docs/
+cd packages/twenty-docs
+
+# Make changes to MDX files
+# ...
+
+# Preview locally
+yarn dev
+```
+
+Documentation contributions:
+- Fix typos and grammar
+- Clarify confusing sections
+- Add missing examples
+- Write tutorials
+- Improve API documentation
+
+### Translation Contributions
+
+Translate Twenty into your language:
+
+1. Visit [Twenty on Crowdin](https://twenty.crowdin.com/twenty)
+2. Select your language
+3. Start translating
+4. Submit translations for review
+
+### Community Support
+
+Help others in the community:
+
+- Answer questions in [Discord](https://discord.gg/cx5n4Jzs57)
+- Help troubleshoot issues on GitHub
+- Write blog posts and tutorials
+- Create video tutorials
+- Share Twenty on social media
+
+## Recognition
+
+We value our contributors:
+
+- **All contributors** are listed in our README
+- **Regular contributors** may be invited to the core team
+- **Significant contributions** are highlighted in release notes
+- **Everyone** gets our gratitude and recognition!
+
+## Communication
+
+### Discord
+
+Join our [Discord community](https://discord.gg/cx5n4Jzs57):
+- **#general** - General discussion
+- **#dev** - Development questions
+- **#help** - Get help
+- **#showcase** - Show what you built
+
+### GitHub Discussions
+
+Use [GitHub Discussions](https://github.com/twentyhq/twenty/discussions) for:
+- Feature proposals
+- Design discussions
+- Questions and answers
+- Show and tell
+
+### GitHub Issues
+
+Use [GitHub Issues](https://github.com/twentyhq/twenty/issues) for:
+- Bug reports
+- Feature requests
+- Task tracking
+
+## Code of Conduct
+
+We are committed to providing a welcoming and inclusive environment:
+
+- **Be respectful** - Treat everyone with respect
+- **Be constructive** - Provide helpful feedback
+- **Be inclusive** - Welcome all skill levels
+- **Be patient** - Remember everyone is learning
+- **Be kind** - Assume good intentions
+
+Read our full [Code of Conduct](https://github.com/twentyhq/twenty/blob/main/CODE_OF_CONDUCT.md).
+
+## Reporting Security Issues
+
+<Warning>
+  **Do not** open public GitHub issues for security vulnerabilities.
+</Warning>
+
+To report security issues:
+
+1. Email security@twenty.com
+2. Include detailed description
+3. Provide steps to reproduce
+4. Wait for response before public disclosure
+
+## Development Resources
+
+<CardGroup cols={2}>
+  <Card title="Local Setup" icon="laptop-code" href="/developers/local-setup">
+    Set up your development environment
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/developers/architecture">
+    Understand the codebase structure
+  </Card>
+  <Card title="Code Style" icon="paintbrush" href="/developers/contributing/code-style">
+    Follow code conventions
+  </Card>
+  <Card title="Testing" icon="flask" href="/developers/contributing/testing">
+    Write and run tests
+  </Card>
+</CardGroup>
+
+## Common Questions
+
+<AccordionGroup>
+  <Accordion title="Do I need to be an expert to contribute?">
+    No! We welcome contributors of all skill levels. Start with "good first issue" labels and learn as you go.
+  </Accordion>
+
+  <Accordion title="How long does PR review take?">
+    Usually 2-5 days, but can vary. Be patient and responsive to feedback.
+  </Accordion>
+
+  <Accordion title="Can I work on multiple issues?">
+    Yes, but focus on one PR at a time. Complete one before starting another.
+  </Accordion>
+
+  <Accordion title="What if my PR is rejected?">
+    Don't worry! Ask for feedback, learn from it, and try again. Every PR is a learning opportunity.
+  </Accordion>
+
+  <Accordion title="How do I keep my fork updated?">
+    ```bash
+    # Add upstream remote
+    git remote add upstream https://github.com/twentyhq/twenty.git
+    
+    # Fetch and merge
+    git fetch upstream
+    git checkout main
+    git merge upstream/main
+    git push origin main
+    ```
+  </Accordion>
+
+  <Accordion title="Can I contribute to Twenty Cloud?">
+    Twenty Cloud is closed-source. Contributions focus on the open-source core which powers both self-hosted and cloud versions.
+  </Accordion>
+</AccordionGroup>
+
+## Tips for Success
+
+<CardGroup cols={2}>
+  <Card title="Start Small" icon="seedling">
+    Begin with small contributions to learn the process
+  </Card>
+  <Card title="Ask Questions" icon="question">
+    Don't hesitate to ask in Discord or GitHub
+  </Card>
+  <Card title="Follow Guidelines" icon="book-open">
+    Read and follow our contribution guidelines
+  </Card>
+  <Card title="Be Patient" icon="clock">
+    Good things take time - both learning and reviews
+  </Card>
+</CardGroup>
+
+## Example: First Contribution
+
+Here's a complete example of making your first contribution:
+
+```bash
+# 1. Fork the repository on GitHub
+
+# 2. Clone your fork
+git clone https://github.com/YOUR_USERNAME/twenty.git
+cd twenty
+
+# 3. Set up upstream
+git remote add upstream https://github.com/twentyhq/twenty.git
+
+# 4. Install dependencies
+yarn install
+
+# 5. Set up environment
+cp packages/twenty-server/.env.example packages/twenty-server/.env
+
+# 6. Initialize database
+npx nx database:reset twenty-server
+
+# 7. Start dev server
+yarn start
+
+# 8. Create a branch
+git checkout -b fix/typo-in-readme
+
+# 9. Make changes
+# (edit files)
+
+# 10. Run linting
+npx nx lint:diff-with-main twenty-front --configuration=fix
+
+# 11. Commit changes
+git add .
+git commit -m "docs: Fix typo in README"
+
+# 12. Push to your fork
+git push origin fix/typo-in-readme
+
+# 13. Open pull request on GitHub
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Code Style Guide" icon="paintbrush" href="/developers/contributing/code-style">
+    Learn Twenty's code conventions
+  </Card>
+  <Card title="Testing Guide" icon="flask" href="/developers/contributing/testing">
+    Write and run tests
+  </Card>
+  <Card title="Browse Issues" icon="github" href="https://github.com/twentyhq/twenty/issues">
+    Find something to work on
+  </Card>
+  <Card title="Join Discord" icon="discord" href="https://discord.gg/cx5n4Jzs57">
+    Connect with the community
+  </Card>
+</CardGroup>
+
+## Thank You!
+
+Thank you for contributing to Twenty! Every contribution, no matter how small, helps make Twenty better for everyone.
+
+Happy coding! 🚀

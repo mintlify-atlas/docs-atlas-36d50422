@@ -1,0 +1,85 @@
+---
+title: "Integrations Overview"
+description: "Connect Twenty with your favorite tools to streamline your workflow"
+---
+
+## Available Integrations
+
+Twenty offers a growing ecosystem of integrations to help you connect your CRM with the tools you already use. From email providers to automation platforms, these integrations help you centralize your customer data and automate repetitive tasks.
+
+<CardGroup cols={2}>
+  <Card title="Email Providers" icon="envelope" href="/integrations/email/google-workspace">
+    Connect Gmail, Outlook, and other email providers to sync emails and calendar events
+  </Card>
+  <Card title="Automation Tools" icon="bolt" href="/integrations/tools/zapier">
+    Integrate with Zapier, Make, and other automation platforms to build powerful workflows
+  </Card>
+  <Card title="Communication" icon="comments" href="/integrations/tools/slack">
+    Get real-time notifications in Slack and collaborate with your team
+  </Card>
+  <Card title="Custom Integrations" icon="code" href="/developers/extending/webhooks">
+    Build your own integrations using Twenty's GraphQL API and webhooks
+  </Card>
+</CardGroup>
+
+## Integration Categories
+
+### Email & Calendar
+
+Connect your email and calendar to Twenty to:
+- Automatically sync emails with related contacts and companies
+- View email threads directly in Twenty
+- Sync calendar events and schedule meetings
+- Send emails from within Twenty
+
+Supported providers:
+- **Google Workspace** - Gmail and Google Calendar
+- **Microsoft 365** - Outlook and Microsoft Calendar
+
+### Automation & Workflows
+
+Automate your workflows and connect Twenty with thousands of apps:
+- **Zapier** - Build automated workflows without code
+- **Webhooks** - Trigger custom actions on record changes
+- **API** - Build custom integrations using GraphQL
+
+### Communication
+
+Stay connected with your team:
+- **Slack** - Receive notifications and updates in Slack channels
+- **Webhook notifications** - Send custom notifications to any service
+
+## How to Enable Integrations
+
+Most integrations can be enabled from within your Twenty workspace:
+
+<Steps>
+  <Step title="Navigate to Settings">
+    Click on your workspace name in the top-left corner, then select **Settings**.
+  </Step>
+  <Step title="Go to Integrations">
+    In the settings menu, navigate to the **Integrations** section.
+  </Step>
+  <Step title="Connect Your Account">
+    Find the integration you want to enable and click **Connect**. You'll be redirected to authenticate with the service.
+  </Step>
+  <Step title="Configure Settings">
+    Once connected, configure any additional settings like sync frequency or notification preferences.
+  </Step>
+</Steps>
+
+<Note>
+Some integrations may require administrator permissions in your workspace. Contact your workspace admin if you don't see the option to enable an integration.
+</Note>
+
+## Self-Hosted Instances
+
+If you're running Twenty on your own infrastructure, you'll need to configure OAuth credentials for email providers and set up webhook endpoints. See the [Configuration guide](/developers/self-hosting/configuration) for details.
+
+## Integration Marketplace
+
+Twenty's integration ecosystem is growing. Check back regularly for new integrations, or build your own using our [API](/developers/api/graphql-api) and share it with the community.
+
+<Tip>
+Have an integration request? Let us know on [GitHub](https://github.com/twentyhq/twenty/discussions) or [Discord](https://discord.gg/cx5n4Jzs57).
+</Tip>

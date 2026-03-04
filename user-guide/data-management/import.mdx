@@ -1,0 +1,530 @@
+---
+title: Importing Data
+description: Bring your data into Twenty
+icon: file-import
+---
+
+Import data from CSV files, spreadsheets, or other CRMs to get started quickly with Twenty.
+
+## Import Overview
+
+Twenty's import tool helps you:
+
+- **Import CSV files** - From Excel, Google Sheets, or exports
+- **Map fields** - Match your columns to Twenty fields
+- **Handle duplicates** - Skip, update, or create new records
+- **Preview data** - Review before importing
+- **Track progress** - Monitor import status
+
+## Preparing Your Data
+
+Before importing, prepare your CSV file:
+
+### CSV File Requirements
+
+<CardGroup cols={2}>
+  <Card title="File Format" icon="file-csv">
+    - UTF-8 encoding
+    - Comma-separated (`,`)
+    - First row contains headers
+    - Max file size: 100 MB
+  </Card>
+  
+  <Card title="Data Quality" icon="check">
+    - Clean data (remove formatting)
+    - Consistent date formats
+    - Valid email addresses
+    - Remove duplicate rows
+  </Card>
+</CardGroup>
+
+### Data Cleaning Tips
+
+<Steps>
+  <Step title="Remove unnecessary columns">
+    Delete columns you don't need in Twenty.
+  </Step>
+  
+  <Step title="Standardize formats">
+    Ensure consistency:
+    ```yaml
+    Dates: YYYY-MM-DD (2026-03-15)
+    Phone: +1-555-123-4567
+    Currency: 50000 (no $ or commas)
+    Boolean: true/false or 1/0
+    ```
+  </Step>
+  
+  <Step title="Clean text fields">
+    Remove:
+    - Extra spaces
+    - Line breaks (unless intended)
+    - Special characters that cause issues
+  </Step>
+  
+  <Step title="Handle empty values">
+    Decide how to handle:
+    - Leave blank or use default
+    - "N/A" or actual empty
+  </Step>
+</Steps>
+
+## Importing Data
+
+### Step-by-Step Import
+
+<Steps>
+  <Step title="Navigate to import">
+    Go to the object you want to import to:
+    - **Companies**, **People**, **Opportunities**, or custom object
+    - Click **Options** (···) → **Import**
+  </Step>
+  
+  <Step title="Upload CSV file">
+    - Click **Upload CSV** or drag and drop
+    - File uploads and parses
+    - See column preview
+  </Step>
+  
+  <Step title="Map fields">
+    Match CSV columns to Twenty fields:
+    
+    ```yaml
+    CSV Column → Twenty Field
+    "Company Name" → Name
+    "Website URL" → Website
+    "Industry" → Industry
+    "Annual Sales" → Annual Revenue
+    "Contact Email" → Email
+    "Phone" → Phone Number
+    ```
+    
+    - Auto-mapping suggests matches
+    - Manually adjust as needed
+    - Unmapped columns are skipped
+  </Step>
+  
+  <Step title="Set duplicate handling">
+    Choose what to do with duplicates:
+    
+    **Match by:** Email, Name, or custom field
+    
+    **When match found:**
+    - **Skip** - Don't import duplicate
+    - **Update** - Overwrite existing record
+    - **Create** - Add as new record
+  </Step>
+  
+  <Step title="Preview import">
+    Review sample records:
+    - See how data will import
+    - Check field mappings
+    - Verify values look correct
+  </Step>
+  
+  <Step title="Start import">
+    Click **Import** to begin.
+    - Progress bar shows status
+    - See success/error counts
+    - Import runs in background
+  </Step>
+  
+  <Step title="Review results">
+    Check import summary:
+    ```yaml
+    Total rows: 1,000
+    Successfully imported: 950
+    Updated: 30
+    Skipped (duplicates): 15
+    Failed: 5
+    ```
+    
+    Download error report for failed rows.
+  </Step>
+</Steps>
+
+## Field Mapping
+
+### Auto-Mapping
+
+Twenty automatically suggests mappings based on:
+
+- Column name similarity
+- Data type compatibility
+- Common field names
+
+**Example auto-mapping:**
+```yaml
+"Company" → Name
+"Email" → Email Address
+"Phone" → Phone Number
+"City" → City
+"State" → State
+```
+
+### Manual Mapping
+
+Adjust mappings when auto-mapping is wrong:
+
+1. Click the dropdown for a CSV column
+2. Select the correct Twenty field
+3. Or choose **Don't import** to skip
+
+### Field Type Compatibility
+
+<Tabs>
+  <Tab title="Text Fields">
+    Accept any value:
+    ```
+    CSV: "Acme Corporation"
+    Twenty: Name field (Text)
+    ```
+  </Tab>
+  
+  <Tab title="Number Fields">
+    Require numeric values:
+    ```yaml
+    ✅ Valid: 50000, 1234.56
+    ❌ Invalid: "$50,000", "N/A"
+    ```
+    
+    Remove currency symbols and commas before importing.
+  </Tab>
+  
+  <Tab title="Date Fields">
+    Support multiple formats:
+    ```yaml
+    Supported:
+    - 2026-03-15
+    - 03/15/2026
+    - March 15, 2026
+    
+    Time (Date/Time fields):
+    - 2026-03-15 14:30:00
+    - 2026-03-15T14:30:00Z
+    ```
+  </Tab>
+  
+  <Tab title="Boolean Fields">
+    Accept various formats:
+    ```yaml
+    True: true, TRUE, 1, yes, YES, Y
+    False: false, FALSE, 0, no, NO, N
+    Empty: blank (no value)
+    ```
+  </Tab>
+  
+  <Tab title="Select Fields">
+    Must match existing options exactly:
+    ```yaml
+    Field: Status
+    Options: Active, Inactive, Prospect
+    
+    ✅ CSV Value: "Active"
+    ❌ CSV Value: "active" (wrong case)
+    ❌ CSV Value: "In Progress" (doesn't exist)
+    ```
+    
+    Add new options before importing or they'll fail.
+  </Tab>
+  
+  <Tab title="Multi-Select Fields">
+    Use semicolons to separate:
+    ```
+    CSV: "High Priority;Client-Facing;Urgent"
+    Twenty: Tags field (Multi-Select)
+    Result: 3 tags applied
+    ```
+  </Tab>
+  
+  <Tab title="Relation Fields">
+    Match by identifier:
+    ```yaml
+    CSV Column: "Company Name"
+    Twenty Field: Company (Relation)
+    Matching: By company name
+    
+    If match found: Links to existing company
+    If not found: Can create new company or skip
+    ```
+  </Tab>
+</Tabs>
+
+## Handling Duplicates
+
+### Duplicate Detection
+
+Twenty identifies duplicates by comparing:
+
+**Primary matching fields:**
+- **Email** - For People
+- **Domain** - For Companies
+- **Name** - For any object
+- **Custom field** - You specify
+
+### Duplicate Strategies
+
+<AccordionGroup>
+  <Accordion title="Skip Duplicates">
+    Leave existing records unchanged:
+    ```yaml
+    Strategy: Skip
+    
+    Existing: John Doe (john@company.com)
+    Import: John Smith (john@company.com)
+    Result: Import skipped, John Doe unchanged
+    
+    Use when: Existing data is more accurate
+    ```
+  </Accordion>
+  
+  <Accordion title="Update Duplicates">
+    Overwrite existing records:
+    ```yaml
+    Strategy: Update
+    
+    Existing: 
+      Name: Acme Corp
+      Phone: 555-1234
+      Revenue: 1000000
+    
+    Import:
+      Name: Acme Corporation
+      Phone: 555-5678
+      Revenue: 1500000
+    
+    Result:
+      Name: Acme Corporation (updated)
+      Phone: 555-5678 (updated)
+      Revenue: 1500000 (updated)
+    
+    Use when: Import has newer/better data
+    ```
+  </Accordion>
+  
+  <Accordion title="Create Anyway">
+    Allow duplicate records:
+    ```yaml
+    Strategy: Create Anyway
+    
+    Existing: John Doe (john@company.com)
+    Import: John Doe (john@company.com)
+    Result: Second "John Doe" created
+    
+    Use when: Duplicates are intentional (e.g., different roles)
+    ```
+    
+    <Warning>
+    This creates duplicate data. Clean up duplicates later if needed.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Import Examples
+
+### Example 1: Importing Companies
+
+**CSV File:**
+```csv
+Company Name,Website,Industry,Employees,Annual Revenue
+Acme Corp,acme.com,Technology,500,5000000
+Global Inc,globalinc.com,Finance,1200,15000000
+Startup LLC,startup.io,Technology,25,500000
+```
+
+**Field Mapping:**
+```yaml
+"Company Name" → Name
+"Website" → Website
+"Industry" → Industry
+"Employees" → Employee Count
+"Annual Revenue" → Annual Revenue
+```
+
+**Settings:**
+```yaml
+Duplicate Detection: By Website domain
+On Duplicate: Update
+```
+
+**Result:**
+- 3 companies imported
+- If acme.com exists, it's updated
+- New companies created for others
+
+### Example 2: Importing People with Relations
+
+**CSV File:**
+```csv
+First Name,Last Name,Email,Job Title,Company,Phone
+John,Doe,john@acme.com,CEO,Acme Corp,555-1234
+Jane,Smith,jane@acme.com,CTO,Acme Corp,555-5678
+Bob,Jones,bob@startup.io,Founder,Startup LLC,555-9999
+```
+
+**Field Mapping:**
+```yaml
+"First Name" → First Name
+"Last Name" → Last Name
+"Email" → Email
+"Job Title" → Job Title
+"Company" → Company (Relation, match by name)
+"Phone" → Phone Number
+```
+
+**Settings:**
+```yaml
+Duplicate Detection: By Email
+On Duplicate: Update
+Relation Handling:
+  Company not found: Create new company
+```
+
+**Result:**
+- 3 people imported
+- Linked to existing companies or new ones created
+- If email exists, person updated
+
+## Import Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start with a small test">
+    Before importing thousands of records:
+    1. Create CSV with 10-20 test rows
+    2. Run import
+    3. Verify data looks correct
+    4. Check field mappings
+    5. Then import full dataset
+  </Accordion>
+  
+  <Accordion title="Clean data before importing">
+    Better to fix in source:
+    - Remove duplicates in CSV
+    - Standardize formats
+    - Validate emails and phones
+    - Fill required fields
+    
+    Saves time and reduces errors.
+  </Accordion>
+  
+  <Accordion title="Map all important fields">
+    Don't skip columns you'll need later:
+    - Review all CSV columns
+    - Map everything relevant
+    - Unmapped data is lost
+  </Accordion>
+  
+  <Accordion title="Choose duplicate strategy carefully">
+    Consider your data:
+    - **Skip:** When existing data is authoritative
+    - **Update:** When import has latest info
+    - **Create:** When duplicates are valid
+  </Accordion>
+  
+  <Accordion title="Review error reports">
+    For failed rows:
+    1. Download error CSV
+    2. Fix issues
+    3. Re-import failed rows
+    
+    Common errors:
+    - Invalid email format
+    - Number in text field
+    - Select option doesn't exist
+    - Required field missing
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting Imports
+
+### Import Failed
+
+**Common causes:**
+- File too large (>100 MB)
+- Invalid CSV format
+- Encoding issues (not UTF-8)
+- Corrupted file
+
+**Solutions:**
+- Split large files
+- Re-export as UTF-8 CSV
+- Check file isn't corrupted
+
+### Many Rows Failed
+
+**Check:**
+- Field type compatibility
+- Required fields populated
+- Select options exist
+- Date formats correct
+
+**Download error report to see specific issues.**
+
+### Relations Not Linking
+
+**Causes:**
+- Relation matching field incorrect
+- Values don't match exactly
+- Related records don't exist
+
+**Solutions:**
+- Verify matching field
+- Check for typos/extra spaces
+- Import related records first
+- Enable "Create if not found"
+
+### Duplicates Created Unexpectedly
+
+**Causes:**
+- Duplicate detection field wrong
+- Matching too strict (case-sensitive)
+- Empty match fields
+
+**Solutions:**
+- Review duplicate settings
+- Clean up duplicates after import
+- Re-import with correct settings
+
+## After Importing
+
+<Steps>
+  <Step title="Verify data">
+    Check a sample of imported records:
+    - Fields populated correctly
+    - Relations linked
+    - No obvious errors
+  </Step>
+  
+  <Step title="Clean up duplicates">
+    If duplicates created:
+    - Use duplicate management tool
+    - Merge similar records
+    - Delete true duplicates
+  </Step>
+  
+  <Step title="Enrich data">
+    Add missing information:
+    - Fill in optional fields
+    - Update outdated info
+    - Add notes and context
+  </Step>
+  
+  <Step title="Set up workflows">
+    Automate future data entry:
+    - Auto-assign records
+    - Calculate scores
+    - Send notifications
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Exporting Data" icon="file-export" href="/user-guide/data-management/export">
+    Learn how to export data from Twenty
+  </Card>
+  
+  <Card title="Data Migration" icon="shuffle" href="/user-guide/data-management/migration">
+    Migrate from other CRM systems
+  </Card>
+</CardGroup>

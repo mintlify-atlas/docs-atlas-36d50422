@@ -1,0 +1,510 @@
+---
+title: Workflow Automation
+description: Automate repetitive tasks
+icon: bolt
+---
+
+Workflows automate your business processes, saving time and ensuring consistency. Set up rules that run automatically when certain conditions are met.
+
+## What Are Workflows?
+
+Workflows are automated sequences that:
+
+- **Trigger** based on events (record created, updated, etc.)
+- **Execute actions** automatically (update fields, send emails, etc.)
+- **Run without manual intervention** (24/7 automation)
+- **Ensure consistency** (same process every time)
+
+Workflows help you:
+- Eliminate repetitive manual work
+- Ensure important steps aren't forgotten
+- Respond instantly to changes
+- Keep data synchronized
+- Notify the right people at the right time
+
+## Workflow Components
+
+Every workflow has three parts:
+
+<Steps>
+  <Step title="Trigger">
+    **What starts the workflow**
+    
+    Examples:
+    - A new opportunity is created
+    - A deal stage changes to "Closed Won"
+    - A task becomes overdue
+    - A record field is updated
+  </Step>
+  
+  <Step title="Conditions (Optional)">
+    **When the workflow should run**
+    
+    Examples:
+    - Only if deal value > $50,000
+    - Only for opportunities in "Technology" industry
+    - Only when assigned to specific team
+  </Step>
+  
+  <Step title="Actions">
+    **What the workflow does**
+    
+    Examples:
+    - Update a field
+    - Send an email
+    - Create a new record
+    - Call a webhook
+    - Assign to a user
+  </Step>
+</Steps>
+
+## Common Workflow Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Lead Assignment" icon="user-plus">
+    Automatically assign new leads to sales reps based on territory, industry, or round-robin.
+  </Card>
+  
+  <Card title="Status Updates" icon="rotate">
+    Update related records when a parent record changes (e.g., close all tasks when project completes).
+  </Card>
+  
+  <Card title="Notifications" icon="bell">
+    Alert team members when important events occur (deal won, task overdue, etc.).
+  </Card>
+  
+  <Card title="Follow-ups" icon="calendar-check">
+    Create follow-up tasks automatically after meetings or email sends.
+  </Card>
+  
+  <Card title="Data Enrichment" icon="sparkles">
+    Auto-populate fields based on other field values or external APIs.
+  </Card>
+  
+  <Card title="Escalations" icon="arrow-up">
+    Notify managers when deals stall or issues remain unresolved.
+  </Card>
+</CardGroup>
+
+## Creating Your First Workflow
+
+<Steps>
+  <Step title="Navigate to workflows">
+    Go to **Settings → Workflows** to access workflow management.
+  </Step>
+  
+  <Step title="Click New Workflow">
+    Select **+ New Workflow** to start building.
+  </Step>
+  
+  <Step title="Name your workflow">
+    Give it a clear, descriptive name:
+    ```
+    Assign New Leads to Sales Team
+    Send Welcome Email to New Customers
+    Create Follow-up Task After Demo
+    ```
+  </Step>
+  
+  <Step title="Choose a trigger">
+    Select what starts the workflow:
+    - Record created
+    - Record updated
+    - Field changed
+    - Scheduled time
+  </Step>
+  
+  <Step title="Add conditions (optional)">
+    Define when the workflow should run:
+    ```yaml
+    Only when:
+      Lead Source = "Website"
+      AND Country = "United States"
+    ```
+  </Step>
+  
+  <Step title="Add actions">
+    Define what happens:
+    - Update fields
+    - Create records  
+    - Send notifications
+    - Call webhooks
+  </Step>
+  
+  <Step title="Test the workflow">
+    Use test mode to verify it works correctly before activating.
+  </Step>
+  
+  <Step title="Activate">
+    Turn on the workflow to start automation.
+  </Step>
+</Steps>
+
+## Workflow Builder
+
+The visual workflow builder helps you design automation:
+
+### Builder Interface
+
+```
+[Trigger] → [Conditions] → [Actions]
+   ↓            ↓             ↓
+  When         Only if        Then do
+```
+
+### Adding Steps
+
+1. **Click + to add a step**
+2. **Choose step type:**
+   - Trigger (first step only)
+   - Condition
+   - Action
+   - Branch (split flow based on conditions)
+3. **Configure the step**
+4. **Connect to next step**
+
+### Branching Logic
+
+Create different paths based on conditions:
+
+```yaml
+Trigger: Opportunity stage changed
+
+Branch:
+  If Stage = "Closed Won":
+    - Create onboarding task
+    - Send welcome email
+    - Notify account manager
+  
+  If Stage = "Closed Lost":
+    - Update lead score
+    - Add to nurture campaign
+    - Notify sales manager
+```
+
+## Example Workflows
+
+### Example 1: Auto-Assign New Leads
+
+**Scenario:** Distribute incoming leads to sales reps based on territory.
+
+```yaml
+Workflow: Assign Leads by Territory
+
+Trigger:
+  Event: Lead created
+  Object: Leads
+
+Conditions:
+  Status = "New"
+  AND Lead Source is not empty
+
+Actions:
+  If Country = "United States":
+    Set Owner = "Alice (US Sales)"
+  
+  If Country = "United Kingdom":
+    Set Owner = "Bob (UK Sales)"
+  
+  If Country = "Germany":
+    Set Owner = "Charlie (EU Sales)"
+  
+  Otherwise:
+    Set Owner = "Sales Manager"
+  
+  Send Email:
+    To: [Owner]
+    Subject: "New lead assigned: [Lead Name]"
+    Body: "You have a new lead from [Company]..."
+```
+
+### Example 2: Deal Won Celebration
+
+**Scenario:** When a deal closes, create tasks and notify the team.
+
+```yaml
+Workflow: Celebrate Deal Won
+
+Trigger:
+  Event: Field changed
+  Object: Opportunities
+  Field: Stage
+  New Value: "Closed Won"
+
+Conditions:
+  Amount > 10000
+
+Actions:
+  1. Update Opportunity:
+     Set Close Date = Today
+     Set Status = "Active Customer"
+  
+  2. Create Task:
+     Name: "Schedule kickoff call with [Company]"
+     Assigned To: [Opportunity Owner]
+     Due Date: Today + 2 days
+  
+  3. Create Task:
+     Name: "Send welcome package to [Company]"
+     Assigned To: "Customer Success Team"
+     Due Date: Today + 1 day
+  
+  4. Send Slack Message:
+     Channel: #sales
+     Message: "🎉 [Owner] just closed [Company] for $[Amount]!"
+  
+  5. Update Related Company:
+     Set Status = "Customer"
+     Set Customer Since = Today
+```
+
+### Example 3: Task Overdue Escalation
+
+**Scenario:** Notify managers when high-priority tasks are overdue.
+
+```yaml
+Workflow: Escalate Overdue Tasks
+
+Trigger:
+  Event: Scheduled
+  Frequency: Daily at 9:00 AM
+
+Conditions:
+  Due Date < Today
+  AND Status ≠ "Completed"
+  AND Priority = "High"
+
+Actions:
+  For each matching task:
+    1. Send Email:
+       To: [Task Owner's Manager]
+       Subject: "Overdue high-priority task: [Task Name]"
+       Body: "Task assigned to [Owner] is [X] days overdue..."
+    
+    2. Update Task:
+       Add note: "Escalated to manager on [Today]"
+    
+    3. Send Notification:
+       To: [Task Owner]
+       Message: "Your overdue task has been escalated"
+```
+
+### Example 4: Lead Scoring Automation
+
+**Scenario:** Automatically score leads based on attributes.
+
+```yaml
+Workflow: Calculate Lead Score
+
+Trigger:
+  Event: Lead created or updated
+  Object: Leads
+
+Actions:
+  Calculate Score:
+    Start with: 0
+    
+    If Company Size > 500: Add 20 points
+    If Company Size 100-500: Add 10 points
+    
+    If Industry in ["Technology", "Finance"]: Add 15 points
+    
+    If Job Title contains ["Director", "VP", "C-level"]: Add 25 points
+    If Job Title contains ["Manager"]: Add 15 points
+    
+    If Lead Source = "Referral": Add 30 points
+    If Lead Source = "Website": Add 10 points
+    
+    If Email is corporate domain: Add 10 points
+  
+  Update Lead:
+    Set Score = [Calculated Score]
+  
+  If Score >= 70:
+    Set Rating = "Hot"
+    Assign To: "Senior Sales Rep"
+    Send notification to sales manager
+  
+  Else if Score >= 40:
+    Set Rating = "Warm"
+    Add to nurture campaign
+  
+  Else:
+    Set Rating = "Cold"
+```
+
+## Workflow Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start simple">
+    Begin with straightforward workflows:
+    1. Single trigger
+    2. Simple conditions
+    3. One or two actions
+    
+    Test and refine before adding complexity.
+  </Accordion>
+  
+  <Accordion title="Name workflows clearly">
+    Use descriptive names that explain:
+    - What triggers it
+    - What it does
+    - Which object it affects
+    
+    ✅ **Good:** "Assign High-Value Leads to Senior Reps"
+    ❌ **Bad:** "Lead Workflow 1"
+  </Accordion>
+  
+  <Accordion title="Document your workflows">
+    Add descriptions explaining:
+    - Why the workflow exists
+    - What business process it supports
+    - Who to contact with questions
+    
+    Future you (and your team) will thank you.
+  </Accordion>
+  
+  <Accordion title="Use conditions to prevent errors">
+    Add safety conditions:
+    ```yaml
+    Only run if:
+      - Required fields are not empty
+      - Record is in expected state
+      - User has permission
+    ```
+  </Accordion>
+  
+  <Accordion title="Test before activating">
+    Always test workflows:
+    1. Use test mode with sample data
+    2. Verify each action executes correctly
+    3. Check for unintended side effects
+    4. Monitor closely after activation
+  </Accordion>
+  
+  <Accordion title="Avoid infinite loops">
+    Be careful with update triggers:
+    
+    ❌ **Bad:**
+    ```yaml
+    Trigger: Lead updated
+    Action: Update lead score
+    ```
+    This triggers itself endlessly!
+    
+    ✅ **Good:**
+    ```yaml
+    Trigger: Specific field changed (not score)
+    Condition: Score not recently updated
+    Action: Update lead score
+    ```
+  </Accordion>
+  
+  <Accordion title="Monitor workflow performance">
+    Regularly check:
+    - Execution count
+    - Success/failure rate
+    - Average execution time
+    - Error messages
+    
+    Identify and fix issues proactively.
+  </Accordion>
+</AccordionGroup>
+
+## Workflow Management
+
+### Activating/Deactivating
+
+- **Active** - Workflow runs automatically
+- **Inactive** - Workflow paused, no executions
+
+Toggle status from the workflow list or detail page.
+
+### Editing Workflows
+
+<Warning>
+Editing an active workflow affects future executions immediately. Deactivate first to edit safely.
+</Warning>
+
+To edit:
+1. Deactivate the workflow
+2. Make your changes
+3. Test the updated workflow
+4. Reactivate
+
+### Duplicating Workflows
+
+Create a copy to use as a template:
+
+1. Open the workflow
+2. Click **Duplicate**
+3. Modify the copy
+4. Activate separately
+
+### Deleting Workflows
+
+Deleting a workflow:
+- Stops all future executions
+- Preserves execution history
+- Cannot be undone
+
+## Workflow Monitoring
+
+### Execution History
+
+View past workflow runs:
+
+- **Status** - Success, failed, or running
+- **Timestamp** - When it executed
+- **Trigger** - What caused it
+- **Actions** - What it did
+- **Errors** - Any failures
+
+### Troubleshooting Failed Workflows
+
+When a workflow fails:
+
+1. **Check execution log** - See which step failed
+2. **Review error message** - Understand why
+3. **Verify conditions** - Ensure record met criteria
+4. **Test with same data** - Reproduce the issue
+5. **Fix and retry** - Update workflow and test
+
+Common failure causes:
+- Required field is empty
+- Record doesn't meet conditions
+- Permission issues
+- External service unavailable (webhooks)
+- Invalid field values
+
+## Performance Considerations
+
+### Workflow Limits
+
+- Maximum active workflows: 100 (varies by plan)
+- Maximum actions per workflow: 50
+- Maximum execution time: 60 seconds
+- Rate limit: 1000 executions per hour
+
+### Optimization Tips
+
+- Use specific trigger conditions to reduce executions
+- Batch actions when possible
+- Avoid complex nested conditions
+- Schedule heavy workflows during off-peak hours
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Workflow Triggers" icon="play" href="/user-guide/workflows/triggers">
+    Learn about different trigger types
+  </Card>
+  
+  <Card title="Workflow Actions" icon="bolt" href="/user-guide/workflows/actions">
+    Explore available actions
+  </Card>
+  
+  <Card title="Filters and Sorting" icon="filter" href="/user-guide/views/filters-and-sorting">
+    Use filters in workflow conditions
+  </Card>
+</CardGroup>

@@ -1,0 +1,301 @@
+---
+title: "Zapier Integration"
+description: "Automate workflows between Twenty and 6,000+ apps with Zapier"
+---
+
+## Overview
+
+The Twenty Zapier integration lets you connect your CRM with thousands of other applications to automate repetitive tasks and streamline your workflow. Build automated workflows (called "Zaps") without writing any code.
+
+## What You Can Do
+
+With the Twenty Zapier integration, you can:
+
+- **Create records** - Automatically create contacts, companies, or deals from other apps
+- **Update records** - Keep your CRM data in sync across platforms
+- **Trigger workflows** - Start automated workflows when records change in Twenty
+- **Delete records** - Remove outdated data automatically
+
+## Popular Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Lead Capture" icon="user-plus">
+    Automatically create contacts in Twenty from form submissions (Google Forms, Typeform, etc.)
+  </Card>
+  <Card title="Sales Notifications" icon="bell">
+    Send Slack messages when deals are won or lost in Twenty
+  </Card>
+  <Card title="Data Enrichment" icon="sparkles">
+    Enrich contacts with data from Clearbit, Hunter, or other services
+  </Card>
+  <Card title="Email Marketing" icon="envelope">
+    Sync contacts to Mailchimp or other email platforms automatically
+  </Card>
+</CardGroup>
+
+## Setting Up the Integration
+
+### Prerequisites
+
+- A Twenty account (cloud or self-hosted)
+- A Zapier account (free or paid)
+- A Twenty API key
+
+### Getting Your API Key
+
+<Steps>
+  <Step title="Open Settings">
+    In your Twenty workspace, navigate to **Settings** > **Developers** > **API Keys**.
+  </Step>
+  <Step title="Create New API Key">
+    Click **Generate New API Key**.
+  </Step>
+  <Step title="Name Your Key">
+    Give it a descriptive name like "Zapier Integration".
+  </Step>
+  <Step title="Copy the Key">
+    Copy the generated API key immediately - you won't be able to see it again.
+  </Step>
+</Steps>
+
+<Warning>
+Store your API key securely. It provides full access to your Twenty workspace. Never share it publicly or commit it to version control.
+</Warning>
+
+### Connecting to Zapier
+
+<Steps>
+  <Step title="Create a New Zap">
+    Go to [Zapier](https://zapier.com) and click **Create Zap**.
+  </Step>
+  <Step title="Choose a Trigger or Action">
+    Select either:
+    - A trigger app (to start with another app)
+    - Twenty as your trigger (to start with Twenty events)
+  </Step>
+  <Step title="Connect Your Twenty Account">
+    When prompted, enter:
+    - **API Key**: Your Twenty API key
+    - **API URL** (self-hosted only): Your Twenty instance URL (e.g., `https://crm.yourcompany.com`)
+    
+    For Twenty Cloud users, leave the API URL blank.
+  </Step>
+  <Step title="Test Connection">
+    Zapier will test the connection to your Twenty workspace. If successful, you'll see your workspace name.
+  </Step>
+</Steps>
+
+## Available Triggers
+
+Triggers start your Zap when something happens in Twenty.
+
+### Record Trigger
+
+The main trigger monitors changes to any record type in Twenty.
+
+**Configuration:**
+- **Record Type**: Choose which object to monitor (Person, Company, Opportunity, etc.)
+- **Operation**: Select the event type:
+  - `created` - New records
+  - `updated` - Modified records
+  - `deleted` - Removed records
+
+**Example Use Cases:**
+- Send a welcome email when a new contact is created
+- Notify your team in Slack when a deal is won
+- Update a spreadsheet when contact information changes
+
+<Tip>
+The trigger uses webhooks for real-time updates. Changes in Twenty appear in Zapier within seconds.
+</Tip>
+
+## Available Actions
+
+Actions perform operations in Twenty when your Zap runs.
+
+### Create, Update, or Delete Record
+
+The main action lets you create, update, or delete any record type.
+
+**Configuration:**
+- **Record Type**: Choose the object type (Person, Company, etc.)
+- **Operation**: Select the action:
+  - `created` - Create a new record
+  - `updated` - Update an existing record
+  - `deleted` - Delete a record
+- **Fields**: Map fields from your trigger to Twenty fields
+
+**Example Configurations:**
+
+```plaintext
+Create Contact from Form Submission
+- Record Type: Person
+- Operation: created
+- First Name: {{Form First Name}}
+- Last Name: {{Form Last Name}}
+- Email: {{Form Email}}
+- Company: {{Form Company}}
+```
+
+```plaintext
+Update Deal Stage
+- Record Type: Opportunity
+- Operation: updated
+- Record ID: {{Deal ID}}
+- Stage: "Closed Won"
+- Close Date: {{Today}}
+```
+
+## Example Zap Configurations
+
+### 1. Lead Capture from Google Forms
+
+**Trigger**: Google Forms - New Response  
+**Action**: Twenty - Create Record
+
+**Setup:**
+1. Set Record Type to "Person"
+2. Set Operation to "created"
+3. Map form fields:
+   - Form "Name" → First Name
+   - Form "Email" → Email
+   - Form "Company" → Company Name
+   - Form "Message" → Notes
+
+### 2. Slack Notification for New Deals
+
+**Trigger**: Twenty - Record Trigger  
+**Action**: Slack - Send Channel Message
+
+**Setup:**
+1. Set Record Type to "Opportunity"
+2. Set Operation to "created"
+3. Configure Slack message:
+   ```
+   New deal created: {{Name}}
+   Amount: {{Amount}}
+   Owner: {{Owner}}
+   ```
+
+### 3. Sync Contacts to Mailchimp
+
+**Trigger**: Twenty - Record Trigger  
+**Action**: Mailchimp - Add/Update Subscriber
+
+**Setup:**
+1. Set Record Type to "Person"
+2. Set Operation to "created" or "updated"
+3. Map email and merge fields
+4. Add to appropriate list
+
+### 4. Enrich Contacts with Clearbit
+
+**Trigger**: Twenty - Record Trigger  
+**Action 1**: Clearbit - Enrich Person  
+**Action 2**: Twenty - Update Record
+
+**Setup:**
+1. Trigger on new Person created
+2. Use Clearbit to find company data
+3. Update the Person in Twenty with enriched data
+
+## Working with Custom Objects
+
+Twenty supports custom objects, and they're all available in Zapier:
+
+1. The **Record Type** dropdown dynamically loads your objects
+2. Field mappings update based on your selected object
+3. Custom fields appear alongside standard fields
+
+<Note>
+If you create a new custom object in Twenty, disconnect and reconnect your Twenty account in Zapier to refresh the object list.
+</Note>
+
+## Advanced Features
+
+### Multi-Step Zaps
+
+Combine multiple actions for complex workflows:
+
+```plaintext
+Example: Lead Qualification Workflow
+1. Trigger: Google Forms - New Response
+2. Filter: Only if "Interested" is "Yes"
+3. Action: Clearbit - Enrich Person
+4. Action: Twenty - Create Person
+5. Action: Twenty - Create Opportunity
+6. Action: Slack - Send Message to Sales Team
+```
+
+### Using Filters
+
+Add filters to control when your Zap runs:
+
+- Only create deals above a certain amount
+- Skip contacts without email addresses
+- Process only specific record types
+
+### Lookups and Searches
+
+Find existing records before creating duplicates:
+
+1. Add a "Find Record" step before "Create Record"
+2. Search by email or other unique identifier
+3. Use "Create if not found" to avoid duplicates
+
+## Troubleshooting
+
+### Zap Not Triggering
+
+If your Zap isn't firing:
+
+1. Check that webhooks are enabled in Twenty
+2. Verify the record type and operation match your criteria
+3. Test the trigger manually in Zapier
+4. Check the Zap history for errors
+
+### Authentication Errors
+
+If you see authentication failures:
+
+1. Verify your API key is still valid in Twenty settings
+2. For self-hosted: confirm your API URL is correct
+3. Regenerate your API key and reconnect if needed
+
+### Field Mapping Issues
+
+If fields aren't mapping correctly:
+
+1. Ensure field types match (text to text, number to number)
+2. Check for required fields in Twenty
+3. Use custom values for dropdown fields
+4. Refresh fields in Zapier after schema changes
+
+### Rate Limiting
+
+Zapier may throttle requests to prevent overload:
+
+- Free plans: Lower rate limits
+- Paid plans: Higher throughput
+- Batch operations when possible
+
+## Implementation Details
+
+The Zapier integration is built on the Twenty GraphQL API:
+
+- Integration package: `packages/twenty-zapier/`
+- Authentication: `packages/twenty-zapier/src/authentication.ts:14`
+- Triggers: `packages/twenty-zapier/src/triggers/trigger_record.ts:20`
+- Actions: `packages/twenty-zapier/src/creates/crud_record.ts:111`
+
+## Best Practices
+
+1. **Test thoroughly** - Use Zapier's test mode before going live
+2. **Use filters** - Prevent unnecessary Zap runs with conditions
+3. **Handle errors** - Set up error notifications
+4. **Monitor usage** - Check Zap history regularly
+5. **Document workflows** - Name your Zaps descriptively
+
+<Card title="Need Help?" icon="question" href="https://discord.gg/cx5n4Jzs57">
+  Join our Discord community for Zapier integration support.
+</Card>

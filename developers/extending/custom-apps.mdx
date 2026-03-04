@@ -1,0 +1,593 @@
+---
+title: Building Custom Apps
+description: Extend Twenty with custom applications
+icon: puzzle-piece
+---
+
+Build custom applications that extend Twenty's functionality using the Twenty SDK and app development framework.
+
+## Overview
+
+Twenty applications allow you to:
+- **Create custom objects** - Add new data models to your CRM
+- **Build serverless functions** - Run backend logic triggered by events
+- **Add UI components** - Extend the frontend with custom views
+- **Integrate external services** - Connect Twenty with third-party APIs
+- **Automate workflows** - Create complex business logic
+
+## Prerequisites
+
+- Node.js 24+
+- Yarn 4
+- Twenty workspace with API access
+- Basic TypeScript knowledge
+
+## Quick Start
+
+### 1. Create New App
+
+Use the app scaffolder to create a new application:
+
+```bash
+npx create-twenty-app my-crm-app
+cd my-crm-app
+```
+
+This creates a new app with:
+- Basic project structure
+- Example serverless function
+- Configuration files
+- Type definitions
+
+### 2. Authenticate
+
+Generate an API key in Twenty at `/settings/api-webhooks`, then authenticate:
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Add your credentials to .env
+# TWENTY_API_KEY=your-api-key
+# TWENTY_API_URL=https://api.twenty.com  # or http://localhost:3000
+
+# Login
+yarn twenty auth:login
+```
+
+### 3. Start Development
+
+Run the dev server to watch for changes and sync automatically:
+
+```bash
+yarn twenty app:dev
+```
+
+This will:
+- Build your application
+- Sync to your workspace
+- Watch for file changes
+- Hot-reload on save
+
+## Project Structure
+
+A typical Twenty app structure:
+
+```
+my-crm-app/
+├── src/
+│   ├── objects/           # Custom object definitions
+│   │   └── post-card.object.ts
+│   ├── fields/            # Custom field definitions
+│   │   └── recipient.field.ts
+│   ├── functions/         # Serverless functions
+│   │   └── create-post-card.function.ts
+│   ├── front-components/  # UI components
+│   │   └── dashboard.front-component.tsx
+│   ├── views/             # Custom views
+│   │   └── cards-kanban.view.ts
+│   └── manifest.ts        # App configuration
+├── .env                   # Environment variables
+├── package.json
+└── tsconfig.json
+```
+
+## Creating Custom Objects
+
+Define new data models for your CRM:
+
+```typescript src/objects/post-card.object.ts
+import { TwentyObject } from 'twenty-sdk';
+
+export const postCardObject = new TwentyObject({
+  nameSingular: 'postCard',
+  namePlural: 'postCards',
+  labelSingular: 'Post Card',
+  labelPlural: 'Post Cards',
+  description: 'Physical greeting cards to send',
+  icon: 'envelope',
+  fields: [
+    {
+      name: 'recipient',
+      type: 'TEXT',
+      label: 'Recipient Name',
+      description: 'Name of the person receiving the card',
+      isRequired: true,
+    },
+    {
+      name: 'message',
+      type: 'TEXT',
+      label: 'Message',
+      description: 'Card message content',
+    },
+    {
+      name: 'sentDate',
+      type: 'DATE_TIME',
+      label: 'Sent Date',
+      description: 'When the card was sent',
+    },
+    {
+      name: 'person',
+      type: 'RELATION',
+      label: 'Related Person',
+      description: 'CRM person this card is for',
+      relationTarget: 'person',
+      relationOnDelete: 'SET_NULL',
+    },
+  ],
+});
+```
+
+### Field Types
+
+Available field types:
+
+- **TEXT** - Single-line text
+- **NUMBER** - Numeric values
+- **DATE_TIME** - Timestamps
+- **BOOLEAN** - True/false
+- **SELECT** - Dropdown options
+- **MULTI_SELECT** - Multiple choice
+- **RELATION** - Link to other objects
+- **EMAIL** - Email addresses
+- **PHONE** - Phone numbers
+- **URL** - Web links
+- **CURRENCY** - Monetary values
+- **RATING** - Star ratings
+
+## Building Serverless Functions
+
+Create backend logic triggered by events:
+
+```typescript src/functions/create-post-card.function.ts
+import { TwentyFunction, CoreApiClient } from 'twenty-sdk';
+
+type InputData = {
+  recipientName: string;
+  personId?: string;
+};
+
+export const createPostCardFunction = new TwentyFunction<InputData>({
+  name: 'createPostCard',
+  description: 'Create a new post card',
+  
+  triggers: [
+    {
+      type: 'route',
+      method: 'POST',
+      path: '/post-card/create',
+    },
+    {
+      type: 'databaseEvent',
+      objectName: 'person',
+      action: 'created',
+    },
+  ],
+  
+  handler: async (input, context) => {
+    const { recipientName, personId } = input.data;
+    const { coreApiClient } = context;
+    
+    // Create post card record
+    const postCard = await coreApiClient.createOne('postCard', {
+      recipient: recipientName,
+      message: `Welcome to the team, ${recipientName}!`,
+      person: personId ? { connect: personId } : undefined,
+    });
+    
+    // Log action
+    console.log('Created post card:', postCard.id);
+    
+    return {
+      success: true,
+      postCardId: postCard.id,
+    };
+  },
+});
+```
+
+### Trigger Types
+
+<Tabs>
+  <Tab title="Route Trigger">
+    HTTP endpoint trigger:
+    ```typescript
+    triggers: [
+      {
+        type: 'route',
+        method: 'POST',
+        path: '/my-endpoint',
+      },
+    ]
+    ```
+    
+    Accessible at: `{SERVER_URL}/functions/my-app/my-endpoint`
+  </Tab>
+  
+  <Tab title="Database Event">
+    Trigger on data changes:
+    ```typescript
+    triggers: [
+      {
+        type: 'databaseEvent',
+        objectName: 'person',
+        action: 'created', // or 'updated', 'deleted'
+      },
+    ]
+    ```
+  </Tab>
+  
+  <Tab title="Scheduled">
+    Cron-based scheduling:
+    ```typescript
+    triggers: [
+      {
+        type: 'schedule',
+        cron: '0 0 * * *', // Daily at midnight
+      },
+    ]
+    ```
+  </Tab>
+  
+  <Tab title="Webhook">
+    External webhook trigger:
+    ```typescript
+    triggers: [
+      {
+        type: 'webhook',
+        name: 'external-service',
+      },
+    ]
+    ```
+  </Tab>
+</Tabs>
+
+## Using the SDK
+
+### Core API Client
+
+Query and mutate workspace data:
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+// Create record
+const person = await client.createOne('person', {
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+});
+
+// Find records
+const people = await client.findMany('person', {
+  filter: {
+    email: { contains: '@example.com' },
+  },
+  orderBy: {
+    createdAt: 'desc',
+  },
+  limit: 10,
+});
+
+// Update record
+const updated = await client.updateOne('person', person.id, {
+  jobTitle: 'Software Engineer',
+});
+
+// Delete record
+await client.deleteOne('person', person.id);
+```
+
+### Metadata API Client
+
+Manage workspace configuration:
+
+```typescript
+import { MetadataApiClient } from 'twenty-sdk';
+
+const metadataClient = new MetadataApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+// Get all objects
+const objects = await metadataClient.getObjects();
+
+// Get object fields
+const fields = await metadataClient.getFieldsForObject('person');
+
+// Create custom field
+const field = await metadataClient.createField({
+  objectMetadataId: 'person-id',
+  name: 'customScore',
+  type: 'NUMBER',
+  label: 'Custom Score',
+});
+```
+
+## Creating UI Components
+
+Build custom frontend components:
+
+```typescript src/front-components/dashboard.front-component.tsx
+import React from 'react';
+import { TwentyFrontComponent, useCoreApi } from 'twenty-sdk';
+
+export const DashboardComponent = new TwentyFrontComponent({
+  name: 'customDashboard',
+  label: 'Custom Dashboard',
+  description: 'Overview of post cards',
+  
+  component: () => {
+    const { data, loading } = useCoreApi().findMany('postCard', {
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    });
+    
+    if (loading) return <div>Loading...</div>;
+    
+    return (
+      <div>
+        <h2>Recent Post Cards</h2>
+        <ul>
+          {data.map((card) => (
+            <li key={card.id}>
+              {card.recipient} - {card.sentDate}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  },
+});
+```
+
+## CLI Commands
+
+### Development Commands
+
+```bash
+# Start dev mode
+yarn twenty app:dev
+
+# Type check
+yarn twenty app:typecheck
+
+# View function logs
+yarn twenty function:logs
+
+# Execute function manually
+yarn twenty function:execute -n createPostCard -p '{"recipientName": "Test"}'
+```
+
+### Entity Management
+
+```bash
+# Add new object
+yarn twenty entity:add object
+
+# Add new field
+yarn twenty entity:add field
+
+# Add new function
+yarn twenty entity:add function
+
+# Add UI component
+yarn twenty entity:add front-component
+
+# Add custom view
+yarn twenty entity:add view
+```
+
+### Deployment
+
+```bash
+# Sync to workspace
+yarn twenty app:sync
+
+# Uninstall from workspace
+yarn twenty app:uninstall
+```
+
+## Testing Functions Locally
+
+Test your functions before deploying:
+
+```typescript src/functions/__tests__/create-post-card.test.ts
+import { createPostCardFunction } from '../create-post-card.function';
+
+describe('createPostCardFunction', () => {
+  it('should create a post card', async () => {
+    const mockClient = {
+      createOne: jest.fn().mockResolvedValue({
+        id: 'test-id',
+        recipient: 'Test Person',
+      }),
+    };
+    
+    const result = await createPostCardFunction.handler(
+      {
+        data: { recipientName: 'Test Person' },
+        trigger: { type: 'route' },
+      },
+      {
+        coreApiClient: mockClient,
+        metadataApiClient: {},
+      },
+    );
+    
+    expect(result.success).toBe(true);
+    expect(mockClient.createOne).toHaveBeenCalledWith('postCard', {
+      recipient: 'Test Person',
+      message: expect.stringContaining('Test Person'),
+    });
+  });
+});
+```
+
+## App Manifest
+
+Configure your application:
+
+```typescript src/manifest.ts
+import { TwentyAppManifest } from 'twenty-sdk';
+import { postCardObject } from './objects/post-card.object';
+import { createPostCardFunction } from './functions/create-post-card.function';
+
+export const manifest = new TwentyAppManifest({
+  name: 'post-card-manager',
+  version: '1.0.0',
+  description: 'Manage physical greeting cards',
+  author: 'Your Name',
+  
+  objects: [postCardObject],
+  functions: [createPostCardFunction],
+  
+  permissions: [
+    { object: 'person', actions: ['read', 'write'] },
+    { object: 'postCard', actions: ['read', 'write', 'delete'] },
+  ],
+  
+  settings: [
+    {
+      key: 'apiKey',
+      label: 'External API Key',
+      type: 'secret',
+      required: true,
+    },
+    {
+      key: 'autoSend',
+      label: 'Auto-send cards',
+      type: 'boolean',
+      defaultValue: false,
+    },
+  ],
+});
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Type Safety" icon="shield-check">
+    Use TypeScript throughout for better DX and fewer runtime errors
+  </Card>
+  <Card title="Error Handling" icon="circle-exclamation">
+    Always handle errors gracefully and return meaningful messages
+  </Card>
+  <Card title="Idempotency" icon="arrows-rotate">
+    Make functions idempotent so they can safely retry on failure
+  </Card>
+  <Card title="Logging" icon="file-lines">
+    Log important actions for debugging and monitoring
+  </Card>
+</CardGroup>
+
+### Performance Tips
+
+- **Batch operations** - Use `createMany` instead of multiple `createOne` calls
+- **Limit queries** - Always specify `limit` to avoid fetching too much data
+- **Cache when possible** - Store frequently accessed data in memory
+- **Use filters** - Filter on the server instead of fetching and filtering locally
+
+### Security Considerations
+
+- **Validate input** - Never trust user input, always validate
+- **Use permissions** - Declare minimum required permissions
+- **Store secrets safely** - Use app settings for sensitive data, not code
+- **Sanitize output** - Prevent XSS in UI components
+
+## Example: Complete App
+
+Here's a complete example app:
+
+<CodeGroup>
+```typescript Object Definition
+// src/objects/task.object.ts
+export const taskObject = new TwentyObject({
+  nameSingular: 'task',
+  namePlural: 'tasks',
+  labelSingular: 'Task',
+  labelPlural: 'Tasks',
+  fields: [
+    { name: 'title', type: 'TEXT', label: 'Title', isRequired: true },
+    { name: 'status', type: 'SELECT', label: 'Status', options: [
+      { value: 'todo', label: 'To Do' },
+      { value: 'inProgress', label: 'In Progress' },
+      { value: 'done', label: 'Done' },
+    ]},
+    { name: 'dueDate', type: 'DATE_TIME', label: 'Due Date' },
+  ],
+});
+```
+
+```typescript Function
+// src/functions/create-task.function.ts
+export const createTaskFunction = new TwentyFunction({
+  name: 'createTask',
+  triggers: [{ type: 'route', method: 'POST', path: '/task' }],
+  handler: async (input, context) => {
+    const task = await context.coreApiClient.createOne('task', {
+      title: input.data.title,
+      status: 'todo',
+      dueDate: input.data.dueDate,
+    });
+    return { taskId: task.id };
+  },
+});
+```
+
+```typescript Manifest
+// src/manifest.ts
+export const manifest = new TwentyAppManifest({
+  name: 'task-manager',
+  version: '1.0.0',
+  objects: [taskObject],
+  functions: [createTaskFunction],
+  permissions: [
+    { object: 'task', actions: ['read', 'write'] },
+  ],
+});
+```
+</CodeGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SDK Reference" icon="book-open" href="/developers/api/sdk">
+    Complete SDK documentation
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/developers/extending/webhooks">
+    Integrate with external systems
+  </Card>
+  <Card title="GraphQL API" icon="diagram-project" href="/developers/api/graphql-api">
+    Use the GraphQL API directly
+  </Card>
+  <Card title="Examples" icon="code" href="https://github.com/twentyhq/twenty/tree/main/packages/twenty-apps">
+    Browse example apps
+  </Card>
+</CardGroup>

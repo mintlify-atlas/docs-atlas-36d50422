@@ -1,0 +1,490 @@
+---
+title: Exporting Data
+description: Export your data from Twenty
+icon: file-export
+---
+
+Export data from Twenty to CSV files for reporting, backup, or migration to other systems.
+
+## Export Overview
+
+Twenty's export functionality allows you to:
+
+- **Export to CSV** - Download data in spreadsheet format
+- **Export filtered data** - Export specific records based on views
+- **Export all fields** - Include complete record data
+- **Export related data** - Include linked records (coming soon)
+- **Schedule exports** - Automatic periodic exports (coming soon)
+
+## Quick Export
+
+Export visible records from any view:
+
+<Steps>
+  <Step title="Navigate to a view">
+    Open the table or kanban view you want to export.
+  </Step>
+  
+  <Step title="Apply filters">
+    Filter to show only records you want to export (optional).
+  </Step>
+  
+  <Step title="Select records">
+    - **All records:** Click **Select All** or press `Cmd/Ctrl+A`
+    - **Specific records:** Click checkboxes for desired records
+    - **No selection:** Exports all visible records
+  </Step>
+  
+  <Step title="Open export menu">
+    Click **Options** (•••) → **Export** or click **Export** in the selection action bar.
+  </Step>
+  
+  <Step title="Choose export format">
+    Select **CSV** (default format).
+  </Step>
+  
+  <Step title="Download file">
+    File downloads automatically:
+    ```
+    companies-export-2026-03-15.csv
+    ```
+  </Step>
+</Steps>
+
+<Info>
+Exports respect view filters. Only records visible in the current view are exported.
+</Info>
+
+## Advanced Export Options
+
+### Field Selection
+
+Choose which fields to include:
+
+<Steps>
+  <Step title="Open export dialog">
+    Click **Options** → **Export** → **Advanced Export**.
+  </Step>
+  
+  <Step title="Select fields">
+    Choose fields to export:
+    ```yaml
+    ☑ Name
+    ☑ Email
+    ☑ Company
+    ☑ Phone
+    ☐ Internal Notes (excluded)
+    ☐ Created By (excluded)
+    ```
+  </Step>
+  
+  <Step title="Order fields">
+    Drag to reorder columns in export.
+  </Step>
+  
+  <Step title="Export">
+    Click **Export** to download with selected fields only.
+  </Step>
+</Steps>
+
+### Export With Filters
+
+Export specific subsets:
+
+**Example: Export High-Value Opportunities**
+
+<Steps>
+  <Step title="Create filter">
+    In the Opportunities view:
+    ```yaml
+    Filters:
+      Amount > $50,000
+      AND Stage ≠ "Closed Lost"
+      AND Owner = Me
+    ```
+  </Step>
+  
+  <Step title="Verify results">
+    Check that view shows correct records.
+  </Step>
+  
+  <Step title="Export">
+    Click **Export** to download filtered data.
+  </Step>
+</Steps>
+
+<Tip>
+Save filtered views you export regularly. Then export is just one click.
+</Tip>
+
+## Export Formats
+
+### CSV Format
+
+Standard comma-separated values:
+
+```csv
+Name,Email,Company,Phone,Status
+John Doe,john@acme.com,Acme Corp,555-1234,Active
+Jane Smith,jane@tech.co,TechCo,555-5678,Active
+```
+
+**Characteristics:**
+- UTF-8 encoding
+- Comma delimiters
+- Header row included
+- Quoted text fields
+- Compatible with Excel, Google Sheets
+
+### Field Type Formatting
+
+<Tabs>
+  <Tab title="Text">
+    Plain text, quoted if contains commas:
+    ```csv
+    "Acme Corporation"
+    "Description with, commas, inside"
+    ```
+  </Tab>
+  
+  <Tab title="Numbers">
+    Unquoted numeric values:
+    ```csv
+    50000
+    1234.56
+    ```
+  </Tab>
+  
+  <Tab title="Dates">
+    ISO 8601 format:
+    ```csv
+    2026-03-15
+    2026-03-15T14:30:00Z
+    ```
+  </Tab>
+  
+  <Tab title="Boolean">
+    True/false text:
+    ```csv
+    true
+    false
+    ```
+  </Tab>
+  
+  <Tab title="Select">
+    Option label:
+    ```csv
+    "High Priority"
+    "In Progress"
+    ```
+  </Tab>
+  
+  <Tab title="Multi-Select">
+    Semicolon-separated:
+    ```csv
+    "High Priority;Urgent;Client-Facing"
+    ```
+  </Tab>
+  
+  <Tab title="Relations">
+    Related record name:
+    ```csv
+    "Acme Corp"
+    "John Doe; Jane Smith" (multiple)
+    ```
+  </Tab>
+</Tabs>
+
+## Bulk Export
+
+Export entire objects:
+
+### Export All Records
+
+<Steps>
+  <Step title="Go to Settings">
+    Navigate to **Settings → Data Management → Export**.
+  </Step>
+  
+  <Step title="Select object">
+    Choose object to export:
+    - Companies
+    - People
+    - Opportunities
+    - Custom objects
+  </Step>
+  
+  <Step title="Configure export">
+    ```yaml
+    Fields: All fields (or select specific)
+    Format: CSV
+    Include: All records
+    ```
+  </Step>
+  
+  <Step title="Start export">
+    Click **Export**. For large datasets, export runs in background.
+  </Step>
+  
+  <Step title="Download">
+    When ready, download link appears. File available for 7 days.
+  </Step>
+</Steps>
+
+<Info>
+Bulk exports can take several minutes for large datasets. You'll receive a notification when ready.
+</Info>
+
+### Export Multiple Objects
+
+Export your entire workspace:
+
+<Steps>
+  <Step title="Navigate to export">
+    Go to **Settings → Data Management → Full Export**.
+  </Step>
+  
+  <Step title="Select objects">
+    Choose all objects to export:
+    ```yaml
+    ☑ Companies
+    ☑ People
+    ☑ Opportunities
+    ☑ Tasks
+    ☑ Custom objects
+    ```
+  </Step>
+  
+  <Step title="Start export">
+    Click **Export All**. Creates ZIP file with separate CSV per object.
+  </Step>
+  
+  <Step title="Download ZIP">
+    Download archive:
+    ```
+    workspace-export-2026-03-15.zip
+      ├─ companies.csv
+      ├─ people.csv
+      ├─ opportunities.csv
+      ├─ tasks.csv
+      └─ projects.csv
+    ```
+  </Step>
+</Steps>
+
+## Export Use Cases
+
+### Reporting and Analysis
+
+Export data for external analysis:
+
+1. **Filter to relevant records**
+   ```yaml
+   Example: Q1 2026 closed deals
+   Filters:
+     Close Date between Jan 1 - Mar 31
+     Stage = "Closed Won"
+   ```
+
+2. **Export to CSV**
+
+3. **Analyze in Excel/Google Sheets/BI tools**
+   - Create pivot tables
+   - Generate charts
+   - Calculate metrics
+   - Share with stakeholders
+
+### Backup
+
+Regular data backups:
+
+<Steps>
+  <Step title="Schedule regular exports">
+    Set reminder to export weekly/monthly.
+  </Step>
+  
+  <Step title="Export all objects">
+    Use full workspace export.
+  </Step>
+  
+  <Step title="Store securely">
+    Save exports to:
+    - Cloud storage (Google Drive, Dropbox)
+    - Local backup drive
+    - Secure file server
+  </Step>
+  
+  <Step title="Verify backups">
+    Periodically check backups are complete and valid.
+  </Step>
+</Steps>
+
+<Tip>
+Automate backups with scheduled exports (coming soon) or API scripts.
+</Tip>
+
+### Data Migration
+
+Export for migration to another system:
+
+1. **Export all objects** with all fields
+2. **Document field mappings** for target system
+3. **Transform data** as needed
+4. **Import to new system**
+
+<Card title="Migration Guide" icon="shuffle" href="/user-guide/data-management/migration">
+See full migration documentation →
+</Card>
+
+### Sharing with External Teams
+
+Provide data to partners or vendors:
+
+1. **Create filtered view** with only relevant records
+2. **Select specific fields** (exclude sensitive data)
+3. **Export to CSV**
+4. **Share file** securely
+
+<Warning>
+Review exported data before sharing. Ensure no sensitive or confidential information is included.
+</Warning>
+
+## Export Best Practices
+
+<AccordionGroup>
+  <Accordion title="Export filtered data">
+    Don't export everything:
+    - Use views to filter first
+    - Export only needed records
+    - Smaller files are easier to work with
+  </Accordion>
+  
+  <Accordion title="Select relevant fields">
+    Include only necessary columns:
+    - Reduces file size
+    - Easier to read and process
+    - Protects sensitive data
+  </Accordion>
+  
+  <Accordion title="Use consistent export settings">
+    For regular exports:
+    - Same fields each time
+    - Same format
+    - Same naming convention
+    - Easier to compare over time
+  </Accordion>
+  
+  <Accordion title="Document export purpose">
+    Name files descriptively:
+    ```
+    ✅ Good:
+    opportunities-q1-2026-won.csv
+    customers-annual-review-2026.csv
+    
+    ❌ Bad:
+    export.csv
+    data-1.csv
+    ```
+  </Accordion>
+  
+  <Accordion title="Verify exports">
+    After exporting:
+    - Open file to check contents
+    - Verify record count matches view
+    - Check all expected fields present
+    - Test with small sample first
+  </Accordion>
+</AccordionGroup>
+
+## Export Limits
+
+- **Quick export:** 10,000 records
+- **Bulk export:** Unlimited
+- **File retention:** 7 days
+- **Max concurrent exports:** 3
+- **API export:** Check API limits
+
+<Info>
+For exports >10,000 records, use bulk export or API.
+</Info>
+
+## Troubleshooting Exports
+
+### Export Failed
+
+**Common causes:**
+- Too many records (use bulk export)
+- Browser timeout
+- Network interruption
+
+**Solutions:**
+- Use bulk export for large datasets
+- Try different browser
+- Check internet connection
+
+### Missing Fields in Export
+
+**Check:**
+- Field is visible in view
+- Field permissions allow viewing
+- Field included in export settings
+
+**Solutions:**
+- Add field to view
+- Use advanced export to select fields
+- Check user permissions
+
+### Export Taking Too Long
+
+**For large exports:**
+- Switch to bulk export
+- Runs in background
+- Notification when ready
+
+### Cannot Open CSV File
+
+**Issues:**
+- Wrong encoding
+- Corrupted download
+- Software compatibility
+
+**Solutions:**
+- Re-download file
+- Try different software (Excel, Google Sheets, LibreOffice)
+- Check file isn't corrupted
+
+## API Export
+
+Programmatic data export:
+
+```graphql
+query {
+  companies {
+    edges {
+      node {
+        id
+        name
+        website
+        industry
+        annualRevenue
+      }
+    }
+  }
+}
+```
+
+<Card title="API Documentation" icon="code" href="/developer/api/graphql">
+See API documentation for programmatic export →
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Importing Data" icon="file-import" href="/user-guide/data-management/import">
+    Learn how to import data into Twenty
+  </Card>
+  
+  <Card title="Data Migration" icon="shuffle" href="/user-guide/data-management/migration">
+    Migrate between CRM systems
+  </Card>
+</CardGroup>

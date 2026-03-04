@@ -1,0 +1,549 @@
+---
+title: Data Migration
+description: Migrate from other CRM systems
+icon: shuffle
+---
+
+Migrate your data from Salesforce, HubSpot, Pipedrive, or other CRM systems to Twenty with confidence.
+
+## Migration Overview
+
+Successful CRM migration involves:
+
+1. **Planning** - Assess what to migrate
+2. **Preparation** - Clean and export data
+3. **Mapping** - Match fields between systems
+4. **Testing** - Import sample data
+5. **Execution** - Import full dataset
+6. **Validation** - Verify accuracy
+7. **Optimization** - Configure Twenty for your workflow
+
+<Info>
+Plan for 2-4 weeks for a full CRM migration, depending on data volume and complexity.
+</Info>
+
+## Pre-Migration Planning
+
+### What to Migrate
+
+Decide what data to bring:
+
+<CardGroup cols={2}>
+  <Card title="Essential Data" icon="check">
+    Must migrate:
+    - Active customers/contacts
+    - Open opportunities
+    - Recent activities
+    - Important notes
+  </Card>
+  
+  <Card title="Optional Data" icon="circle-question">
+    Consider:
+    - Closed/lost deals
+    - Historical activities >1 year
+    - Archived records
+    - Old attachments
+  </Card>
+</CardGroup>
+
+<Tip>
+Migrating less data = faster, cleaner start. Consider archiving old data instead of migrating it.
+</Tip>
+
+### Data Audit
+
+Before migrating, audit your current CRM:
+
+<Steps>
+  <Step title="Count records">
+    ```yaml
+    Companies: 5,000
+    Contacts: 15,000
+    Deals: 2,500
+    Activities: 50,000
+    ```
+  </Step>
+  
+  <Step title="Identify custom fields">
+    List all custom fields you've added and which are still needed.
+  </Step>
+  
+  <Step title="Map relationships">
+    Document how objects connect:
+    - Contacts belong to Companies
+    - Deals link to Companies and Contacts
+    - Activities link to all above
+  </Step>
+  
+  <Step title="Find duplicates">
+    Identify and plan to clean duplicates before or during migration.
+  </Step>
+</Steps>
+
+## Migrating from Specific Platforms
+
+### Salesforce to Twenty
+
+<Steps>
+  <Step title="Export from Salesforce">
+    Use Data Export Service:
+    1. Setup → Data Export
+    2. Select objects: Accounts, Contacts, Opportunities, Activities
+    3. Export to CSV
+    4. Download ZIP file
+  </Step>
+  
+  <Step title="Prepare data">
+    Salesforce exports need cleanup:
+    - Remove system fields (OwnerId becomes names)
+    - Convert picklist values
+    - Flatten relationship fields
+  </Step>
+  
+  <Step title="Map fields">
+    Common mappings:
+    ```yaml
+    Salesforce → Twenty
+    
+    Accounts:
+      Name → Name
+      Website → Website
+      Industry → Industry
+      AnnualRevenue → Annual Revenue
+      BillingCity → City
+      BillingState → State
+    
+    Contacts:
+      FirstName → First Name
+      LastName → Last Name
+      Email → Email
+      Phone → Phone
+      Title → Job Title
+      AccountId → Company (relation)
+    
+    Opportunities:
+      Name → Name
+      Amount → Amount
+      StageName → Stage
+      CloseDate → Close Date
+      AccountId → Company (relation)
+    ```
+  </Step>
+  
+  <Step title="Import order">
+    1. Companies (Accounts) first
+    2. People (Contacts) second
+    3. Opportunities third
+    4. Activities last
+  </Step>
+</Steps>
+
+### HubSpot to Twenty
+
+<Steps>
+  <Step title="Export from HubSpot">
+    1. Settings → Data Management → Export
+    2. Select objects and properties
+    3. Export to CSV
+    4. Download files
+  </Step>
+  
+  <Step title="Map fields">
+    ```yaml
+    HubSpot → Twenty
+    
+    Companies:
+      name → Name
+      domain → Website
+      industry → Industry
+      numberofemployees → Employee Count
+      annualrevenue → Annual Revenue
+    
+    Contacts:
+      firstname → First Name
+      lastname → Last Name
+      email → Email
+      phone → Phone
+      jobtitle → Job Title
+      company → Company (relation)
+    
+    Deals:
+      dealname → Name
+      amount → Amount
+      dealstage → Stage
+      closedate → Close Date
+      associated_company → Company (relation)
+    ```
+  </Step>
+  
+  <Step title="Handle HubSpot-specific fields">
+    - Lifecycle stage → Create custom select field
+    - Lead status → Create custom select field
+    - Deal pipeline → Map to Twenty stages
+  </Step>
+</Steps>
+
+### Pipedrive to Twenty
+
+<Steps>
+  <Step title="Export from Pipedrive">
+    1. Settings → Import/Export
+    2. Choose objects to export
+    3. Download CSV files
+  </Step>
+  
+  <Step title="Map fields">
+    ```yaml
+    Pipedrive → Twenty
+    
+    Organizations:
+      name → Name
+      website → Website
+      people_count → Employee Count
+      address → Address
+    
+    Persons:
+      name → Name (split to First/Last)
+      email → Email
+      phone → Phone
+      org_name → Company (relation)
+    
+    Deals:
+      title → Name
+      value → Amount
+      stage_name → Stage
+      expected_close_date → Close Date
+      org_name → Company (relation)
+    ```
+  </Step>
+</Steps>
+
+### Other CRMs
+
+For any CRM:
+
+1. **Export to CSV** - Most CRMs support CSV export
+2. **Identify equivalent objects** - Map their objects to Twenty's
+3. **Map fields** - Match fields between systems
+4. **Import in order** - Companies, then People, then everything else
+
+## Field Mapping Guide
+
+### Creating Custom Fields
+
+For CRM-specific fields:
+
+<Steps>
+  <Step title="List custom fields">
+    Document all custom fields from your old CRM.
+  </Step>
+  
+  <Step title="Decide what to migrate">
+    Keep fields that are:
+    - Actively used
+    - Contain important data
+    - Required for workflows
+  </Step>
+  
+  <Step title="Create in Twenty">
+    Before importing, create custom fields:
+    1. Settings → Data Model → Objects
+    2. Select object
+    3. Add custom fields
+    4. Match field types
+  </Step>
+</Steps>
+
+### Field Type Conversion
+
+<Tabs>
+  <Tab title="Picklists → Select">
+    Convert dropdown fields:
+    1. Create Select field in Twenty
+    2. Add all options from old CRM
+    3. Values must match exactly for import
+  </Tab>
+  
+  <Tab title="Multi-Picklists → Multi-Select">
+    Convert multi-select fields:
+    1. Create Multi-Select in Twenty
+    2. Add all options
+    3. In CSV, separate with semicolons
+  </Tab>
+  
+  <Tab title="Lookups → Relations">
+    Convert relationship fields:
+    1. Create Relation field in Twenty
+    2. Import related object first
+    3. Import with relation by matching field
+  </Tab>
+  
+  <Tab title="Formulas → Workflows">
+    Recreate calculated fields:
+    1. Import source data
+    2. Create workflow to calculate
+    3. Or calculate before import
+  </Tab>
+</Tabs>
+
+## Migration Process
+
+### Phase 1: Test Migration
+
+Never migrate directly to production:
+
+<Steps>
+  <Step title="Create test workspace">
+    Set up a separate Twenty workspace for testing.
+  </Step>
+  
+  <Step title="Import sample data">
+    Start with 50-100 records per object:
+    - Diverse record types
+    - Records with relationships
+    - Records with all field types populated
+  </Step>
+  
+  <Step title="Verify data">
+    Check:
+    - ☑ All fields mapped correctly
+    - ☑ Relationships linked
+    - ☑ Select options match
+    - ☑ Dates formatted correctly
+    - ☑ Numbers calculated right
+  </Step>
+  
+  <Step title="Test workflows">
+    Recreate critical workflows and test they work.
+  </Step>
+  
+  <Step title="Get team feedback">
+    Have team members review test workspace.
+  </Step>
+</Steps>
+
+<Warning>
+Don't skip test migration. Most issues are discovered in testing, not production.
+</Warning>
+
+### Phase 2: Full Migration
+
+<Steps>
+  <Step title="Final data export">
+    Export fresh data from old CRM:
+    - Include records created/updated since test
+    - Use same export format as test
+  </Step>
+  
+  <Step title="Clean data">
+    Final cleanup:
+    - Remove duplicates
+    - Fix data quality issues
+    - Standardize formats
+  </Step>
+  
+  <Step title="Import in order">
+    ```yaml
+    1. Companies
+       - Import first (no dependencies)
+       - Verify count matches export
+    
+    2. People
+       - Links to Companies
+       - Verify relationships correct
+    
+    3. Opportunities/Deals
+       - Links to Companies and People
+       - Verify all linked correctly
+    
+    4. Activities/Tasks
+       - Links to all above
+       - Import last
+    
+    5. Custom Objects
+       - In dependency order
+    ```
+  </Step>
+  
+  <Step title="Validate data">
+    After each object import:
+    - Check record count
+    - Verify sample records
+    - Test relationships
+    - Check for errors
+  </Step>
+</Steps>
+
+### Phase 3: Post-Migration
+
+<Steps>
+  <Step title="Configure Twenty">
+    Set up:
+    - Views for team workflows
+    - Filters and sorting
+    - Permissions and roles
+    - Integrations (email, calendar)
+  </Step>
+  
+  <Step title="Create workflows">
+    Recreate automation from old CRM:
+    - Assignment rules
+    - Notifications
+    - Field updates
+    - Integrations
+  </Step>
+  
+  <Step title="Team training">
+    Train users on:
+    - Navigation
+    - Creating/editing records
+    - Using views
+    - Key workflows
+  </Step>
+  
+  <Step title="Go live">
+    Switch team to Twenty:
+    - Stop using old CRM
+    - All new data in Twenty
+    - Monitor for issues
+  </Step>
+</Steps>
+
+## Migration Best Practices
+
+<AccordionGroup>
+  <Accordion title="Clean before migrating">
+    Don't migrate garbage:
+    - Remove duplicates
+    - Delete outdated records
+    - Fix data quality issues
+    - Standardize formats
+    
+    Clean data = better CRM experience.
+  </Accordion>
+  
+  <Accordion title="Start fresh with workflows">
+    Don't blindly recreate old workflows:
+    - Review which automation is still needed
+    - Simplify where possible
+    - Take advantage of Twenty's features
+    - Document new workflows
+  </Accordion>
+  
+  <Accordion title="Import in phases">
+    Consider phased approach:
+    - Week 1: Core data (Companies, People)
+    - Week 2: Deals and opportunities
+    - Week 3: Historical activities
+    - Week 4: Custom objects
+    
+    Reduces complexity and risk.
+  </Accordion>
+  
+  <Accordion title="Keep old CRM read-only">
+    Don't delete old CRM immediately:
+    - Keep read-only for 30-90 days
+    - Reference for missing data
+    - Fallback if issues arise
+    - Export archives before closing
+  </Accordion>
+</AccordionGroup>
+
+## Common Migration Challenges
+
+### Challenge: Data Volume
+
+**Problem:** Millions of records to migrate
+
+**Solutions:**
+- Migrate in batches
+- Use API for large imports
+- Consider archiving old data
+- Focus on active records
+
+### Challenge: Complex Relationships
+
+**Problem:** Many interconnected objects
+
+**Solutions:**
+- Map relationships before importing
+- Import in correct dependency order
+- Use test migration to verify
+- Import parent objects first
+
+### Challenge: Custom Fields
+
+**Problem:** Many custom fields to recreate
+
+**Solutions:**
+- Evaluate which are still needed
+- Create fields before importing
+- Use consistent field types
+- Document field mappings
+
+### Challenge: Data Quality
+
+**Problem:** Messy data in old CRM
+
+**Solutions:**
+- Clean before migrating
+- Use import validation
+- Fix errors before retrying
+- Consider data cleaning tools
+
+## Migration Checklist
+
+Use this checklist for your migration:
+
+```yaml
+Pre-Migration:
+  ☐ Audit current CRM data
+  ☐ Decide what to migrate
+  ☐ Export data to CSV
+  ☐ Clean and prepare data
+  ☐ Create custom fields in Twenty
+  ☐ Document field mappings
+
+Test Migration:
+  ☐ Create test workspace
+  ☐ Import sample data
+  ☐ Verify data accuracy
+  ☐ Test workflows
+  ☐ Get team feedback
+  ☐ Adjust mappings as needed
+
+Full Migration:
+  ☐ Export final data
+  ☐ Final data cleanup
+  ☐ Import Companies
+  ☐ Verify Companies
+  ☐ Import People
+  ☐ Verify People and relationships
+  ☐ Import Opportunities
+  ☐ Verify Opportunities
+  ☐ Import Activities
+  ☐ Verify Activities
+  ☐ Import custom objects
+  ☐ Final verification
+
+Post-Migration:
+  ☐ Configure views
+  ☐ Set up workflows
+  ☐ Configure permissions
+  ☐ Train team
+  ☐ Go live
+  ☐ Monitor for issues
+  ☐ Keep old CRM read-only
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Importing Data" icon="file-import" href="/user-guide/data-management/import">
+    Detailed import instructions
+  </Card>
+  
+  <Card title="Exporting Data" icon="file-export" href="/user-guide/data-management/export">
+    Export data from Twenty
+  </Card>
+</CardGroup>

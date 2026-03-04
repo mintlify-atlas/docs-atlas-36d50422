@@ -1,0 +1,539 @@
+---
+title: Deploy on Kubernetes
+description: Run Twenty on Kubernetes for scalable production deployments
+icon: dharmachakra
+---
+
+Deploy Twenty on Kubernetes for high availability, scalability, and production-grade infrastructure.
+
+## Overview
+
+Kubernetes deployment provides:
+- **High availability** - Multiple replicas with automatic failover
+- **Auto-scaling** - Horizontal pod autoscaling based on load
+- **Rolling updates** - Zero-downtime deployments
+- **Resource management** - CPU and memory limits
+- **Service discovery** - Built-in DNS and load balancing
+
+## Prerequisites
+
+- Kubernetes cluster (1.24+)
+- `kubectl` configured
+- Helm 3 (optional, but recommended)
+- Persistent storage class configured
+- Ingress controller installed
+
+## Deployment Architecture
+
+```mermaid
+graph TD
+    A[Ingress] -->|HTTPS| B[Server Service]
+    B --> C[Server Pods]
+    B --> D[Worker Pods]
+    C --> E[PostgreSQL]
+    C --> F[Redis]
+    D --> E
+    D --> F
+    E --> G[PVC - Database]
+    C --> H[PVC - Files]
+```
+
+## Kubernetes Manifests
+
+### Namespace
+
+Create a dedicated namespace:
+
+```yaml namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: twenty
+```
+
+```bash
+kubectl apply -f namespace.yaml
+```
+
+### ConfigMap
+
+Store non-sensitive configuration:
+
+```yaml configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twenty-config
+  namespace: twenty
+data:
+  NODE_ENV: "production"
+  SERVER_URL: "https://crm.yourcompany.com"
+  STORAGE_TYPE: "local"
+  REDIS_URL: "redis://twenty-redis:6379"
+  PG_DATABASE_URL: "postgres://postgres:postgres@twenty-postgres:5432/default"
+```
+
+### Secret
+
+Store sensitive credentials:
+
+```yaml secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: twenty-secret
+  namespace: twenty
+type: Opaque
+stringData:
+  APP_SECRET: "your-secure-random-string"
+  PG_DATABASE_PASSWORD: "your-database-password"
+```
+
+```bash
+kubectl apply -f secret.yaml
+```
+
+<Warning>
+  Never commit secrets to version control. Use sealed secrets or external secret managers in production.
+</Warning>
+
+### PostgreSQL StatefulSet
+
+```yaml postgres.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: twenty-postgres
+  namespace: twenty
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: twenty-postgres
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: twenty-postgres
+  namespace: twenty
+spec:
+  serviceName: twenty-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twenty-postgres
+  template:
+    metadata:
+      labels:
+        app: twenty-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "default"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: twenty-secret
+                  key: PG_DATABASE_PASSWORD
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+```
+
+### Redis Deployment
+
+```yaml redis.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: twenty-redis
+  namespace: twenty
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: twenty-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twenty-redis
+  namespace: twenty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twenty-redis
+  template:
+    metadata:
+      labels:
+        app: twenty-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          args:
+            - --maxmemory-policy
+            - noeviction
+          ports:
+            - containerPort: 6379
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 15
+            periodSeconds: 5
+```
+
+### Server Deployment
+
+```yaml server.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: twenty-server
+  namespace: twenty
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: twenty-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twenty-server
+  namespace: twenty
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twenty-server
+  template:
+    metadata:
+      labels:
+        app: twenty-server
+    spec:
+      containers:
+        - name: server
+          image: twentycrm/twenty:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: twenty-config
+            - secretRef:
+                name: twenty-secret
+          volumeMounts:
+            - name: storage
+              mountPath: /app/packages/twenty-server/.local-storage
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 5
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: twenty-storage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: twenty-storage
+  namespace: twenty
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+```
+
+### Worker Deployment
+
+```yaml worker.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twenty-worker
+  namespace: twenty
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: twenty-worker
+  template:
+    metadata:
+      labels:
+        app: twenty-worker
+    spec:
+      containers:
+        - name: worker
+          image: twentycrm/twenty:latest
+          command: ["yarn", "worker:prod"]
+          envFrom:
+            - configMapRef:
+                name: twenty-config
+            - secretRef:
+                name: twenty-secret
+          env:
+            - name: DISABLE_DB_MIGRATIONS
+              value: "true"
+            - name: DISABLE_CRON_JOBS_REGISTRATION
+              value: "true"
+          volumeMounts:
+            - name: storage
+              mountPath: /app/packages/twenty-server/.local-storage
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: twenty-storage
+```
+
+### Ingress
+
+```yaml ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: twenty-ingress
+  namespace: twenty
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - crm.yourcompany.com
+      secretName: twenty-tls
+  rules:
+    - host: crm.yourcompany.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: twenty-server
+                port:
+                  number: 3000
+```
+
+## Deploy All Resources
+
+Apply all manifests:
+
+```bash
+kubectl apply -f namespace.yaml
+kubectl apply -f secret.yaml
+kubectl apply -f configmap.yaml
+kubectl apply -f postgres.yaml
+kubectl apply -f redis.yaml
+kubectl apply -f server.yaml
+kubectl apply -f worker.yaml
+kubectl apply -f ingress.yaml
+```
+
+## Auto-Scaling
+
+### Horizontal Pod Autoscaler
+
+Scale server pods based on CPU usage:
+
+```yaml hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: twenty-server-hpa
+  namespace: twenty
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: twenty-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+```
+
+```bash
+kubectl apply -f hpa.yaml
+```
+
+## Monitoring
+
+### Health Checks
+
+Check pod status:
+
+```bash
+kubectl get pods -n twenty
+kubectl describe pod <pod-name> -n twenty
+```
+
+### Resource Usage
+
+```bash
+kubectl top pods -n twenty
+kubectl top nodes
+```
+
+### Events
+
+```bash
+kubectl get events -n twenty --sort-by='.lastTimestamp'
+```
+
+## Updates and Rollbacks
+
+### Update Deployment
+
+```bash
+# Update to new version
+kubectl set image deployment/twenty-server \
+  server=twentycrm/twenty:v0.3.0 -n twenty
+
+# Watch rollout status
+kubectl rollout status deployment/twenty-server -n twenty
+```
+
+### Rollback
+
+```bash
+# Rollback to previous version
+kubectl rollout undo deployment/twenty-server -n twenty
+
+# Rollback to specific revision
+kubectl rollout undo deployment/twenty-server --to-revision=2 -n twenty
+```
+
+## Advanced Configuration
+
+### Network Policies
+
+Restrict network access:
+
+```yaml network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: twenty-network-policy
+  namespace: twenty
+spec:
+  podSelector:
+    matchLabels:
+      app: twenty-server
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: twenty
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: twenty-postgres
+    - to:
+        - podSelector:
+            matchLabels:
+              app: twenty-redis
+```
+
+### Pod Disruption Budget
+
+Ensure availability during maintenance:
+
+```yaml pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: twenty-server-pdb
+  namespace: twenty
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: twenty-server
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/developers/self-hosting/configuration">
+    Configure environment variables
+  </Card>
+  <Card title="Docker Compose" icon="docker" href="/developers/self-hosting/docker-compose">
+    Simpler deployment option
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/developers/self-hosting/troubleshooting">
+    Debug common issues
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/developers/self-hosting/troubleshooting">
+    Set up monitoring and alerts
+  </Card>
+</CardGroup>

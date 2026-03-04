@@ -1,0 +1,377 @@
+---
+title: "Slack Integration"
+description: "Get real-time notifications from Twenty in your Slack workspace"
+---
+
+## Overview
+
+The Slack integration allows you to receive notifications from Twenty directly in your Slack channels. Stay informed about important CRM activities without constantly checking Twenty.
+
+## What You Can Do
+
+With the Twenty Slack integration:
+
+- **Receive notifications** - Get alerts for new leads, deal updates, and more
+- **Team collaboration** - Share CRM updates with your sales team
+- **Custom alerts** - Configure which events trigger Slack messages
+- **Real-time updates** - Stay informed as things happen in Twenty
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Sales Team Alerts" icon="users">
+    Notify your sales channel when new leads come in or deals close
+  </Card>
+  <Card title="Pipeline Updates" icon="chart-line">
+    Get updates when opportunities move through your pipeline
+  </Card>
+  <Card title="Task Reminders" icon="bell">
+    Send reminders for upcoming tasks and follow-ups
+  </Card>
+  <Card title="Team Mentions" icon="at">
+    Alert team members when they're assigned to records
+  </Card>
+</CardGroup>
+
+## Setting Up the Integration
+
+### Using Webhooks
+
+The recommended way to integrate Twenty with Slack is through webhooks and Twenty Workflows.
+
+<Steps>
+  <Step title="Create a Slack Incoming Webhook">
+    1. Go to your Slack workspace settings
+    2. Navigate to **Apps** > **Manage Apps**
+    3. Search for "Incoming Webhooks" and add to Slack
+    4. Choose a channel for notifications
+    5. Copy the webhook URL
+  </Step>
+  <Step title="Create a Workflow in Twenty">
+    1. Open Twenty and navigate to **Settings** > **Workflows**
+    2. Click **Create Workflow**
+    3. Name it (e.g., "New Lead Slack Notification")
+  </Step>
+  <Step title="Configure the Trigger">
+    1. Select a trigger event (e.g., "Record Created")
+    2. Choose the record type (e.g., "Person")
+    3. Add filters if needed
+  </Step>
+  <Step title="Add Webhook Action">
+    1. Click **Add Action** > **Send HTTP Request**
+    2. Set Method to **POST**
+    3. Enter your Slack webhook URL
+    4. Configure the message payload (see examples below)
+  </Step>
+  <Step title="Test and Activate">
+    1. Click **Test Workflow** to send a test message
+    2. Verify the message appears in Slack
+    3. Click **Activate** to enable the workflow
+  </Step>
+</Steps>
+
+### Webhook Payload Format
+
+Slack incoming webhooks expect JSON with specific formatting:
+
+```json
+{
+  "text": "New lead created!",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*New Lead Created*\n*Name:* {{firstName}} {{lastName}}\n*Email:* {{email}}\n*Company:* {{company}}"
+      }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "View in Twenty"
+          },
+          "url": "https://app.twenty.com/objects/person/{{id}}"
+        }
+      ]
+    }
+  ]
+}
+```
+
+<Tip>
+Use Twenty's variable syntax `{{fieldName}}` to insert dynamic data from your records into Slack messages.
+</Tip>
+
+## Example Notification Workflows
+
+### 1. New Lead Notification
+
+**Trigger**: Record Created → Person  
+**Action**: Send HTTP Request to Slack
+
+**Payload**:
+```json
+{
+  "text": "New lead: {{firstName}} {{lastName}}",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":tada: *New Lead Created*\n*Name:* {{firstName}} {{lastName}}\n*Email:* {{email}}\n*Phone:* {{phone}}\n*Source:* {{leadSource}}"
+      }
+    }
+  ]
+}
+```
+
+### 2. Deal Won Notification
+
+**Trigger**: Record Updated → Opportunity (when stage = "Closed Won")  
+**Action**: Send HTTP Request to Slack
+
+**Payload**:
+```json
+{
+  "text": "Deal closed: {{name}}",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":moneybag: *Deal Won!*\n*Deal:* {{name}}\n*Amount:* ${{amount}}\n*Owner:* {{owner}}\n*Close Date:* {{closeDate}}"
+      }
+    }
+  ]
+}
+```
+
+### 3. Task Due Soon Reminder
+
+**Trigger**: Scheduled (Daily at 9 AM)  
+**Filter**: Tasks due today  
+**Action**: Send HTTP Request to Slack
+
+**Payload**:
+```json
+{
+  "text": "Tasks due today",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":alarm_clock: *Tasks Due Today*\n*Task:* {{title}}\n*Assigned to:* {{assignee}}\n*Related to:* {{relatedRecord}}"
+      }
+    }
+  ]
+}
+```
+
+### 4. Team Member Assignment
+
+**Trigger**: Record Updated → Any (when owner changes)  
+**Action**: Send HTTP Request to Slack
+
+**Payload**:
+```json
+{
+  "text": "New assignment for {{newOwner}}",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":point_right: *New Assignment*\n{{newOwner}} has been assigned to {{recordType}}: *{{recordName}}*"
+      }
+    }
+  ]
+}
+```
+
+## Customizing Slack Messages
+
+### Using Slack Block Kit
+
+Slack's Block Kit allows rich message formatting:
+
+- **Headers** - Large text for emphasis
+- **Sections** - Formatted text with markdown
+- **Dividers** - Visual separators
+- **Buttons** - Clickable actions
+- **Images** - Inline images
+- **Context** - Small text for metadata
+
+Explore the [Slack Block Kit Builder](https://api.slack.com/block-kit/building) to design your messages.
+
+### Adding Dynamic Links
+
+Link back to Twenty records:
+
+```json
+{
+  "type": "actions",
+  "elements": [
+    {
+      "type": "button",
+      "text": {
+        "type": "plain_text",
+        "text": "View Contact"
+      },
+      "url": "https://app.twenty.com/objects/person/{{id}}"
+    }
+  ]
+}
+```
+
+### Using Emojis
+
+Add visual interest with Slack emojis:
+
+- `:tada:` - New leads
+- `:moneybag:` - Deals won
+- `:fire:` - Hot prospects
+- `:alarm_clock:` - Reminders
+- `:chart_with_upwards_trend:` - Progress updates
+
+## Advanced Configuration
+
+### Notification Channels by Event Type
+
+Route different notifications to different channels:
+
+1. Create multiple workflows with different triggers
+2. Use separate webhook URLs for each channel
+3. Configure appropriate filters for each
+
+Example setup:
+- `#sales-leads` - New person records
+- `#sales-wins` - Deals marked as won
+- `#sales-pipeline` - All deal stage changes
+
+### Conditional Notifications
+
+Use workflow filters to send notifications only when:
+
+- Deal amount exceeds a threshold
+- Lead source matches specific criteria
+- Owner is a specific team member
+- Custom field values meet conditions
+
+### Batching Notifications
+
+Avoid notification spam:
+
+1. Use scheduled triggers instead of real-time
+2. Create digest workflows that run daily/weekly
+3. Aggregate multiple records into single messages
+
+## Slack App Integration (Coming Soon)
+
+A native Twenty Slack app is in development with features like:
+
+- Slash commands to search and create records
+- Unfurling of Twenty links in Slack
+- Interactive buttons and forms
+- Direct messages for personal notifications
+
+<Note>
+Interested in the native Slack app? Join the discussion on [GitHub](https://github.com/twentyhq/twenty/discussions) or vote for this feature.
+</Note>
+
+## Troubleshooting
+
+### Messages Not Appearing
+
+If Slack messages aren't being sent:
+
+1. **Verify webhook URL** - Ensure it's correct and active
+2. **Check workflow status** - Confirm the workflow is active
+3. **Review trigger conditions** - Make sure events match your filters
+4. **Test the webhook** - Use curl to test directly:
+   ```bash
+   curl -X POST -H 'Content-type: application/json' \
+   --data '{"text":"Test message"}' \
+   YOUR_WEBHOOK_URL
+   ```
+5. **Check Twenty logs** - Look for errors in workflow execution
+
+### Invalid Payload Errors
+
+If you see "invalid_payload" errors:
+
+1. Validate your JSON syntax
+2. Ensure all brackets and quotes are balanced
+3. Test your payload in Slack's Block Kit Builder
+4. Check that field variables exist in your records
+
+### Webhook URL Expired
+
+Slack webhook URLs can be revoked:
+
+1. Verify the webhook is still active in Slack settings
+2. Generate a new webhook URL if needed
+3. Update the URL in your Twenty workflows
+
+### Rate Limiting
+
+Slack rate limits incoming webhooks:
+
+- Limit: ~1 message per second
+- If exceeded: Messages may be dropped
+- Solution: Use batching or scheduled workflows
+
+## Security Considerations
+
+<Warning>
+**Webhook URL Security:**
+- Treat webhook URLs like passwords
+- Don't share them publicly or commit to version control
+- Rotate them periodically
+- Revoke unused webhooks
+</Warning>
+
+- Messages sent to Slack are visible to channel members
+- Avoid sending sensitive data like payment information
+- Use private channels for confidential notifications
+- Consider data privacy regulations (GDPR, CCPA)
+
+## Best Practices
+
+1. **Be selective** - Only notify on important events
+2. **Use appropriate channels** - Route notifications to relevant teams
+3. **Format clearly** - Use Block Kit for readable messages
+4. **Include actions** - Add buttons to link back to Twenty
+5. **Test thoroughly** - Verify messages before activating workflows
+6. **Monitor volume** - Adjust if notifications become overwhelming
+
+## Alternative Integration Methods
+
+### Using Zapier
+
+You can also connect Twenty to Slack via [Zapier](/integrations/tools/zapier):
+
+1. Create a Zap with Twenty as trigger
+2. Add Slack as action
+3. Configure message format
+
+Benefits:
+- No webhook management
+- Visual workflow builder
+- Additional transformation options
+
+### Using Make (Integromat)
+
+Connect through Make for advanced scenarios:
+
+1. Use Twenty's GraphQL API
+2. Add Slack module
+3. Build complex logic flows
+
+<Card title="Need Help?" icon="comments" href="https://discord.gg/cx5n4Jzs57">
+  Get help with Slack integration on our Discord.
+</Card>

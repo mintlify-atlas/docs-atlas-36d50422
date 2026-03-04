@@ -1,0 +1,752 @@
+---
+title: Code Style Guide
+description: Follow Twenty's code conventions and best practices
+icon: paintbrush
+---
+
+Twenty follows strict code conventions to maintain a clean, consistent, and maintainable codebase.
+
+## General Principles
+
+<CardGroup cols={2}>
+  <Card title="Functional Components" icon="function">
+    Only functional components, no class components
+  </Card>
+  <Card title="Named Exports" icon="file-export">
+    No default exports, always use named exports
+  </Card>
+  <Card title="Type Safety" icon="shield-check">
+    Strict TypeScript, no `any` types allowed
+  </Card>
+  <Card title="Composition Over Inheritance" icon="cubes">
+    Prefer composition patterns
+  </Card>
+</CardGroup>
+
+## TypeScript
+
+### Types Over Interfaces
+
+Use `type` instead of `interface` (except when extending third-party interfaces):
+
+```typescript
+// Good
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+type UserWithCompany = User & {
+  companyId: string;
+};
+
+// Bad
+interface User {
+  id: string;
+  name: string;
+}
+```
+
+### No Any Types
+
+Never use `any`. Use proper types or `unknown`:
+
+```typescript
+// Good
+function parseJSON(json: string): unknown {
+  return JSON.parse(json);
+}
+
+function processData(data: unknown) {
+  if (typeof data === 'object' && data !== null) {
+    // Type guard narrows the type
+    console.log(data);
+  }
+}
+
+// Bad
+function parseJSON(json: string): any {
+  return JSON.parse(json);
+}
+```
+
+### String Literals Over Enums
+
+Use string literal types instead of enums (except for GraphQL enums):
+
+```typescript
+// Good
+type Status = 'pending' | 'approved' | 'rejected';
+
+const status: Status = 'pending';
+
+// Bad
+enum Status {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+}
+```
+
+### Generic Type Names
+
+Use descriptive names for generics:
+
+```typescript
+// Good
+function map<TInput, TOutput>(
+  items: TInput[],
+  transform: (item: TInput) => TOutput,
+): TOutput[] {
+  return items.map(transform);
+}
+
+// Bad
+function map<T, U>(
+  items: T[],
+  transform: (item: T) => U,
+): U[] {
+  return items.map(transform);
+}
+```
+
+## Naming Conventions
+
+### Variables and Functions
+
+Use `camelCase`:
+
+```typescript
+// Good
+const userName = 'John';
+const isActive = true;
+function getUserById(id: string) {}
+
+// Bad
+const user_name = 'John';
+const is_active = true;
+function get_user_by_id(id: string) {}
+```
+
+### Constants
+
+Use `SCREAMING_SNAKE_CASE`:
+
+```typescript
+// Good
+const MAX_RETRIES = 3;
+const API_BASE_URL = 'https://api.example.com';
+const DEFAULT_PAGE_SIZE = 50;
+
+// Bad
+const maxRetries = 3;
+const apiBaseUrl = 'https://api.example.com';
+```
+
+### Types and Classes
+
+Use `PascalCase`:
+
+```typescript
+// Good
+type UserProfile = {
+  id: string;
+  name: string;
+};
+
+class UserService {}
+
+// Bad
+type userProfile = {};
+class userService {}
+```
+
+### Component Props
+
+Suffix with `Props`:
+
+```typescript
+// Good
+type ButtonProps = {
+  label: string;
+  onClick: () => void;
+};
+
+export const Button = ({ label, onClick }: ButtonProps) => (
+  <button onClick={onClick}>{label}</button>
+);
+
+// Bad
+type ButtonProperties = {};
+type IButtonProps = {};
+```
+
+### Files and Directories
+
+Use `kebab-case` with descriptive suffixes:
+
+```
+user-profile.component.tsx
+user.service.ts
+user.entity.ts
+create-user.dto.ts
+user.module.ts
+user-list.test.ts
+```
+
+### No Abbreviations
+
+Use full words, not abbreviations:
+
+```typescript
+// Good
+const user = getUser();
+const fieldMetadata = getFieldMetadata();
+const buttonElement = document.querySelector('button');
+
+// Bad
+const u = getUser();
+const fm = getFieldMetadata();
+const btn = document.querySelector('button');
+```
+
+## React Components
+
+### Functional Components Only
+
+```typescript
+// Good
+export const UserProfile = ({ userId }: UserProfileProps) => {
+  const user = useUser(userId);
+  return <div>{user.name}</div>;
+};
+
+// Bad
+export class UserProfile extends React.Component {
+  render() {
+    return <div>{this.props.user.name}</div>;
+  }
+}
+```
+
+### Named Exports Only
+
+```typescript
+// Good
+export const Button = ({ label }: ButtonProps) => (
+  <button>{label}</button>
+);
+
+// Bad
+const Button = ({ label }: ButtonProps) => (
+  <button>{label}</button>
+);
+export default Button;
+```
+
+### Event Handlers Over useEffect
+
+Prefer event handlers for user interactions:
+
+```typescript
+// Good
+const handleClick = () => {
+  setState(newValue);
+};
+
+return <button onClick={handleClick}>Click</button>;
+
+// Bad
+useEffect(() => {
+  if (shouldUpdate) {
+    setState(newValue);
+  }
+}, [shouldUpdate]);
+```
+
+### Props Down, Events Up
+
+Unidirectional data flow:
+
+```typescript
+// Good
+type ChildProps = {
+  value: string;
+  onChange: (newValue: string) => void;
+};
+
+export const Child = ({ value, onChange }: ChildProps) => (
+  <input value={value} onChange={(e) => onChange(e.target.value)} />
+);
+
+export const Parent = () => {
+  const [value, setValue] = useState('');
+  return <Child value={value} onChange={setValue} />;
+};
+
+// Bad - child manages its own state
+export const Child = ({ initialValue }: { initialValue: string }) => {
+  const [value, setValue] = useState(initialValue);
+  return <input value={value} onChange={(e) => setValue(e.target.value)} />;
+};
+```
+
+## File Organization
+
+### Component Structure
+
+```
+user-profile/
+├── user-profile.component.tsx
+├── user-profile.test.tsx
+├── user-profile.stories.tsx
+├── user-profile.styles.ts
+└── index.ts
+```
+
+### Barrel Exports
+
+Use `index.ts` for clean imports:
+
+```typescript
+// user-profile/index.ts
+export { UserProfile } from './user-profile.component';
+export type { UserProfileProps } from './user-profile.component';
+
+// Usage
+import { UserProfile } from '@/components/user-profile';
+```
+
+### Import Order
+
+1. External libraries
+2. Internal (`@/` imports)
+3. Relative imports
+
+```typescript
+// External
+import React, { useState } from 'react';
+import { useQuery } from '@apollo/client';
+
+// Internal
+import { Button } from '@/ui/button';
+import { useAuth } from '@/auth/hooks';
+
+// Relative
+import { UserAvatar } from './user-avatar.component';
+import type { UserProfileProps } from './types';
+```
+
+### File Size Limits
+
+- **Components** - Under 300 lines
+- **Services** - Under 500 lines
+- **Split large files** into smaller, focused modules
+
+## Comments
+
+### Use Short-Form Comments
+
+```typescript
+// Good
+// Calculate total price with tax
+const totalPrice = price * (1 + taxRate);
+
+// Bad
+/**
+ * Calculate total price with tax
+ */
+const totalPrice = price * (1 + taxRate);
+```
+
+### Explain WHY, Not WHAT
+
+```typescript
+// Good
+// Use debounce to avoid excessive API calls during typing
+const debouncedSearch = useDebouncedValue(searchQuery, 300);
+
+// Bad
+// Debounce search query by 300ms
+const debouncedSearch = useDebouncedValue(searchQuery, 300);
+```
+
+### No Obvious Comments
+
+```typescript
+// Good
+const userId = user.id;
+
+// Bad
+// Get user ID
+const userId = user.id;
+```
+
+### Multi-Line Comments
+
+```typescript
+// Good
+// This function performs the following steps:
+// 1. Validates input data
+// 2. Fetches user from database
+// 3. Updates user permissions
+function updateUserPermissions() {}
+
+// Bad
+/**
+ * This function performs the following steps:
+ * 1. Validates input data
+ * 2. Fetches user from database
+ */
+function updateUserPermissions() {}
+```
+
+## State Management
+
+### Jotai for Global State
+
+```typescript
+import { atom, useAtom } from 'jotai';
+
+// Atoms for primitive state
+export const userIdState = atom<string | null>(null);
+export const isAuthenticatedState = atom<boolean>(false);
+
+// Selectors for derived state
+export const userState = atom(async (get) => {
+  const userId = get(userIdState);
+  if (!userId) return null;
+  return await fetchUser(userId);
+});
+
+// Atom families for dynamic collections
+export const userByIdState = atomFamily((userId: string) =>
+  atom(async () => await fetchUser(userId))
+);
+```
+
+### Component State with Hooks
+
+```typescript
+// Simple state
+const [count, setCount] = useState(0);
+
+// Complex state with useReducer
+type State = {
+  loading: boolean;
+  data: User | null;
+  error: Error | null;
+};
+
+type Action =
+  | { type: 'LOADING' }
+  | { type: 'SUCCESS'; data: User }
+  | { type: 'ERROR'; error: Error };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'LOADING':
+      return { ...state, loading: true, error: null };
+    case 'SUCCESS':
+      return { loading: false, data: action.data, error: null };
+    case 'ERROR':
+      return { loading: false, data: null, error: action.error };
+  }
+};
+
+const [state, dispatch] = useReducer(reducer, initialState);
+```
+
+### Functional State Updates
+
+```typescript
+// Good
+setCount((prev) => prev + 1);
+setItems((prev) => [...prev, newItem]);
+
+// Bad
+setCount(count + 1);
+setItems([...items, newItem]);
+```
+
+## Utility Functions
+
+### Use Existing Helpers
+
+Twenty provides utility helpers in `twenty-shared`:
+
+```typescript
+import { isDefined, isNonEmptyString, isNonEmptyArray } from 'twenty-shared';
+
+// Good
+if (isNonEmptyString(email)) {
+  sendEmail(email);
+}
+
+// Bad
+if (email && email.length > 0) {
+  sendEmail(email);
+}
+```
+
+## Error Handling
+
+```typescript
+// Good
+try {
+  const user = await fetchUser(userId);
+  return user;
+} catch (error) {
+  if (error instanceof NotFoundError) {
+    throw new UserNotFoundError(userId);
+  }
+  if (error instanceof NetworkError) {
+    throw new UserServiceUnavailableError();
+  }
+  throw error;
+}
+
+// Bad
+try {
+  return await fetchUser(userId);
+} catch (error) {
+  console.error(error);
+  return null;
+}
+```
+
+## Testing
+
+See the [Testing Guide](/developers/contributing/testing) for detailed testing conventions.
+
+## Linting and Formatting
+
+### Run Before Committing
+
+```bash
+# Lint changes (fastest - always use this)
+npx nx lint:diff-with-main twenty-front
+npx nx lint:diff-with-main twenty-server
+
+# Auto-fix issues
+npx nx lint:diff-with-main twenty-front --configuration=fix
+
+# Type checking
+npx nx typecheck twenty-front
+npx nx typecheck twenty-server
+
+# Format code
+npx nx fmt twenty-front
+npx nx fmt twenty-server
+```
+
+### Prettier Configuration
+
+Prettier runs automatically. Configuration:
+
+```json
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "lf"
+}
+```
+
+## ESLint Rules
+
+Key ESLint rules enforced:
+
+- No `any` types
+- No unused variables
+- No default exports
+- Functional components only
+- Named exports only
+- Consistent import order
+
+## Backend (NestJS)
+
+### Module Structure
+
+```typescript
+@Module({
+  imports: [TypeOrmModule.forFeature([UserEntity])],
+  providers: [UserService],
+  controllers: [UserController],
+  exports: [UserService],
+})
+export class UserModule {}
+```
+
+### Service Pattern
+
+```typescript
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
+
+  async findById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+    return user;
+  }
+}
+```
+
+### Entity Pattern
+
+```typescript
+@Entity({ name: 'user', schema: 'core' })
+export class UserEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'varchar' })
+  firstName: string;
+
+  @Column({ type: 'varchar' })
+  lastName: string;
+
+  @Column({ type: 'varchar', unique: true })
+  email: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+}
+```
+
+## Database Migrations
+
+### Migration Names
+
+Use kebab-case descriptive names:
+
+```bash
+# Good
+add-user-email-verification
+update-company-employee-count
+remove-deprecated-field
+
+# Bad
+migration1
+update
+fix
+```
+
+### Migration Structure
+
+```typescript
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class AddUserEmailVerification1234567890123
+  implements MigrationInterface
+{
+  name = 'AddUserEmailVerification1234567890123';
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "core"."user" ADD "emailVerified" boolean NOT NULL DEFAULT false`,
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "core"."user" DROP COLUMN "emailVerified"`,
+    );
+  }
+}
+```
+
+## Performance
+
+### Frontend Optimization
+
+```typescript
+// Use React.memo for expensive components
+export const ExpensiveComponent = React.memo(({ data }: Props) => {
+  return <div>{/* ... */}</div>;
+});
+
+// Use useMemo for expensive calculations
+const sortedData = useMemo(
+  () => data.sort((a, b) => a.name.localeCompare(b.name)),
+  [data],
+);
+
+// Use useCallback for callbacks
+const handleClick = useCallback(() => {
+  doSomething();
+}, []);
+```
+
+### Backend Optimization
+
+```typescript
+// Use select to limit fields
+const users = await this.userRepository.find({
+  select: ['id', 'firstName', 'lastName'],
+  where: { isActive: true },
+});
+
+// Use pagination
+const [users, total] = await this.userRepository.findAndCount({
+  take: limit,
+  skip: offset,
+});
+
+// Use indexes for frequently queried fields
+@Index(['email'])
+@Entity()
+export class UserEntity {}
+```
+
+## Security
+
+```typescript
+// Sanitize user input
+import { sanitize } from 'dompurify';
+const cleanHtml = sanitize(userInput);
+
+// Validate input
+import { IsEmail, IsNotEmpty } from 'class-validator';
+
+class CreateUserDto {
+  @IsNotEmpty()
+  firstName: string;
+
+  @IsEmail()
+  email: string;
+}
+
+// Never log sensitive data
+// Good
+logger.info('User logged in', { userId: user.id });
+
+// Bad
+logger.info('User logged in', { user }); // May contain sensitive data
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Testing Guide" icon="flask" href="/developers/contributing/testing">
+    Write and run tests
+  </Card>
+  <Card title="Getting Started" icon="rocket" href="/developers/contributing/getting-started">
+    Start contributing
+  </Card>
+  <Card title="Local Setup" icon="laptop-code" href="/developers/local-setup">
+    Set up dev environment
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/developers/architecture">
+    Understand the codebase
+  </Card>
+</CardGroup>

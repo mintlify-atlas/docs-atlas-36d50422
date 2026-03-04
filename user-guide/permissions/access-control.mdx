@@ -1,0 +1,644 @@
+---
+title: Access Control
+description: Control who can see and edit data
+icon: lock
+---
+
+Access control determines which users can view and modify specific records, providing granular security beyond role-based permissions.
+
+## Access Control Levels
+
+Twenty provides multiple layers of access control:
+
+<Steps>
+  <Step title="Role-based permissions">
+    Baseline access defined by user roles (Admin, Member, custom roles).
+  </Step>
+  
+  <Step title="Object-level permissions">
+    Configure default access for entire objects.
+  </Step>
+  
+  <Step title="Record-level sharing">
+    Share specific records with users or teams.
+  </Step>
+  
+  <Step title="Field-level security">
+    Hide or restrict sensitive fields by role.
+  </Step>
+</Steps>
+
+## Object-Level Permissions
+
+Control default access to objects:
+
+### Configuring Object Access
+
+<Steps>
+  <Step title="Navigate to object settings">
+    Go to **Settings → Data Model → Objects** and select an object.
+  </Step>
+  
+  <Step title="Go to Permissions tab">
+    Click the **Permissions** tab.
+  </Step>
+  
+  <Step title="Set default access">
+    Configure who can access this object:
+    ```yaml
+    Default Access: Private
+    
+    Options:
+    - Public: All users can view
+    - Private: Only owner and explicitly shared
+    - Team: Owner's team can view
+    - Custom: Define per role
+    ```
+  </Step>
+  
+  <Step title="Set role permissions">
+    For each role, define:
+    - View all, team, own, or none
+    - Create yes/no
+    - Edit all, team, own, or none
+    - Delete all, own, or none
+  </Step>
+</Steps>
+
+### Permission Examples by Object
+
+<Tabs>
+  <Tab title="Companies">
+    **Common configuration:**
+    ```yaml
+    Default Access: Public
+    
+    All Roles:
+      View: All companies
+      Create: Yes
+      Edit: All
+      Delete: Own or Admin only
+    
+    Reasoning:
+    - Companies are shared resources
+    - Everyone needs to see them
+    - Most can edit (add info)
+    - Only owner/admin can delete
+    ```
+  </Tab>
+  
+  <Tab title="Opportunities">
+    **Common configuration:**
+    ```yaml
+    Default Access: Private
+    
+    Sales Reps:
+      View: Own + Team
+      Create: Yes
+      Edit: Own
+      Delete: No
+    
+    Sales Managers:
+      View: All (sales org)
+      Create: Yes
+      Edit: All
+      Delete: Yes
+    
+    Other Roles:
+      View: None (unless shared)
+      Create: No
+      Edit: No
+      Delete: No
+    
+    Reasoning:
+    - Opportunities are sensitive
+    - Reps see own pipeline + team
+    - Managers see all for forecasting
+    - Others only see if shared
+    ```
+  </Tab>
+  
+  <Tab title="Tasks">
+    **Common configuration:**
+    ```yaml
+    Default Access: Private
+    
+    All Users:
+      View: Own + Assigned to me
+      Create: Yes
+      Edit: Own + Assigned to me
+      Delete: Own
+    
+    Managers:
+      View: Team
+      Edit: Team
+      Delete: Team
+    
+    Reasoning:
+    - Tasks are personal
+    - See own tasks + those assigned
+    - Managers see team workload
+    ```
+  </Tab>
+  
+  <Tab title="Contracts">
+    **Common configuration:**
+    ```yaml
+    Default Access: Private
+    
+    Legal Team:
+      View: All
+      Create: Yes
+      Edit: All
+      Delete: No
+    
+    Sales Reps:
+      View: Own only
+      Create: No (legal creates)
+      Edit: No
+      Delete: No
+    
+    Finance:
+      View: All
+      Create: No
+      Edit: Financial fields only
+      Delete: No
+    
+    Reasoning:
+    - Contracts are confidential
+    - Legal manages them
+    - Sales sees their deals only
+    - Finance tracks payments
+    ```
+  </Tab>
+</Tabs>
+
+## Record-Level Sharing
+
+Share specific records with users:
+
+### Sharing a Record
+
+<Steps>
+  <Step title="Open the record">
+    Navigate to the record you want to share.
+  </Step>
+  
+  <Step title="Click Share">
+    Click the **Share** button in the record header.
+  </Step>
+  
+  <Step title="Add users or teams">
+    Search for and select:
+    - Individual users
+    - Teams
+    - Roles (e.g., "All Sales Reps")
+  </Step>
+  
+  <Step title="Set access level">
+    Choose permission level:
+    ```yaml
+    - View Only: Can see but not edit
+    - Can Edit: Can view and modify
+    - Can Delete: Full access including delete
+    ```
+  </Step>
+  
+  <Step title="Add message (optional)">
+    Include context:
+    ```
+    "Sharing this opportunity - please review before tomorrow's call"
+    ```
+  </Step>
+  
+  <Step title="Share">
+    Click **Share** to grant access.
+  </Step>
+</Steps>
+
+<Info>
+Users receive notification when a record is shared with them.
+</Info>
+
+### Sharing Options
+
+<CardGroup cols={2}>
+  <Card title="View Only" icon="eye">
+    User can:
+    - See the record
+    - View all fields
+    - See related records
+    
+    User cannot:
+    - Edit any fields
+    - Delete record
+    - Share with others
+  </Card>
+  
+  <Card title="Can Edit" icon="pen">
+    User can:
+    - View record
+    - Edit fields
+    - Add comments
+    - Update related records
+    
+    User cannot:
+    - Delete record
+    - Change owner
+    - Modify sharing
+  </Card>
+  
+  <Card title="Can Delete" icon="trash">
+    User can:
+    - Everything in "Can Edit"
+    - Delete record
+    - Change owner
+    - Modify sharing settings
+    
+    Full control over record.
+  </Card>
+  
+  <Card title="Owner" icon="crown">
+    Automatic for creator:
+    - All permissions
+    - Cannot be removed
+    - Can transfer ownership
+    - Sees record even if private
+  </Card>
+</CardGroup>
+
+### Sharing Patterns
+
+<AccordionGroup>
+  <Accordion title="Share with team">
+    **Use case:** Collaborate on deals
+    
+    **Setup:**
+    ```yaml
+    Opportunity: Acme Corp - Q1 Deal
+    Share with: Sales Team
+    Access: Can Edit
+    
+    Result:
+    - All sales team members can view/edit
+    - Collaborate on strategy
+    - Update as deal progresses
+    ```
+  </Accordion>
+  
+  <Accordion title="Share for visibility">
+    **Use case:** Keep stakeholders informed
+    
+    **Setup:**
+    ```yaml
+    Project: Website Redesign
+    Share with: Marketing Manager, VP Product
+    Access: View Only
+    
+    Result:
+    - Stakeholders see progress
+    - Cannot accidentally change anything
+    - Stay informed without noise
+    ```
+  </Accordion>
+  
+  <Accordion title="Share for handoff">
+    **Use case:** Transfer work to another user
+    
+    **Setup:**
+    ```yaml
+    Lead: Qualified prospect
+    Share with: Account Executive
+    Access: Can Edit
+    Then: Transfer ownership
+    
+    Result:
+    - AE receives lead
+    - Can take over
+    - Eventually becomes owner
+    ```
+  </Accordion>
+  
+  <Accordion title="Share cross-functionally">
+    **Use case:** Involve other departments
+    
+    **Setup:**
+    ```yaml
+    Opportunity: Large enterprise deal
+    Share with:
+      - Legal Team (Can Edit - contract)
+      - Finance Team (Can Edit - pricing)
+      - Support Team (View Only - context)
+    
+    Result:
+    - Each team has appropriate access
+    - Collaboration across departments
+    - Record is single source of truth
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Field-Level Security
+
+Control access to sensitive fields:
+
+### Configuring Field Security
+
+<Steps>
+  <Step title="Navigate to object settings">
+    Go to **Settings → Data Model → Objects → [Object] → Fields**.
+  </Step>
+  
+  <Step title="Select field">
+    Click the field to configure.
+  </Step>
+  
+  <Step title="Go to Security tab">
+    Click **Security** to set field-level permissions.
+  </Step>
+  
+  <Step title="Set role access">
+    For each role:
+    ```yaml
+    Admin:
+      View: Yes
+      Edit: Yes
+    
+    Sales Manager:
+      View: Yes
+      Edit: Yes
+    
+    Sales Rep:
+      View: No (Hidden)
+      Edit: No
+    ```
+  </Step>
+</Steps>
+
+### Sensitive Fields Examples
+
+<Tabs>
+  <Tab title="Financial Data">
+    Restrict revenue and cost:
+    ```yaml
+    Company.Annual Revenue:
+      Executives: View + Edit
+      Sales Managers: View Only
+      Sales Reps: Hidden
+      Support: Hidden
+    
+    Opportunity.Cost:
+      Finance: View + Edit
+      Sales Managers: View Only
+      Sales Reps: Hidden
+    
+    Opportunity.Commission:
+      Sales Ops: View + Edit
+      Sales Rep: View Own Only
+      Others: Hidden
+    ```
+  </Tab>
+  
+  <Tab title="Personal Information">
+    Protect private data:
+    ```yaml
+    Person.Salary:
+      HR: View + Edit
+      Manager: View Own Team
+      Others: Hidden
+    
+    Person.Home Address:
+      HR: View + Edit
+      Person themselves: View Only
+      Others: Hidden
+    
+    Person.SSN:
+      HR Admin only: View + Edit
+      All others: Hidden
+    ```
+  </Tab>
+  
+  <Tab title="Strategic Information">
+    Guard competitive data:
+    ```yaml
+    Opportunity.Strategy Notes:
+      Sales Leadership: View + Edit
+      Account Owner: View + Edit
+      Others: Hidden
+    
+    Company.Acquisition Target:
+      C-Suite: View + Edit
+      Corp Dev: View + Edit
+      All others: Hidden
+    ```
+  </Tab>
+</Tabs>
+
+## Ownership
+
+Record ownership determines primary responsibility:
+
+### Record Owner
+
+**Owner has:**
+- Full access to record (view, edit, delete)
+- Ability to share record
+- Ability to transfer ownership
+- Appears as "Owner" on record
+
+### Changing Ownership
+
+<Steps>
+  <Step title="Open record">
+    Navigate to the record.
+  </Step>
+  
+  <Step title="Click Owner field">
+    Click the current owner name.
+  </Step>
+  
+  <Step title="Select new owner">
+    Search for and select new owner.
+  </Step>
+  
+  <Step title="Confirm transfer">
+    Click **Transfer Ownership**.
+  </Step>
+</Steps>
+
+<Info>
+New owner receives notification of ownership transfer.
+</Info>
+
+### Auto-Assignment Rules
+
+Automate ownership:
+
+```yaml
+Example: Auto-assign leads by territory
+
+Workflow: Lead Created
+Conditions:
+  Country = "United States"
+Actions:
+  Set Owner = "US Sales Rep" (Round Robin)
+
+Conditions:
+  Country = "United Kingdom"
+Actions:
+  Set Owner = "UK Sales Rep"
+```
+
+## Team-Based Access
+
+Organize users into teams for easier sharing:
+
+### Creating Teams
+
+<Steps>
+  <Step title="Navigate to teams">
+    Go to **Settings → Teams**.
+  </Step>
+  
+  <Step title="Create team">
+    Click **+ New Team**:
+    ```yaml
+    Name: Enterprise Sales Team
+    Members:
+      - Alice (Manager)
+      - Bob (Rep)
+      - Charlie (Rep)
+    ```
+  </Step>
+  
+  <Step title="Set team sharing defaults">
+    Configure automatic sharing:
+    ```yaml
+    Opportunities:
+      Share within team: Yes
+      Access level: Can Edit
+    
+    Result: Team members automatically see each other's opportunities
+    ```
+  </Step>
+</Steps>
+
+### Team Hierarchies
+
+Create organizational structure:
+
+```yaml
+Sales Organization
+  ├─ Enterprise Sales Team
+  │   ├─ Alice (Manager)
+  │   ├─ Bob (Rep)
+  │   └─ Charlie (Rep)
+  │
+  └─ SMB Sales Team
+      ├─ David (Manager)
+      ├─ Eve (Rep)
+      └─ Frank (Rep)
+
+Permissions:
+- Team members see team's records
+- Managers see all sub-teams
+- Cross-team visibility requires explicit sharing
+```
+
+## Access Control Best Practices
+
+<AccordionGroup>
+  <Accordion title="Start restrictive, open as needed">
+    Begin with private access:
+    1. Set objects to private by default
+    2. Limit role permissions initially
+    3. Add access when users need it
+    4. Better to add than remove access
+  </Accordion>
+  
+  <Accordion title="Use teams for automatic sharing">
+    Instead of sharing individually:
+    - Create teams (Sales, Support, etc.)
+    - Configure team sharing rules
+    - Add users to teams
+    - Sharing happens automatically
+  </Accordion>
+  
+  <Accordion title="Protect sensitive data">
+    Use field-level security for:
+    - Financial information
+    - Personal data
+    - Strategic plans
+    - Competitive intelligence
+  </Accordion>
+  
+  <Accordion title="Review access regularly">
+    Quarterly access audit:
+    - Review who has access to what
+    - Remove unnecessary sharing
+    - Adjust role permissions
+    - Clean up team memberships
+  </Accordion>
+  
+  <Accordion title="Document access policies">
+    Create clear guidelines:
+    - Who should see what
+    - When to share records
+    - How to request access
+    - Escalation for exceptions
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting Access Issues
+
+### User Cannot See Record
+
+**Check in order:**
+
+1. **Role permissions**
+   - Does role allow viewing this object?
+   - Does role allow viewing records they don't own?
+
+2. **Object settings**
+   - Is object visibility restricted?
+   - Is default access too restrictive?
+
+3. **Record sharing**
+   - Is record shared with user?
+   - Is user part of team with access?
+
+4. **Record ownership**
+   - Does user own the record?
+   - Can they see records they own?
+
+### User Cannot Edit Field
+
+**Check:**
+
+1. **Field-level security**
+   - Is field hidden for user's role?
+   - Is field read-only for role?
+
+2. **Record access**
+   - Does user have edit access to record?
+   - Sharing might be view-only
+
+3. **Field type**
+   - Some fields are always read-only (ID, Created At)
+   - Calculated fields cannot be edited
+
+4. **Workflow locks**
+   - Workflow may lock fields in certain stages
+   - Check workflow rules
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="User Roles" icon="user-shield" href="/user-guide/permissions/roles">
+    Learn about role-based permissions
+  </Card>
+  
+  <Card title="Workspace Setup" icon="building" href="/user-guide/workspace-setup">
+    Manage workspace members and teams
+  </Card>
+</CardGroup>

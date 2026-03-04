@@ -1,0 +1,613 @@
+---
+title: User Roles
+description: Manage user roles in your workspace
+icon: user-shield
+---
+
+Roles control what users can do in your Twenty workspace. Assign roles to grant appropriate access levels to team members.
+
+## Understanding Roles
+
+Roles define:
+
+- **What users can see** - Which objects and records
+- **What users can do** - Create, edit, delete permissions
+- **What users can configure** - Settings and workflows access
+- **Administrative privileges** - Workspace management capabilities
+
+Each workspace member has exactly one role.
+
+## Default Roles
+
+Twenty includes built-in roles:
+
+### Admin
+
+**Full workspace access:**
+
+<CardGroup cols={2}>
+  <Card title="Data Access" icon="database">
+    - View all records
+    - Edit all records
+    - Delete records
+    - Import/export data
+  </Card>
+  
+  <Card title="Configuration" icon="gear">
+    - Manage data model
+    - Create/edit workflows
+    - Configure integrations
+    - Manage workspace settings
+  </Card>
+  
+  <Card title="User Management" icon="users">
+    - Invite members
+    - Assign roles
+    - Remove members
+    - View activity logs
+  </Card>
+  
+  <Card title="Billing" icon="credit-card">
+    - Manage subscription
+    - View usage
+    - Update payment methods
+    - Access invoices
+  </Card>
+</CardGroup>
+
+<Info>
+Workspace owners are automatically admins and cannot have their role changed.
+</Info>
+
+### Member
+
+**Standard user access:**
+
+```yaml
+Data Permissions:
+  - View: All objects
+  - Create: Yes
+  - Edit: Own records and shared records
+  - Delete: Own records only
+  
+Configuration:
+  - Data model: No access
+  - Workflows: View only
+  - Integrations: Connect own accounts only
+  
+User Management:
+  - No access to user management
+```
+
+**Best for:**
+- Sales reps
+- Customer success team
+- Most team members
+
+### Viewer
+
+**Read-only access:**
+
+```yaml
+Data Permissions:
+  - View: All objects (based on sharing)
+  - Create: No
+  - Edit: No
+  - Delete: No
+  
+Configuration:
+  - Read-only access to views
+  - Cannot modify anything
+  
+User Management:
+  - No access
+```
+
+**Best for:**
+- Executives (view metrics)
+- External consultants
+- Temporary access
+
+## Creating Custom Roles
+
+Create roles tailored to your team:
+
+<Steps>
+  <Step title="Navigate to roles">
+    Go to **Settings → Security → Roles**.
+  </Step>
+  
+  <Step title="Click New Role">
+    Select **+ New Role** to create a custom role.
+  </Step>
+  
+  <Step title="Name the role">
+    Give it a clear, descriptive name:
+    ```
+    Sales Manager
+    Marketing Team Member
+    Customer Support Agent
+    Sales Development Rep
+    ```
+  </Step>
+  
+  <Step title="Set base permissions">
+    Choose starting template:
+    - Start from Member
+    - Start from Viewer
+    - Start from scratch
+  </Step>
+  
+  <Step title="Configure object access">
+    For each object, set permissions:
+    ```yaml
+    Companies:
+      View: All
+      Create: Yes
+      Edit: All
+      Delete: Own only
+    
+    Opportunities:
+      View: Team + Own
+      Create: Yes
+      Edit: Own only
+      Delete: No
+    ```
+  </Step>
+  
+  <Step title="Set field permissions">
+    Control access to sensitive fields:
+    ```yaml
+    Company.Annual Revenue:
+      View: Yes
+      Edit: No (read-only)
+    
+    Opportunity.Commission:
+      View: No (hidden)
+      Edit: No
+    ```
+  </Step>
+  
+  <Step title="Configure settings access">
+    Allow/deny access to specific settings:
+    ```yaml
+    Workspace Settings: No
+    Data Model: No
+    Workflows: View only
+    Integrations: Own only
+    ```
+  </Step>
+  
+  <Step title="Save the role">
+    Click **Create Role** to save.
+  </Step>
+</Steps>
+
+## Role Configuration
+
+### Object-Level Permissions
+
+Control access to entire objects:
+
+<Tabs>
+  <Tab title="View Permission">
+    Who can see records:
+    
+    **Options:**
+    - **All** - See all records in object
+    - **Team** - See team's records
+    - **Own** - See only own records
+    - **Shared** - See explicitly shared records
+    - **None** - Cannot see object
+    
+    **Example:**
+    ```yaml
+    Sales Rep:
+      Companies: View All
+      Opportunities: View Team + Own
+      Internal Projects: View None
+    ```
+  </Tab>
+  
+  <Tab title="Create Permission">
+    Can create new records:
+    
+    **Options:**
+    - **Yes** - Can create records
+    - **No** - Cannot create
+    
+    **Example:**
+    ```yaml
+    Sales Rep:
+      Leads: Create Yes
+      Companies: Create Yes
+      Workflows: Create No
+    ```
+  </Tab>
+  
+  <Tab title="Edit Permission">
+    Can modify existing records:
+    
+    **Options:**
+    - **All** - Edit any record
+    - **Team** - Edit team's records
+    - **Own** - Edit own records only
+    - **None** - Cannot edit
+    
+    **Example:**
+    ```yaml
+    Sales Rep:
+      Own Opportunities: Edit Yes
+      Team Opportunities: Edit No
+      Closed Opportunities: Edit No
+    ```
+  </Tab>
+  
+  <Tab title="Delete Permission">
+    Can remove records:
+    
+    **Options:**
+    - **All** - Delete any record
+    - **Own** - Delete own only
+    - **None** - Cannot delete
+    
+    **Example:**
+    ```yaml
+    Sales Rep:
+      Leads: Delete Own
+      Opportunities: Delete None
+      Activities: Delete Own
+    ```
+    
+    <Warning>
+    Be cautious with delete permissions. Deleted data cannot be recovered.
+    </Warning>
+  </Tab>
+</Tabs>
+
+### Field-Level Permissions
+
+Control access to specific fields:
+
+<AccordionGroup>
+  <Accordion title="Hidden Fields">
+    Fields user cannot see:
+    ```yaml
+    Example: Hide sensitive data
+    
+    Opportunity.Cost:
+      Sales Rep: Hidden
+      Sales Manager: Visible
+    
+    Company.Annual Revenue:
+      SDR: Hidden
+      Sales Rep: Visible
+    ```
+  </Accordion>
+  
+  <Accordion title="Read-Only Fields">
+    Fields user can see but not edit:
+    ```yaml
+    Example: Protect calculated fields
+    
+    Lead.Score:
+      Sales Rep: Read-Only
+      (Calculated by workflow)
+    
+    Opportunity.Close Date:
+      Sales Rep: Read-Only
+      Sales Manager: Editable
+    ```
+  </Accordion>
+  
+  <Accordion title="Editable Fields">
+    Fields user can view and modify:
+    ```yaml
+    Example: Normal access
+    
+    Company.Name:
+      All roles: Editable
+    
+    Opportunity.Stage:
+      Owner: Editable
+      Others: Read-Only
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Role Examples
+
+### Sales Manager Role
+
+```yaml
+Role: Sales Manager
+Description: Manages sales team and pipeline
+
+Object Permissions:
+  Companies:
+    View: All
+    Create: Yes
+    Edit: All
+    Delete: All
+  
+  People:
+    View: All
+    Create: Yes
+    Edit: All
+    Delete: Own
+  
+  Opportunities:
+    View: All (entire sales org)
+    Create: Yes
+    Edit: All (team opportunities)
+    Delete: Team
+  
+  Tasks:
+    View: Team
+    Create: Yes
+    Edit: Team
+    Delete: Own
+
+Field Permissions:
+  All fields visible and editable
+  
+Settings Access:
+  - View reports: Yes
+  - Export data: Yes
+  - Manage workflows: Yes
+  - Manage users: No
+  - Data model: No
+```
+
+### Sales Development Rep (SDR)
+
+```yaml
+Role: SDR
+Description: Qualifies leads and books meetings
+
+Object Permissions:
+  Leads:
+    View: Own + Unassigned
+    Create: Yes
+    Edit: Own
+    Delete: Own
+  
+  Companies:
+    View: Related to own leads
+    Create: Yes (when qualifying)
+    Edit: Related only
+    Delete: No
+  
+  People:
+    View: Related to own leads
+    Create: Yes
+    Edit: Related only
+    Delete: No
+  
+  Opportunities:
+    View: No (not yet qualified)
+    Create: Yes (when converting)
+    Edit: No
+    Delete: No
+
+Field Permissions:
+  Hidden:
+    - Opportunity.Amount
+    - Company.Annual Revenue
+    - Any commission fields
+  
+  Read-Only:
+    - Lead.Score (auto-calculated)
+    
+Settings Access:
+  - Minimal configuration access
+  - Connect own email only
+```
+
+### Customer Success Manager
+
+```yaml
+Role: Customer Success
+Description: Manages customer accounts post-sale
+
+Object Permissions:
+  Companies:
+    View: Customers only (Status = "Customer")
+    Create: No
+    Edit: Customer accounts
+    Delete: No
+  
+  People:
+    View: All at customer companies
+    Create: Yes (new contacts)
+    Edit: All
+    Delete: No
+  
+  Opportunities:
+    View: Closed Won only
+    Create: Yes (upsell/renewal)
+    Edit: Own opportunities
+    Delete: No
+  
+  Support Tickets:
+    View: All
+    Create: Yes
+    Edit: All
+    Delete: No
+
+Field Permissions:
+  All customer-related fields visible
+  Cannot see sales metrics
+  
+Settings Access:
+  - View customer reports
+  - Export customer data
+  - No workflow management
+```
+
+## Assigning Roles
+
+Assign roles to workspace members:
+
+<Steps>
+  <Step title="Navigate to members">
+    Go to **Settings → Members**.
+  </Step>
+  
+  <Step title="Select user">
+    Click on the member whose role you want to change.
+  </Step>
+  
+  <Step title="Change role">
+    Click the **Role** dropdown and select new role.
+  </Step>
+  
+  <Step title="Confirm change">
+    Click **Save** to apply the new role.
+  </Step>
+</Steps>
+
+<Info>
+Role changes take effect immediately. User may need to refresh to see changes.
+</Info>
+
+### Bulk Role Assignment
+
+Change roles for multiple users:
+
+1. Go to **Settings → Members**
+2. Select multiple members (checkboxes)
+3. Click **Change Role** in action bar
+4. Select new role
+5. Confirm bulk update
+
+## Role Best Practices
+
+<AccordionGroup>
+  <Accordion title="Follow principle of least privilege">
+    Grant minimum access needed:
+    - Start restrictive
+    - Add permissions as needed
+    - Don't give admin to everyone
+    - Review permissions regularly
+  </Accordion>
+  
+  <Accordion title="Create role for each job function">
+    Match roles to responsibilities:
+    ```yaml
+    Sales:
+      - SDR (lead qualification)
+      - Sales Rep (closing deals)
+      - Sales Manager (team oversight)
+    
+    Support:
+      - Support Agent
+      - Support Manager
+    
+    Operations:
+      - Ops Analyst (reports)
+      - Ops Manager (configuration)
+    ```
+  </Accordion>
+  
+  <Accordion title="Document role purposes">
+    For each role, document:
+    - Who it's for
+    - What they can do
+    - Why permissions are set this way
+    - Examples of users with this role
+  </Accordion>
+  
+  <Accordion title="Review roles quarterly">
+    Regular role audits:
+    - Are permissions still appropriate?
+    - New roles needed?
+    - Roles need updates?
+    - Users in correct roles?
+  </Accordion>
+  
+  <Accordion title="Test roles before assigning">
+    Verify role works as expected:
+    1. Create test user
+    2. Assign new role
+    3. Test permissions
+    4. Verify access is correct
+    5. Then assign to real users
+  </Accordion>
+</AccordionGroup>
+
+## Managing Roles
+
+### Editing Roles
+
+<Warning>
+Changing a role affects all users with that role immediately.
+</Warning>
+
+1. Go to **Settings → Security → Roles**
+2. Click the role to edit
+3. Modify permissions
+4. Save changes
+
+### Deleting Roles
+
+To delete a custom role:
+
+1. Ensure no users have the role
+2. Go to **Settings → Security → Roles**
+3. Click the role
+4. Select **Delete**
+5. Confirm deletion
+
+<Info>
+Default roles (Admin, Member, Viewer) cannot be deleted.
+</Info>
+
+### Role Analytics
+
+Monitor role usage:
+
+- **Settings → Security → Roles → Analytics**
+- See:
+  - Users per role
+  - Most/least used roles
+  - Permission patterns
+  - Access violations (attempted unauthorized actions)
+
+## Troubleshooting Roles
+
+### User Cannot See Records
+
+**Check:**
+- Role's view permission for object
+- Record ownership
+- Record sharing settings
+- Object visibility in settings
+
+### User Cannot Edit Field
+
+**Check:**
+- Role's field permissions
+- Field is not system field (always read-only)
+- Object edit permission granted
+- Field not locked by workflow
+
+### Permission Seems Inconsistent
+
+**Check:**
+- Role definition
+- Record-level sharing overrides
+- Workflow automation may change things
+- Cache (have user refresh)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Access Control" icon="lock" href="/user-guide/permissions/access-control">
+    Learn about record-level access control
+  </Card>
+  
+  <Card title="Workspace Setup" icon="building" href="/user-guide/workspace-setup">
+    Manage workspace members
+  </Card>
+</CardGroup>

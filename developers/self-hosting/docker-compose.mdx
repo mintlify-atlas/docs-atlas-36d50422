@@ -1,0 +1,425 @@
+---
+title: Deploy with Docker Compose
+description: Self-host Twenty using Docker Compose
+icon: docker
+---
+
+Deploy Twenty on your own infrastructure using Docker Compose for a production-ready setup.
+
+## Overview
+
+Docker Compose provides the easiest way to self-host Twenty with all required services configured and ready to go.
+
+**Includes:**
+- Twenty server (API + frontend)
+- Worker for background jobs
+- PostgreSQL database
+- Redis for caching
+
+## Prerequisites
+
+- Docker Engine 20.10+
+- Docker Compose v2.0+
+- 2GB+ RAM available
+- Domain name (for production use)
+
+## Quick Start
+
+### 1. Download Configuration Files
+
+Create a directory for your Twenty installation:
+
+```bash
+mkdir twenty-self-hosted
+cd twenty-self-hosted
+```
+
+Download the Docker Compose configuration:
+
+```bash
+curl -O https://raw.githubusercontent.com/twentyhq/twenty/main/packages/twenty-docker/docker-compose.yml
+curl -O https://raw.githubusercontent.com/twentyhq/twenty/main/packages/twenty-docker/.env.example
+```
+
+### 2. Configure Environment Variables
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your configuration:
+
+```bash .env
+# Twenty version (latest or specific version)
+TAG=latest
+
+# Server URL (use your domain or IP)
+SERVER_URL=http://localhost:3000
+
+# Generate a secure secret
+APP_SECRET=your-secure-random-string-here
+
+# Storage configuration
+STORAGE_TYPE=local
+
+# Database credentials (change in production!)
+# PG_DATABASE_USER=postgres
+# PG_DATABASE_PASSWORD=strong-password-here
+```
+
+<Warning>
+  **Important:** Generate a secure `APP_SECRET` using:
+  ```bash
+  openssl rand -base64 32
+  ```
+  Never use the default value in production!
+</Warning>
+
+### 3. Start Services
+
+Start all containers:
+
+```bash
+docker compose up -d
+```
+
+This will:
+- Pull the Twenty Docker image
+- Start PostgreSQL and Redis
+- Initialize the database
+- Start the web server and worker
+
+### 4. Verify Installation
+
+Check that all services are running:
+
+```bash
+docker compose ps
+```
+
+You should see:
+- `server` - Running on port 3000
+- `worker` - Processing background jobs
+- `db` - PostgreSQL database
+- `redis` - Redis cache
+
+Access Twenty at `http://localhost:3000` (or your configured SERVER_URL).
+
+## Docker Compose Configuration
+
+The `docker-compose.yml` includes four main services:
+
+### Server Service
+
+```yaml
+server:
+  image: twentycrm/twenty:latest
+  ports:
+    - "3000:3000"
+  environment:
+    PG_DATABASE_URL: postgres://postgres:postgres@db:5432/default
+    REDIS_URL: redis://redis:6379
+    SERVER_URL: ${SERVER_URL}
+    APP_SECRET: ${APP_SECRET}
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: always
+```
+
+### Worker Service
+
+Handles background jobs:
+
+```yaml
+worker:
+  image: twentycrm/twenty:latest
+  command: ["yarn", "worker:prod"]
+  environment:
+    DISABLE_DB_MIGRATIONS: "true"
+    DISABLE_CRON_JOBS_REGISTRATION: "true"
+  depends_on:
+    server:
+      condition: service_healthy
+```
+
+### Database Service
+
+```yaml
+db:
+  image: postgres:16
+  volumes:
+    - db-data:/var/lib/postgresql/data
+  environment:
+    POSTGRES_DB: default
+    POSTGRES_PASSWORD: postgres
+  healthcheck:
+    test: pg_isready -U postgres
+```
+
+### Redis Service
+
+```yaml
+redis:
+  image: redis
+  command: ["--maxmemory-policy", "noeviction"]
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+```
+
+## Volume Management
+
+Persistent data is stored in Docker volumes:
+
+```yaml
+volumes:
+  db-data:              # PostgreSQL database
+  server-local-data:    # Uploaded files (when using local storage)
+```
+
+### Backup Volumes
+
+Backup your data regularly:
+
+```bash
+# Backup database
+docker compose exec db pg_dump -U postgres default > backup.sql
+
+# Backup files
+docker compose exec server tar czf /tmp/files.tar.gz /app/packages/twenty-server/.local-storage
+docker compose cp server:/tmp/files.tar.gz ./files-backup.tar.gz
+```
+
+### Restore from Backup
+
+```bash
+# Restore database
+cat backup.sql | docker compose exec -T db psql -U postgres default
+
+# Restore files
+docker compose cp ./files-backup.tar.gz server:/tmp/files.tar.gz
+docker compose exec server tar xzf /tmp/files.tar.gz -C /
+```
+
+## Environment Variables
+
+### Required Variables
+
+<ParamField path="SERVER_URL" type="string" required>
+  Public URL where Twenty will be accessible (e.g., `https://crm.yourcompany.com`)
+</ParamField>
+
+<ParamField path="APP_SECRET" type="string" required>
+  Secret key for encryption and JWT signing. Generate with `openssl rand -base64 32`
+</ParamField>
+
+### Storage Configuration
+
+<ParamField path="STORAGE_TYPE" type="string" default="local">
+  Storage backend: `local` or `s3`
+</ParamField>
+
+<ParamField path="STORAGE_S3_REGION" type="string">
+  AWS region (when using S3 storage)
+</ParamField>
+
+<ParamField path="STORAGE_S3_NAME" type="string">
+  S3 bucket name
+</ParamField>
+
+<ParamField path="STORAGE_S3_ENDPOINT" type="string">
+  Custom S3 endpoint (for S3-compatible services)
+</ParamField>
+
+### Authentication Providers
+
+<ParamField path="AUTH_GOOGLE_CLIENT_ID" type="string">
+  Google OAuth client ID
+</ParamField>
+
+<ParamField path="AUTH_GOOGLE_CLIENT_SECRET" type="string">
+  Google OAuth client secret
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_CLIENT_ID" type="string">
+  Microsoft OAuth client ID
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_CLIENT_SECRET" type="string">
+  Microsoft OAuth client secret
+</ParamField>
+
+### Email Configuration
+
+<ParamField path="EMAIL_DRIVER" type="string" default="smtp">
+  Email driver: `smtp` or `logger` (for testing)
+</ParamField>
+
+<ParamField path="EMAIL_SMTP_HOST" type="string">
+  SMTP server hostname
+</ParamField>
+
+<ParamField path="EMAIL_SMTP_PORT" type="number">
+  SMTP server port (typically 587 or 465)
+</ParamField>
+
+<ParamField path="EMAIL_FROM_ADDRESS" type="string">
+  Sender email address
+</ParamField>
+
+## Common Operations
+
+### View Logs
+
+```bash
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f server
+docker compose logs -f worker
+```
+
+### Restart Services
+
+```bash
+# All services
+docker compose restart
+
+# Specific service
+docker compose restart server
+```
+
+### Update to Latest Version
+
+```bash
+# Pull latest image
+docker compose pull
+
+# Restart with new image
+docker compose up -d
+```
+
+### Run Database Migrations
+
+Migrations run automatically on server start. To run manually:
+
+```bash
+docker compose exec server yarn database:migrate:prod
+```
+
+### Access Database
+
+```bash
+docker compose exec db psql -U postgres default
+```
+
+### Scale Workers
+
+Increase worker instances for better performance:
+
+```bash
+docker compose up -d --scale worker=3
+```
+
+## Production Recommendations
+
+<CardGroup cols={2}>
+  <Card title="Use HTTPS" icon="lock">
+    Always use TLS/SSL in production with a reverse proxy like Nginx or Traefik
+  </Card>
+  <Card title="Strong Secrets" icon="key">
+    Generate cryptographically secure secrets and credentials
+  </Card>
+  <Card title="Regular Backups" icon="floppy-disk">
+    Automate database and file backups
+  </Card>
+  <Card title="Monitor Resources" icon="chart-line">
+    Set up monitoring for CPU, memory, and disk usage
+  </Card>
+</CardGroup>
+
+### Reverse Proxy Example (Nginx)
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name crm.yourcompany.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Server won't start">
+    Check logs for errors:
+    ```bash
+    docker compose logs server
+    ```
+    Common issues:
+    - Missing or invalid `APP_SECRET`
+    - Database connection failed
+    - Port 3000 already in use
+  </Accordion>
+
+  <Accordion title="Database connection errors">
+    Ensure the database is healthy:
+    ```bash
+    docker compose ps db
+    docker compose logs db
+    ```
+    The server waits for `db:5432` to be ready before starting.
+  </Accordion>
+
+  <Accordion title="File uploads not working">
+    Check volume permissions:
+    ```bash
+    docker compose exec server ls -la /app/packages/twenty-server/.local-storage
+    ```
+    For S3 storage, verify credentials and bucket permissions.
+  </Accordion>
+
+  <Accordion title="Worker not processing jobs">
+    Verify worker is running:
+    ```bash
+    docker compose ps worker
+    docker compose logs worker
+    ```
+    Check Redis connection:
+    ```bash
+    docker compose exec redis redis-cli ping
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/developers/self-hosting/configuration">
+    Configure your Twenty instance
+  </Card>
+  <Card title="Kubernetes" icon="dharmachakra" href="/developers/self-hosting/kubernetes">
+    Deploy on Kubernetes
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/developers/self-hosting/troubleshooting">
+    Common issues and solutions
+  </Card>
+  <Card title="API Keys" icon="key" href="/developers/api/authentication">
+    Set up API authentication
+  </Card>
+</CardGroup>

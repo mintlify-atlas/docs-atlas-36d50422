@@ -1,0 +1,235 @@
+---
+title: "Microsoft 365 Integration"
+description: "Connect Outlook and Microsoft Calendar to sync emails and events with Twenty"
+---
+
+## Overview
+
+The Microsoft 365 integration connects your Outlook email and Microsoft Calendar to Twenty. Once configured, you can:
+
+- Sync Outlook emails with contacts and companies
+- View email threads in contact records
+- Send emails through your Outlook account
+- Sync Microsoft Calendar events
+- Schedule meetings with contacts
+
+## Prerequisites
+
+Before setting up the integration:
+
+- Microsoft 365 or Outlook.com account
+- Admin access to your Twenty workspace
+- For self-hosted: Microsoft Azure app registration
+
+## Setting Up Microsoft OAuth
+
+### For Cloud Users
+
+Twenty Cloud users can connect directly without additional configuration:
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to **Settings** > **Accounts** in Twenty.
+  </Step>
+  <Step title="Connect Microsoft Account">
+    Click **Connect Microsoft Account** and sign in with your Microsoft credentials.
+  </Step>
+  <Step title="Grant Permissions">
+    Authorize Twenty to access:
+    - Read and send emails
+    - Access calendar events
+    - View profile information
+  </Step>
+  <Step title="Complete Setup">
+    After authorization, you'll be redirected back to Twenty with your account connected.
+  </Step>
+</Steps>
+
+### For Self-Hosted Instances
+
+Self-hosted users need to register an Azure application:
+
+<Steps>
+  <Step title="Register Azure Application">
+    1. Go to [Azure Portal](https://portal.azure.com/)
+    2. Navigate to **Azure Active Directory** > **App registrations**
+    3. Click **New registration**
+    4. Enter application details:
+       - Name: Twenty CRM
+       - Supported account types: Accounts in any organizational directory
+       - Redirect URI: `https://your-domain.com/auth/microsoft-apis/get-access-token`
+  </Step>
+  <Step title="Configure API Permissions">
+    1. In your app registration, go to **API permissions**
+    2. Click **Add a permission** > **Microsoft Graph**
+    3. Select **Delegated permissions** and add:
+       - `Mail.Read` - Read user mail
+       - `Mail.Send` - Send mail as user
+       - `Calendars.ReadWrite` - Read and write calendars
+       - `User.Read` - Sign in and read user profile
+    4. Click **Grant admin consent**
+  </Step>
+  <Step title="Create Client Secret">
+    1. Go to **Certificates & secrets**
+    2. Click **New client secret**
+    3. Add a description and select expiration
+    4. Copy the secret value immediately (it won't be shown again)
+  </Step>
+  <Step title="Configure Environment Variables">
+    Add these variables to your `.env` file:
+    ```bash
+    AUTH_MICROSOFT_ENABLED=true
+    AUTH_MICROSOFT_CLIENT_ID=your_application_client_id
+    AUTH_MICROSOFT_CLIENT_SECRET=your_client_secret
+    AUTH_MICROSOFT_CALLBACK_URL=https://your-domain.com/auth/microsoft/redirect
+    AUTH_MICROSOFT_APIS_CALLBACK_URL=https://your-domain.com/auth/microsoft-apis/get-access-token
+    
+    MESSAGING_PROVIDER_MICROSOFT_ENABLED=true
+    CALENDAR_PROVIDER_MICROSOFT_ENABLED=true
+    ```
+  </Step>
+  <Step title="Restart Server">
+    Restart your Twenty server to apply the configuration:
+    ```bash
+    docker-compose restart
+    ```
+  </Step>
+</Steps>
+
+## Email Integration
+
+The Microsoft 365 email integration syncs your Outlook emails with Twenty.
+
+### Email Sync Features
+
+- **Automatic synchronization** - Emails sync every few minutes
+- **Smart matching** - Emails are matched to contacts based on sender/recipient
+- **Thread preservation** - Email conversations are grouped as threads
+- **Sent mail sync** - Emails sent from Twenty appear in Outlook
+
+### Viewing Synced Emails
+
+To access emails in Twenty:
+
+1. Open any contact or company record
+2. Click the **Emails** tab
+3. View all email conversations with that contact
+
+### Composing Emails
+
+To send an email from Twenty:
+
+1. Navigate to a contact record
+2. Click **Compose Email**
+3. Write your message
+4. Click **Send**
+
+Emails are sent through your connected Outlook account and saved to your Sent Items folder.
+
+<Tip>
+Use email templates to speed up your workflow. Create templates in **Settings** > **Email Templates**.
+</Tip>
+
+## Calendar Integration
+
+Microsoft Calendar events sync bidirectionally with Twenty:
+
+### Calendar Features
+
+- **Two-way sync** - Create events in either Twenty or Outlook
+- **Attendee management** - Link meeting attendees to CRM contacts
+- **Availability view** - See your schedule when booking meetings
+- **Recurring events** - Full support for recurring meeting patterns
+
+### Managing Events
+
+1. Navigate to the **Calendar** section in Twenty
+2. Create, update, or delete events
+3. Changes sync automatically to Microsoft Calendar
+
+### Scheduling Meetings
+
+To schedule a meeting with a contact:
+
+1. Open the contact record
+2. Click **Schedule Meeting**
+3. Select date, time, and duration
+4. Add additional attendees if needed
+5. Click **Create Meeting**
+
+The meeting invitation is sent through Microsoft Calendar.
+
+## Required Permissions
+
+The Microsoft 365 integration uses these Microsoft Graph API permissions:
+
+| Permission | Type | Purpose |
+|------------|------|--------|
+| `Mail.Read` | Delegated | Read emails from your mailbox |
+| `Mail.Send` | Delegated | Send emails on your behalf |
+| `Calendars.ReadWrite` | Delegated | Read and write calendar events |
+| `User.Read` | Delegated | Access your profile information |
+
+<Warning>
+These permissions only grant Twenty access to your personal data. Twenty cannot access other users' mailboxes or calendars unless they individually connect their accounts.
+</Warning>
+
+## Troubleshooting
+
+### Connection Failed
+
+If you can't connect your Microsoft account:
+
+1. **Check admin consent** - Your organization may require admin approval for the app
+2. **Verify redirect URIs** - Ensure they match exactly in Azure portal
+3. **Check credentials** - Verify Client ID and Secret are correct
+4. **Review permissions** - Ensure all required API permissions are granted
+
+### Emails Not Appearing
+
+If emails aren't syncing:
+
+1. Check connection status in **Settings** > **Accounts**
+2. Verify email addresses match contacts in your CRM
+3. Check sync logs for errors
+4. Try disconnecting and reconnecting
+
+### Calendar Sync Issues
+
+If calendar events aren't syncing:
+
+1. Ensure calendar permissions are granted
+2. Check that the calendar is not marked private
+3. Verify events are in the default calendar
+4. Check for sync errors in account settings
+
+### Token Expiration
+
+OAuth tokens expire periodically. If you see authentication errors:
+
+1. Navigate to **Settings** > **Accounts**
+2. Click **Reconnect** next to your Microsoft account
+3. Re-authorize the connection
+
+<Note>
+Client secrets in Azure also expire. Self-hosted users should monitor secret expiration dates and rotate them before they expire.
+</Note>
+
+## Security Considerations
+
+- All OAuth tokens are encrypted at rest
+- Twenty never stores your Microsoft password
+- Tokens are scoped to only the permissions you grant
+- You can revoke access anytime from Microsoft account settings
+
+## Implementation Details
+
+The Microsoft 365 integration is implemented in:
+
+- OAuth controller: `packages/twenty-server/src/engine/core-modules/auth/controllers/microsoft-auth.controller.ts:26`
+- Email sync driver: `packages/twenty-server/src/modules/messaging/message-import-manager/drivers/microsoft/`
+- Calendar integration: `packages/twenty-server/src/modules/calendar/calendar-event-import-manager/drivers/microsoft/`
+
+<Card title="Need Help?" icon="headset" href="https://discord.gg/cx5n4Jzs57">
+  Get support from our community on Discord.
+</Card>

@@ -1,0 +1,466 @@
+---
+title: Calendar Sync
+description: Sync your calendar with Twenty
+icon: calendar
+---
+
+Connect your calendar to Twenty to track meetings, schedule activities, and manage your time alongside CRM data.
+
+## Calendar Integration Overview
+
+Calendar integration enables:
+
+- **Event sync** - View calendar events in Twenty
+- **Two-way sync** - Create events from Twenty
+- **Automatic linking** - Associate meetings with records
+- **Availability tracking** - See team schedules
+- **Meeting context** - View related CRM data before meetings
+
+<Info>
+Calendar sync helps you prepare for meetings by showing related opportunities, past communications, and important notes.
+</Info>
+
+## Supported Calendar Providers
+
+<CardGroup cols={2}>
+  <Card title="Google Calendar" icon="google">
+    Sync Google Workspace or personal Google calendars
+  </Card>
+  
+  <Card title="Outlook Calendar" icon="microsoft">
+    Sync Microsoft 365 or Outlook.com calendars
+  </Card>
+  
+  <Card title="CalDAV" icon="calendar-days">
+    Connect any CalDAV-compatible calendar (coming soon)
+  </Card>
+  
+  <Card title="Exchange" icon="building">
+    Connect Microsoft Exchange calendars (coming soon)
+  </Card>
+</CardGroup>
+
+## Connecting Your Calendar
+
+### Google Calendar
+
+<Steps>
+  <Step title="Navigate to settings">
+    Go to **Settings → Integrations → Calendar**.
+  </Step>
+  
+  <Step title="Select Google Calendar">
+    Click **Connect Google Calendar**.
+  </Step>
+  
+  <Step title="Authenticate">
+    Sign in to your Google account and grant permissions:
+    - View calendar events
+    - Create calendar events
+    - Edit calendar events
+  </Step>
+  
+  <Step title="Choose calendars">
+    Select which calendars to sync:
+    - Primary calendar
+    - Additional calendars
+    - Shared calendars
+  </Step>
+  
+  <Step title="Configure sync settings">
+    Set preferences:
+    ```yaml
+    Sync Direction: Two-way
+    Sync From: 30 days ago
+    Sync To: 180 days ahead
+    Auto-link: Yes
+    ```
+  </Step>
+  
+  <Step title="Complete setup">
+    Click **Start Sync** to begin syncing events.
+  </Step>
+</Steps>
+
+### Outlook Calendar
+
+<Steps>
+  <Step title="Navigate to settings">
+    Go to **Settings → Integrations → Calendar**.
+  </Step>
+  
+  <Step title="Select Outlook">
+    Click **Connect Outlook Calendar**.
+  </Step>
+  
+  <Step title="Sign in to Microsoft">
+    Authenticate and grant calendar permissions.
+  </Step>
+  
+  <Step title="Select calendars">
+    Choose which calendars to sync:
+    - Main calendar
+    - Secondary calendars
+    - Shared team calendars
+  </Step>
+  
+  <Step title="Set sync options">
+    Configure sync behavior:
+    - Sync range (past and future)
+    - Auto-linking rules
+    - Default calendar for new events
+  </Step>
+  
+  <Step title="Start syncing">
+    Click **Complete Setup** to begin.
+  </Step>
+</Steps>
+
+## Calendar Features
+
+### Viewing Calendar Events
+
+**Calendar View:**
+
+1. Go to **Calendar** from the main navigation
+2. View events in:
+   - Day view
+   - Week view
+   - Month view
+   - Agenda view
+
+**On Record Timelines:**
+
+Calendar events appear on related records:
+- View past meetings with a contact
+- See upcoming events for a company
+- Track opportunity-related calls
+
+**In Activity Feed:**
+
+Your personal activity feed shows:
+- Today's meetings
+- Upcoming events this week
+- Meeting reminders
+
+### Creating Events from Twenty
+
+<Steps>
+  <Step title="Open a record or calendar">
+    Navigate to a Person, Company, or the Calendar view.
+  </Step>
+  
+  <Step title="Click New Event">
+    Click **+ New Event** or drag on the calendar.
+  </Step>
+  
+  <Step title="Fill event details">
+    ```yaml
+    Title: Client Kickoff Call
+    Date: 2026-03-20
+    Time: 2:00 PM - 3:00 PM
+    Attendees:
+      - john@client.com
+      - alice@ourcompany.com
+    Location: Zoom (link auto-populated)
+    Description: Discuss project timeline and deliverables
+    ```
+  </Step>
+  
+  <Step title="Link to records">
+    Associate with:
+    - Related Company
+    - Related Opportunity
+    - Related Project
+  </Step>
+  
+  <Step title="Set reminders">
+    Add notifications:
+    - 15 minutes before
+    - 1 hour before
+    - 1 day before
+  </Step>
+  
+  <Step title="Create event">
+    Click **Create** to add to your calendar and sync to provider.
+  </Step>
+</Steps>
+
+<Info>
+Events created in Twenty sync to your connected calendar provider immediately.
+</Info>
+
+### Automatic Event Linking
+
+Twenty automatically links calendar events to records when:
+
+- **Attendee email matches** - Person in Twenty is invited
+- **Domain matches** - Company domain in attendee list
+- **Subject mentions** - Record name in event title
+- **Description contains** - Record linked in event details
+
+**Example:**
+Meeting titled "Acme Corp - Q1 Review" with `john@acme.com`:
+- Links to Company: Acme Corp
+- Links to Person: John Doe
+- Links to Opportunity: "Acme Corp - Q1 Deal"
+
+### Meeting Preparation
+
+Before meetings, Twenty shows:
+
+**Context Panel:**
+```yaml
+Upcoming: Client Call with Acme Corp
+Time: Today at 2:00 PM
+
+Quick Context:
+- Company: Acme Corp (Customer since 2024)
+- Opportunity: $150K annual contract
+- Last Contact: 5 days ago (email)
+- Open Tasks: 2 (due this week)
+- Recent Activity:
+  - Proposal sent
+  - Demo completed
+  - Contract in review
+
+Attendees:
+- John Doe (Decision Maker)
+  - Title: VP Engineering
+  - Last meeting: 2 weeks ago
+  - Notes: Interested in enterprise features
+```
+
+### Meeting Notes
+
+Capture notes during or after meetings:
+
+1. Open the calendar event
+2. Click **Add Notes**
+3. Write meeting summary:
+   - Discussion points
+   - Decisions made
+   - Action items
+   - Next steps
+4. Notes appear on:
+   - Event record
+   - Linked record timelines
+   - Activity feeds
+
+<Tip>
+Use the Twenty mobile app to take notes during meetings on the go.
+</Tip>
+
+### Follow-up Tasks
+
+Create tasks from meetings:
+
+1. Open a calendar event
+2. Click **Create Task**
+3. Task auto-fills:
+   ```yaml
+   Name: "Follow up on [Meeting Title]"
+   Due Date: [Meeting Date] + 2 days
+   Assigned To: Me
+   Related To: [Linked records from meeting]
+   ```
+4. Adjust and save
+
+Or use workflows to create tasks automatically after meetings.
+
+## Availability and Scheduling
+
+### Checking Availability
+
+See team member availability:
+
+1. Go to **Calendar**
+2. Toggle **Show Team**
+3. View overlapping schedules
+4. Find open time slots
+
+### Meeting Scheduling Links
+
+Share your availability for easy scheduling:
+
+1. Go to **Settings → Calendar → Scheduling**
+2. Create a scheduling link:
+   ```yaml
+   Name: 30-Minute Demo
+   Duration: 30 minutes
+   Availability:
+     - Monday-Friday
+     - 9:00 AM - 5:00 PM
+     - Buffer: 15 minutes between meetings
+   ```
+3. Share link with prospects
+4. They choose time from your availability
+5. Event auto-creates in your calendar
+
+<Card title="Pro Tip" icon="lightbulb">
+Add scheduling links to your email signature for easy booking.
+</Card>
+
+## Calendar Sync Settings
+
+### Sync Direction
+
+<Tabs>
+  <Tab title="Two-Way Sync">
+    Changes sync both directions:
+    - Events created in Twenty → Calendar provider
+    - Events created in provider → Twenty
+    - Updates sync both ways
+    - Deletions sync both ways
+  </Tab>
+  
+  <Tab title="One-Way (Provider to Twenty)">
+    Calendar provider is source of truth:
+    - Provider events sync to Twenty
+    - Changes in Twenty don't sync back
+    - Good for viewing context only
+  </Tab>
+  
+  <Tab title="One-Way (Twenty to Provider)">
+    Twenty is source of truth:
+    - Twenty events sync to provider
+    - Provider events don't sync to Twenty
+    - Good for CRM-managed scheduling
+  </Tab>
+</Tabs>
+
+### Sync Scope
+
+**Date Range:**
+```yaml
+Sync Past: 30 days (show recent meetings)
+Sync Future: 180 days (show upcoming events)
+```
+
+**Event Types:**
+```yaml
+Include:
+  - Meetings (with attendees)
+  - Appointments
+  - All-day events
+  
+Exclude:
+  - Personal events (marked private)
+  - Out of office blocks
+  - Tentative events (optional)
+```
+
+### Auto-Linking Rules
+
+Configure automatic record association:
+
+```yaml
+Link events when:
+  - Attendee email matches Person record: Yes
+  - Domain matches Company record: Yes
+  - Subject contains record name: Yes
+  - Require manual confirmation: No
+
+Don't link:
+  - Internal meetings (all attendees from workspace)
+  - Personal events (marked private)
+  - Calendar-specific keywords (e.g., "Personal")
+```
+
+## Calendar Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep calendars in sync">
+    Ensure calendar integration is active:
+    - Check connection status weekly
+    - Monitor sync errors
+    - Reconnect if authentication expires
+  </Accordion>
+  
+  <Accordion title="Link meetings to records">
+    Always associate events with CRM records:
+    - Automatic linking for most events
+    - Manually link when needed
+    - Add context in event descriptions
+  </Accordion>
+  
+  <Accordion title="Take meeting notes">
+    Capture key information:
+    - During or immediately after meetings
+    - Include action items
+    - Tag relevant team members
+    - Notes appear on timelines for context
+  </Accordion>
+  
+  <Accordion title="Use consistent event naming">
+    Create clear event titles:
+    ```
+    ✅ Good:
+    - "Acme Corp - Product Demo"
+    - "Q1 Business Review - TechStart Inc"
+    
+    ❌ Unclear:
+    - "Call"
+    - "Meeting"
+    ```
+  </Accordion>
+  
+  <Accordion title="Set up workflows">
+    Automate post-meeting tasks:
+    - Create follow-up tasks
+    - Send thank-you emails
+    - Update opportunity stages
+    - Log activity on records
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Events Not Syncing
+
+**Check:**
+1. Calendar connection active
+2. Permissions granted
+3. Sync settings correct
+4. No sync errors in logs
+
+**Solutions:**
+- Reconnect calendar
+- Refresh authentication
+- Check calendar provider status
+- Review error messages
+
+### Events Linking Incorrectly
+
+**Causes:**
+- Similar attendee names
+- Multiple contacts with same domain
+- Auto-link rules too broad
+
+**Solutions:**
+- Manually unlink and relink
+- Adjust auto-link rules
+- Add specific exclusions
+
+### Duplicate Events
+
+**Causes:**
+- Multiple calendar sync sources
+- Events imported multiple times
+
+**Solutions:**
+- Disable duplicate sync sources
+- Remove duplicate calendars from sync
+- Run duplicate cleanup tool
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Email Integration" icon="envelope" href="/user-guide/calendar-emails/email-integration">
+    Connect your email alongside calendar
+  </Card>
+  
+  <Card title="Workflow Automation" icon="bolt" href="/user-guide/workflows/automation">
+    Automate tasks after meetings
+  </Card>
+</CardGroup>

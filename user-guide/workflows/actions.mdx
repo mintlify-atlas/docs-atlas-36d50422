@@ -1,0 +1,656 @@
+---
+title: Workflow Actions
+description: Define what happens when workflows run
+icon: bolt
+---
+
+Actions are the steps workflows perform when triggered. From updating records to sending emails, actions automate your business processes.
+
+## Understanding Actions
+
+Actions are the "do" part of workflows:
+
+- **Update records** - Change field values
+- **Create records** - Generate new data
+- **Send emails** - Notify people
+- **Call webhooks** - Integrate with external services
+- **Create tasks** - Assign follow-ups
+- **Run code** - Custom logic (coming soon)
+
+Each workflow can have multiple actions that run in sequence.
+
+## Action Types
+
+### Update Record
+
+Modify fields on the record that triggered the workflow.
+
+**Configuration:**
+```yaml
+Action: Update Record
+Fields:
+  - Field: Status
+    Value: "Qualified"
+  - Field: Score
+    Value: [Calculated value]
+  - Field: Last Contacted
+    Value: Today
+```
+
+**Use cases:**
+- Set default values
+- Calculate scores
+- Update timestamps
+- Change status
+- Auto-fill fields
+
+**Example:**
+```yaml
+Trigger: Lead created
+
+Actions:
+  Update Lead:
+    Status = "New"
+    Source Date = Today
+    Assigned Date = Today
+    Owner = [Auto-assigned]
+```
+
+<Tip>
+You can update any field, including relations, select fields, and calculated values.
+</Tip>
+
+### Update Related Record
+
+Modify records related to the trigger record.
+
+**Configuration:**
+```yaml
+Action: Update Related Record
+Relation: Company
+Fields:
+  - Field: Status
+    Value: "Customer"
+  - Field: Customer Since
+    Value: Today
+```
+
+**Use cases:**
+- Update parent records
+- Sync data across relations
+- Cascade status changes
+- Maintain data consistency
+
+**Example:**
+```yaml
+Trigger: Opportunity stage = "Closed Won"
+
+Actions:
+  Update Related Company:
+    Status = "Customer"
+    Last Purchase Date = Today
+    Total Contract Value = [Sum of all opportunities]
+  
+  Update Related Contact:
+    Status = "Active Customer"
+    Last Activity = Today
+```
+
+### Create Record
+
+Generate new records in any object.
+
+**Configuration:**
+```yaml
+Action: Create Record
+Object: Tasks
+Fields:
+  Name: "Follow up with [Contact.Name]"
+  Due Date: [Trigger Date] + 3 days
+  Assigned To: [Opportunity.Owner]
+  Priority: "High"
+  Related To: [Trigger Record]
+```
+
+**Use cases:**
+- Create follow-up tasks
+- Generate default activities
+- Spawn related records
+- Duplicate records
+
+**Example:**
+```yaml
+Trigger: Opportunity stage = "Closed Won"
+
+Actions:
+  Create Task 1:
+    Object: Tasks
+    Name: "Send welcome email to [Company]"
+    Assigned To: [Opportunity.Owner]
+    Due Date: Today + 1 day
+    Priority: "High"
+  
+  Create Task 2:
+    Object: Tasks
+    Name: "Schedule kickoff call"
+    Assigned To: "Customer Success Manager"
+    Due Date: Today + 3 days
+    Priority: "High"
+  
+  Create Project:
+    Object: Projects
+    Name: "[Company] - Implementation"
+    Company: [Opportunity.Company]
+    Start Date: Today
+    Status: "Planning"
+```
+
+### Delete Record
+
+Remove records (use with caution).
+
+**Configuration:**
+```yaml
+Action: Delete Record
+Record: [Trigger record or related record]
+Confirmation: Required
+```
+
+**Use cases:**
+- Clean up invalid data
+- Remove temporary records
+- Archive completed items
+- Cascade deletes
+
+**Example:**
+```yaml
+Trigger: Project status = "Cancelled"
+
+Actions:
+  Delete all related tasks:
+    Where: Status ≠ "Completed"
+  
+  Archive project data:
+    Export to archive before deleting
+  
+  Delete Project:
+    Confirmation: Required
+```
+
+<Warning>
+Deleted records cannot be recovered. Consider deactivating or archiving instead.
+</Warning>
+
+### Send Email
+
+Send automated emails to users or contacts.
+
+**Configuration:**
+```yaml
+Action: Send Email
+To: [Recipients]
+Cc: [Optional]
+Subject: "Your subject line"
+Body: "Email content with [Variables]"
+Attachments: [Optional files]
+```
+
+**Use cases:**
+- Notifications
+- Reminders
+- Status updates
+- Welcome emails
+- Follow-ups
+
+**Example:**
+```yaml
+Trigger: Opportunity stage = "Proposal"
+
+Actions:
+  Send Email:
+    To: [Opportunity.Primary Contact.Email]
+    Cc: [Opportunity.Owner.Email]
+    Subject: "Proposal for [Company.Name]"
+    Body: |
+      Hi [Contact.First Name],
+      
+      Thank you for your interest in our services. 
+      I'm pleased to share our proposal for [Opportunity.Name].
+      
+      Proposal value: $[Opportunity.Amount]
+      Proposed start date: [Opportunity.Expected Close Date]
+      
+      Please review and let me know if you have any questions.
+      
+      Best regards,
+      [Opportunity.Owner.Name]
+    Attachments:
+      - Proposal PDF (generated)
+```
+
+**Email variables:**
+
+Use field values in emails:
+```
+[Record.Field] - Any field from trigger record
+[Related.Field] - Fields from related records
+[Today] - Current date
+[User.Name] - Current user
+```
+
+### Send Notification
+
+Send in-app notifications to workspace users.
+
+**Configuration:**
+```yaml
+Action: Send Notification
+To: [User or user list]
+Title: "Notification title"
+Message: "Notification message"
+Link: [Optional record link]
+```
+
+**Use cases:**
+- Alert team members
+- Task assignments
+- Status changes
+- Urgent updates
+
+**Example:**
+```yaml
+Trigger: Task assigned to me
+
+Actions:
+  Send Notification:
+    To: [Task.Assigned To]
+    Title: "New task assigned"
+    Message: "[Assignee.Name] assigned you: [Task.Name]"
+    Link: [Task record]
+    Priority: Normal
+```
+
+### Call Webhook
+
+Send HTTP requests to external services.
+
+**Configuration:**
+```yaml
+Action: Call Webhook
+URL: https://api.example.com/endpoint
+Method: POST
+Headers:
+  Content-Type: application/json
+  Authorization: Bearer [API Key]
+Body:
+  recordId: [Record.ID]
+  action: "updated"
+  data: [Record fields]
+```
+
+**Use cases:**
+- Integrate with third-party services
+- Trigger external automations
+- Sync data to other systems
+- Send to analytics platforms
+
+**Example:**
+```yaml
+Trigger: Opportunity stage = "Closed Won"
+
+Actions:
+  Call Webhook:
+    URL: https://billing.example.com/create-subscription
+    Method: POST
+    Headers:
+      Authorization: "Bearer abc123..."
+    Body:
+      customerId: [Company.External ID]
+      planId: [Opportunity.Product]
+      amount: [Opportunity.Amount]
+      startDate: [Today]
+    
+  Wait for response:
+    Store subscription ID in Opportunity.Subscription ID
+```
+
+### Assign to User
+
+Change record ownership or assignment.
+
+**Configuration:**
+```yaml
+Action: Assign to User
+Field: Owner (or any user field)
+User:
+  - Specific user
+  - Round robin
+  - Based on rules
+  - Related record owner
+```
+
+**Use cases:**
+- Auto-assign leads
+- Distribute workload
+- Transfer ownership
+- Escalate to managers
+
+**Example:**
+```yaml
+Trigger: Lead created
+
+Actions:
+  Assign Owner:
+    If Lead.Country = "United States":
+      Owner = "Alice (US Sales)"
+    
+    Else if Lead.Country = "United Kingdom":
+      Owner = "Bob (UK Sales)"
+    
+    Else if Lead.Value > $100,000:
+      Owner = "Enterprise Sales Team" (Round Robin)
+    
+    Else:
+      Owner = "Sales Development Team" (Round Robin)
+```
+
+### Wait/Delay
+
+Pause execution before next action.
+
+**Configuration:**
+```yaml
+Action: Wait
+Duration:
+  - Minutes
+  - Hours
+  - Days
+  - Until specific date/time
+```
+
+**Use cases:**
+- Delayed follow-ups
+- Reminder sequences
+- Time-based escalations
+- Scheduled checks
+
+**Example:**
+```yaml
+Trigger: Proposal sent
+
+Actions:
+  Wait: 3 days
+  
+  Check if Opportunity.Stage changed:
+    If Stage still = "Proposal":
+      Send Email:
+        To: [Primary Contact]
+        Subject: "Following up on proposal"
+        Body: "Just checking if you have questions..."
+      
+      Send Notification:
+        To: [Opportunity.Owner]
+        Message: "Follow up reminder sent to [Contact]"
+    
+  Wait: 4 more days
+  
+  Check again:
+    If Stage still = "Proposal":
+      Update Opportunity:
+        Stage = "Proposal - Needs Attention"
+      
+      Notify: Sales Manager
+```
+
+<Info>
+Wait actions keep workflows running over time. Long delays use minimal resources.
+</Info>
+
+### Conditional Actions
+
+Run different actions based on conditions.
+
+**Configuration:**
+```yaml
+Action: Conditional Branch
+Conditions:
+  If [Condition 1]:
+    [Actions A]
+  Else if [Condition 2]:
+    [Actions B]
+  Else:
+    [Actions C]
+```
+
+**Example:**
+```yaml
+Trigger: Opportunity amount changed
+
+Actions:
+  If Amount > $100,000:
+    Update Opportunity:
+      Priority = "High"
+      Tier = "Enterprise"
+    
+    Assign Owner:
+      Team = "Enterprise Sales"
+    
+    Send Notification:
+      To: "VP Sales"
+      Message: "High-value opportunity needs attention"
+  
+  Else if Amount > $50,000:
+    Update Opportunity:
+      Priority = "Medium"
+      Tier = "Commercial"
+    
+    Keep current owner
+  
+  Else:
+    Update Opportunity:
+      Priority = "Standard"
+      Tier = "SMB"
+    
+    Assign Owner:
+      Team = "Inside Sales" (Round Robin)
+```
+
+## Using Variables in Actions
+
+Reference field values dynamically:
+
+### Record Fields
+```
+[Record.Field Name]
+```
+Examples:
+- `[Opportunity.Amount]`
+- `[Company.Name]`
+- `[Contact.Email]`
+
+### Related Record Fields
+```
+[Relation.Field Name]
+```
+Examples:
+- `[Opportunity.Company.Industry]`
+- `[Task.Owner.Email]`
+- `[Project.Manager.Name]`
+
+### System Variables
+```
+[Today] - Current date
+[Now] - Current date and time
+[Current User] - User who triggered
+[Workspace] - Workspace name
+```
+
+### Calculations
+```
+[Field] + 30 days
+[Amount] * 0.1
+[Count] + 1
+```
+
+## Action Sequences
+
+Actions run in the order you define:
+
+```yaml
+Workflow: Opportunity Won Process
+
+Actions:
+  1. Update Opportunity:
+     Close Date = Today
+     Status = "Won"
+  
+  2. Update Related Company:
+     Customer Status = "Active"
+     Customer Since = Today
+  
+  3. Create Project:
+     Name = "[Company] - Implementation"
+     Start Date = Today + 7 days
+  
+  4. Create Tasks (3 tasks):
+     - Kickoff call
+     - Send welcome package  
+     - Schedule training
+  
+  5. Send Email to Customer:
+     Welcome and next steps
+  
+  6. Send Notification to Team:
+     New customer alert
+  
+  7. Call Webhook:
+     Create subscription in billing system
+  
+  8. Wait: 1 day
+  
+  9. Create Follow-up Task:
+     Check if kickoff scheduled
+```
+
+Actions execute one at a time. If one fails, subsequent actions may not run.
+
+## Action Best Practices
+
+<AccordionGroup>
+  <Accordion title="Order actions logically">
+    Sequence matters:
+    
+    ✅ **Good order:**
+    1. Update record data
+    2. Create related records
+    3. Send notifications
+    4. Call external services
+    
+    This ensures data is ready before notifications and external calls.
+  </Accordion>
+  
+  <Accordion title="Use variables instead of hardcoding">
+    Make workflows reusable:
+    
+    ✅ **Good:**
+    ```yaml
+    Email Subject: "Welcome, [Contact.First Name]!"
+    Task Name: "Follow up with [Company.Name]"
+    ```
+    
+    ❌ **Hardcoded:**
+    ```yaml
+    Email Subject: "Welcome, John!"
+    Task Name: "Follow up with Acme Corp"
+    ```
+  </Accordion>
+  
+  <Accordion title="Add error handling">
+    Plan for failures:
+    ```yaml
+    Action: Call Webhook
+      If webhook fails:
+        Create Task:
+          Name: "Manual sync needed for [Record]"
+          Assigned To: Admin
+        
+        Send Notification:
+          To: Admin
+          Message: "Webhook failed, manual action required"
+    ```
+  </Accordion>
+  
+  <Accordion title="Keep actions focused">
+    One workflow = one purpose:
+    - Don't combine unrelated actions
+    - Create separate workflows for separate processes
+    - Makes debugging and maintenance easier
+  </Accordion>
+  
+  <Accordion title="Test each action">
+    Verify actions work:
+    1. Test with sample data
+    2. Check each action's output
+    3. Verify variables resolve correctly
+    4. Test error scenarios
+  </Accordion>
+</AccordionGroup>
+
+## Action Limits
+
+- **Max actions per workflow:** 50
+- **Max execution time:** 60 seconds
+- **Max email recipients:** 100 per email
+- **Webhook timeout:** 30 seconds
+- **Max delay:** 365 days
+
+## Troubleshooting Actions
+
+### Action Failed
+
+**Common causes:**
+- Required field missing
+- Invalid field value
+- Permission denied
+- External service unavailable
+- Timeout exceeded
+
+**Solution:**
+Check execution log for specific error message.
+
+### Variable Not Resolving
+
+**Check:**
+- Field name spelled correctly
+- Field exists on record
+- Relation is not empty
+- Correct syntax: `[Object.Field]`
+
+### Email Not Sent
+
+**Check:**
+- Recipient email valid
+- Email quota not exceeded
+- Template variables correct
+- Workspace email settings
+
+### Webhook Failed
+
+**Check:**
+- URL is correct and accessible
+- Authentication headers valid
+- Request body format correct
+- External service is online
+- Timeout not exceeded
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Workflow Triggers" icon="play" href="/user-guide/workflows/triggers">
+    Learn when to start workflows
+  </Card>
+  
+  <Card title="Automation Guide" icon="robot" href="/user-guide/workflows/automation">
+    See complete workflow examples
+  </Card>
+</CardGroup>

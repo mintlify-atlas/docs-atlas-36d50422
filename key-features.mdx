@@ -1,0 +1,214 @@
+---
+title: "Key Features"
+description: "Discover what makes Twenty powerful"
+---
+
+Twenty combines the flexibility of a database with the usability of a spreadsheet and the power of a modern CRM. Here's what makes it stand out:
+
+## Core capabilities
+
+<CardGroup cols={2}>
+  <Card title="Custom objects and fields" icon="database" href="/core-concepts/objects-and-fields">
+    Create unlimited custom objects and fields to model your exact business data. No limitations on structure.
+  </Card>
+  
+  <Card title="Flexible views" icon="table-columns" href="/core-concepts/views-and-filters">
+    Visualize data in table, kanban, or calendar views. Filter, sort, and group records to find what you need.
+  </Card>
+  
+  <Card title="Workflow automation" icon="diagram-project" href="/core-concepts/workflows">
+    Automate repetitive tasks with powerful workflows. Trigger actions based on record changes or schedules.
+  </Card>
+  
+  <Card title="Email and calendar sync" icon="envelope">
+    Connect your Gmail or Outlook to sync emails and calendar events directly with contacts and companies.
+  </Card>
+  
+  <Card title="Role-based permissions" icon="shield-halved" href="/core-concepts/permissions">
+    Create custom roles with granular permissions. Control access at the object, field, and record level.
+  </Card>
+  
+  <Card title="REST and GraphQL APIs" icon="code" href="/developers/api/graphql-api">
+    Full API access for integrations. Build custom tools or connect Twenty to your existing stack.
+  </Card>
+  
+  <Card title="Self-hosting" icon="server">
+    Deploy on your infrastructure with Docker. Complete control over data, security, and compliance.
+  </Card>
+  
+  <Card title="AI-powered features" icon="brain">
+    Use AI agents to automate complex workflows, analyze data, and generate insights from your CRM.
+  </Card>
+  
+  <Card title="Data import and export" icon="file-import">
+    Import data from CSV files or other CRMs. Export your data anytime in standard formats.
+  </Card>
+  
+  <Card title="Integrations" icon="plug">
+    Connect with Zapier, webhooks, and custom integrations. Extend Twenty to work with any tool.
+  </Card>
+  
+  <Card title="File attachments" icon="paperclip">
+    Attach files to any record. Store documents, images, and other files alongside your data.
+  </Card>
+  
+  <Card title="Activity timeline" icon="timeline">
+    Track every interaction with automatic activity logging. See emails, notes, tasks, and changes in one place.
+  </Card>
+</CardGroup>
+
+## Data modeling
+
+### Objects and fields
+
+Twenty's data model is completely customizable:
+
+- **Standard objects**: Companies, People, Opportunities, and more out-of-the-box
+- **Custom objects**: Create any object type your business needs
+- **Rich field types**: Text, number, date, select, multi-select, relation, currency, email, phone, address, and more
+- **Composite fields**: Complex field types like full name, address, and currency with multiple sub-fields
+- **Relations**: Connect objects with one-to-many and many-to-many relationships
+
+### Field types supported
+
+<CodeGroup>
+```typescript Field Types
+TEXT         // Single-line text
+RICH_TEXT_V2 // Rich text with formatting
+NUMBER       // Integer or decimal
+CURRENCY     // Amount with currency code
+DATE         // Date only
+DATE_TIME    // Date and time
+BOOLEAN      // True/false checkbox
+SELECT       // Single choice dropdown
+MULTI_SELECT // Multiple choice
+RELATION     // Link to another object
+EMAILS       // Email addresses
+PHONES       // Phone numbers
+ADDRESS      // Street address
+FULL_NAME    // First and last name
+LINKS        // URLs
+RATING       // Star rating
+FILES        // File attachments
+UUID         // Unique identifier
+RAW_JSON     // JSON data
+```
+</CodeGroup>
+
+<Info>
+  All field types support validation, default values, and help text to guide users.
+</Info>
+
+## Views and visualization
+
+### Multiple view types
+
+- **Table view**: Classic spreadsheet-like interface for working with records
+- **Kanban view**: Drag-and-drop board organized by a select field
+- **Calendar view**: Timeline view for date-based records
+- **Widget views**: Embedded views for custom page layouts
+
+### Powerful filtering and sorting
+
+- Apply multiple filters with AND/OR logic
+- Filter by any field type with appropriate operators
+- Sort by multiple fields
+- Group records by select or boolean fields
+- Save views for quick access
+
+## Automation and workflows
+
+Automate business processes without code:
+
+### Triggers
+- **Database events**: When a record is created, updated, or deleted
+- **Manual triggers**: Launch workflows on-demand from the UI
+- **Scheduled triggers**: Run workflows on a cron schedule
+- **Webhook triggers**: Start workflows from external systems
+
+### Actions
+- **Record operations**: Create, update, delete, or find records
+- **Send emails**: Draft or send emails from workflows
+- **HTTP requests**: Call external APIs
+- **Conditional logic**: If/else branches and filters
+- **AI agents**: Use AI to process data and make decisions
+- **Custom code**: Write JavaScript for complex logic
+- **Delay**: Wait for a specified duration
+
+<Tip>
+  Workflows can access trigger data and previous step outputs using variables like `{{trigger.object.name}}` or `{{step1.output.value}}`.
+</Tip>
+
+## Security and permissions
+
+### Role-based access control
+
+Create custom roles with precise permissions:
+
+- Read, write, update, and delete permissions per object
+- Field-level permissions to hide sensitive data
+- Row-level security with custom predicates
+- Permission flags for workspace settings and tools
+
+### Audit and compliance
+
+- Activity logging for all record changes
+- User action tracking
+- Data export for backup and compliance
+- Self-hosting for complete data control
+
+## Integration capabilities
+
+### APIs
+
+- **GraphQL API**: Flexible queries and mutations
+- **REST API**: Standard HTTP endpoints for all objects
+- **Webhooks**: Real-time event notifications
+- **API keys**: Secure programmatic access
+
+### Connectors
+
+- **Email providers**: Gmail, Outlook/Microsoft
+- **Calendar providers**: Google Calendar, Outlook Calendar
+- **Zapier**: Connect to 5,000+ apps
+- **Custom integrations**: Build with our SDK
+
+## AI capabilities
+
+Leverage AI throughout your CRM:
+
+- **AI agents**: Autonomous agents that can analyze data and take actions
+- **Workflow AI actions**: Incorporate AI into automated processes
+- **Smart suggestions**: AI-powered recommendations for data entry
+- **Data enrichment**: Automatically enhance records with external data
+
+<Warning>
+  AI features require configuration of AI provider credentials (OpenAI, Anthropic, etc.)
+</Warning>
+
+## Developer-friendly
+
+Built for developers who want to extend their CRM:
+
+- **Modern tech stack**: TypeScript, React, NestJS, PostgreSQL
+- **GraphQL-first**: Code-first schema generation
+- **Extensible architecture**: Plugin system (coming soon)
+- **Open-source**: Fork, modify, and contribute
+- **Well-documented APIs**: Comprehensive reference documentation
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Understand objects" icon="database" href="/core-concepts/objects-and-fields">
+    Learn how to model your data with objects and fields
+  </Card>
+  <Card title="Create views" icon="filter" href="/core-concepts/views-and-filters">
+    Master filtering, sorting, and different view types
+  </Card>
+  <Card title="Build workflows" icon="diagram-project" href="/core-concepts/workflows">
+    Automate your processes with triggers and actions
+  </Card>
+  <Card title="Manage access" icon="shield-halved" href="/core-concepts/permissions">
+    Set up roles and permissions for your team
+  </Card>
+</CardGroup>

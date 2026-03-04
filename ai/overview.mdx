@@ -1,0 +1,274 @@
+---
+title: "AI Features in Twenty"
+description: "Leverage artificial intelligence to work smarter and faster in your CRM"
+---
+
+## Overview
+
+Twenty integrates powerful AI capabilities to help you automate tasks, generate content, and enrich your data. These features use advanced language models to understand context and provide intelligent assistance throughout your workflow.
+
+## Available AI Features
+
+<CardGroup cols={2}>
+  <Card title="AI Email Generation" icon="envelope-open-text" href="/ai/capabilities/email-generation">
+    Generate professional email drafts with AI assistance
+  </Card>
+  <Card title="Data Enrichment" icon="sparkles" href="/ai/capabilities/data-enrichment">
+    Automatically enrich contact and company records with AI
+  </Card>
+  <Card title="AI Agents" icon="robot">
+    Create intelligent agents to automate complex workflows
+  </Card>
+  <Card title="AI Chat" icon="comments">
+    Ask questions about your data and get instant answers
+  </Card>
+</CardGroup>
+
+## How AI Works in Twenty
+
+Twenty's AI features are powered by large language models (LLMs) that can:
+
+- **Understand context** - Analyze your data and provide relevant suggestions
+- **Generate content** - Create emails, summaries, and descriptions
+- **Extract information** - Pull data from unstructured text
+- **Make predictions** - Suggest next best actions
+- **Automate decisions** - Execute workflows based on intelligent rules
+
+## AI Capabilities
+
+### 1. Email Generation
+
+AI can help you write emails faster:
+
+- Generate professional email drafts
+- Suggest responses based on context
+- Adjust tone and style
+- Create follow-up sequences
+
+Learn more: [AI Email Generation](/ai/capabilities/email-generation)
+
+### 2. Data Enrichment
+
+Automatically enhance your records with AI:
+
+- Find company information from minimal data
+- Enrich contacts with job titles and social profiles
+- Discover company size, industry, and location
+- Update records with latest information
+
+Learn more: [AI Data Enrichment](/ai/capabilities/data-enrichment)
+
+### 3. AI Agents
+
+Build intelligent automation with AI agents:
+
+- Create custom agents for specific tasks
+- Give agents access to your CRM data
+- Configure agent behavior and permissions
+- Execute agents in workflows
+
+AI agents can:
+- Research prospects
+- Qualify leads
+- Update records based on criteria
+- Generate reports and summaries
+
+### 4. AI Chat
+
+Ask questions about your CRM data:
+
+- "How many deals closed this month?"
+- "Show me contacts at companies in San Francisco"
+- "What's my pipeline value?"
+- "Find all high-priority opportunities"
+
+The AI chat understands natural language and can query your data without writing code.
+
+## Enabling AI Features
+
+### For Cloud Users
+
+Twenty Cloud includes AI features by default. Simply:
+
+1. Navigate to **Settings** > **AI**
+2. Enable the features you want to use
+3. Start using AI in your workflows
+
+<Note>
+AI features on Twenty Cloud are subject to usage limits based on your plan. Check your plan details for specific quotas.
+</Note>
+
+### For Self-Hosted Users
+
+To enable AI features on self-hosted instances:
+
+<Steps>
+  <Step title="Choose an AI Provider">
+    Twenty supports multiple AI providers:
+    - **OpenAI** (GPT-4, GPT-3.5)
+    - **Anthropic** (Claude)
+    - **Open-source models** (via APIs)
+  </Step>
+  <Step title="Configure Environment Variables">
+    Add AI configuration to your `.env` file. The exact variables depend on your chosen provider.
+    
+    Example for OpenAI:
+    ```bash
+    # AI Configuration
+    AI_ENABLED=true
+    AI_PROVIDER=openai
+    OPENAI_API_KEY=your_api_key_here
+    ```
+  </Step>
+  <Step title="Set Usage Limits (Optional)">
+    Configure cost controls:
+    ```bash
+    AI_BILLING_ENABLED=true
+    AI_MONTHLY_BUDGET=100
+    ```
+  </Step>
+  <Step title="Restart Twenty Server">
+    Apply the configuration:
+    ```bash
+    docker-compose restart
+    ```
+  </Step>
+  <Step title="Verify Setup">
+    Check AI features are available in **Settings** > **AI**.
+  </Step>
+</Steps>
+
+## AI Models
+
+Twenty uses different AI models for different tasks:
+
+### Smart Models
+
+For complex reasoning and generation:
+- **GPT-4** - Advanced understanding and generation
+- **Claude 3 Opus** - Long context and detailed analysis
+
+Use for:
+- Email generation
+- Data enrichment
+- Complex agent tasks
+
+### Fast Models
+
+For quick, simple tasks:
+- **GPT-3.5 Turbo** - Fast and cost-effective
+- **Claude 3 Haiku** - Quick responses
+
+Use for:
+- Simple classifications
+- Quick suggestions
+- Chat responses
+
+<Tip>
+Twenty automatically selects the appropriate model for each task to balance quality and cost.
+</Tip>
+
+## AI Billing and Usage
+
+### How AI Usage is Measured
+
+AI features consume tokens:
+- **Input tokens** - Your prompts and context
+- **Output tokens** - AI-generated content
+
+Costs vary by model:
+- Smart models: Higher cost, better quality
+- Fast models: Lower cost, good for simple tasks
+
+### Monitoring Usage
+
+Track AI consumption:
+
+1. Navigate to **Settings** > **AI** > **Usage**
+2. View usage by feature, model, and time period
+3. Set budget alerts
+
+### Cost Control
+
+Manage AI costs:
+
+- **Set budgets** - Configure monthly spending limits
+- **Usage alerts** - Get notified when approaching limits
+- **Rate limiting** - Control requests per user/workspace
+- **Model selection** - Choose cost-effective models
+
+<Warning>
+AI features can incur significant costs at scale. Monitor usage regularly and set appropriate limits for your organization.
+</Warning>
+
+## Privacy and Security
+
+Twenty takes AI privacy seriously:
+
+- **Data encryption** - All data sent to AI providers is encrypted
+- **No training** - Your data is not used to train AI models
+- **Opt-in** - AI features are opt-in only
+- **Audit logs** - Track all AI operations
+- **Access controls** - Restrict AI features by role
+
+### Self-Hosted Privacy
+
+For maximum privacy:
+
+1. Use self-hosted AI models
+2. Configure on-premise LLM providers
+3. Keep all data within your infrastructure
+
+## Implementation Details
+
+AI features are implemented in Twenty's backend:
+
+- AI modules: `packages/twenty-server/src/engine/metadata-modules/ai/`
+- Agent execution: `packages/twenty-server/src/engine/metadata-modules/ai/ai-agent-execution/services/agent-async-executor.service.ts:9`
+- Workflow integration: `packages/twenty-server/src/modules/workflow/workflow-executor/workflow-actions/ai-agent/ai-agent.workflow-action.ts:29`
+- Billing: `packages/twenty-server/src/engine/metadata-modules/ai/ai-billing/services/ai-billing.service.ts`
+
+## Best Practices
+
+1. **Start small** - Enable one feature at a time
+2. **Monitor costs** - Track AI usage regularly
+3. **Set limits** - Configure appropriate budgets
+4. **Train your team** - Educate users on AI capabilities
+5. **Review outputs** - Always verify AI-generated content
+6. **Iterate prompts** - Refine agent instructions for better results
+
+## Limitations
+
+Be aware of AI limitations:
+
+- **Not always accurate** - AI can make mistakes
+- **Requires context** - More data = better results
+- **Cost considerations** - Can be expensive at scale
+- **Response time** - Some operations take seconds
+- **Language support** - Best for English content
+
+## Future AI Features
+
+Upcoming AI capabilities:
+
+- Voice transcription for calls
+- Sentiment analysis
+- Automated lead scoring
+- Predictive analytics
+- Custom model fine-tuning
+
+<Card title="Share Feedback" icon="lightbulb" href="https://github.com/twentyhq/twenty/discussions">
+  Have ideas for AI features? Share them on GitHub Discussions.
+</Card>
+
+## Getting Help
+
+For AI feature support:
+
+- [Discord Community](https://discord.gg/cx5n4Jzs57)
+- [GitHub Discussions](https://github.com/twentyhq/twenty/discussions)
+- [Documentation](/ai/capabilities/email-generation)
+
+<Tip>
+Experiment with AI features in a test workspace before rolling out to your team.
+</Tip>

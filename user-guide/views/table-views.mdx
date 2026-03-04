@@ -1,0 +1,488 @@
+---
+title: Table Views
+description: Work with your data in table format
+icon: table
+---
+
+Table views present your data in a familiar spreadsheet-like format, perfect for viewing and editing multiple records at once.
+
+## Understanding Table Views
+
+Table views display records as rows and fields as columns:
+
+- **Rows** - Individual records
+- **Columns** - Fields from your object
+- **Cells** - Field values you can edit inline
+- **Headers** - Column titles with sorting and filtering
+
+Table views are ideal for:
+- Scanning many records quickly
+- Bulk editing data
+- Comparing records side-by-side
+- Importing and exporting data
+
+## Creating a Table View
+
+<Steps>
+  <Step title="Navigate to your object">
+    Click the object in the left sidebar (Companies, Projects, etc.).
+  </Step>
+  
+  <Step title="Open view picker">
+    Click the current view name in the top bar to open the view dropdown.
+  </Step>
+  
+  <Step title="Create new view">
+    Select **+ New View** from the dropdown.
+  </Step>
+  
+  <Step title="Choose Table as the view type">
+    Select **Table** from the view type options.
+  </Step>
+  
+  <Step title="Name your view">
+    Give it a descriptive name:
+    ```
+    Active Projects
+    High Priority Leads
+    Q1 Opportunities
+    ```
+  </Step>
+  
+  <Step title="Configure initial settings">
+    - Select which columns to display
+    - Set default filters
+    - Choose default sort order
+  </Step>
+  
+  <Step title="Save the view">
+    Click **Create View** to save. Your new table view is now available.
+  </Step>
+</Steps>
+
+<Info>
+Each object can have multiple table views with different columns, filters, and sorting.
+</Info>
+
+## Working with Columns
+
+### Adding Columns
+
+<Steps>
+  <Step title="Click the + button">
+    In the table header, click the **+** button at the right.
+  </Step>
+  
+  <Step title="Select fields">
+    Choose which fields to add as columns. You can add multiple at once.
+  </Step>
+  
+  <Step title="Columns appear">
+    Selected fields appear as new columns in the table.
+  </Step>
+</Steps>
+
+### Reordering Columns
+
+1. Click and hold the column header
+2. Drag left or right to the desired position
+3. Release to drop the column
+
+The new order is saved to your view automatically.
+
+### Resizing Columns
+
+1. Hover over the edge of a column header
+2. Cursor changes to a resize handle (↔)
+3. Drag to adjust width
+4. Double-click the edge to auto-fit content
+
+### Hiding Columns
+
+**Method 1: Column menu**
+1. Click the ••• menu in the column header
+2. Select **Hide column**
+
+**Method 2: View settings**
+1. Click view options (Settings icon)
+2. Toggle columns on/off
+
+<Tip>
+Hidden columns remain part of the view and can be shown again anytime.
+</Tip>
+
+### Pinning Columns
+
+Pin important columns to keep them visible while scrolling:
+
+1. Click the column menu (•••)
+2. Select **Pin column**
+3. Pinned columns stay on the left
+
+To unpin, select **Unpin column** from the same menu.
+
+## Inline Editing
+
+Edit data directly in the table:
+
+<Tabs>
+  <Tab title="Text Fields">
+    1. Click any text cell
+    2. Start typing to replace or edit
+    3. Press `Enter` to save
+    4. Press `Esc` to cancel
+    
+    **Navigate while editing:**
+    - `Tab` - Move to next cell
+    - `Shift+Tab` - Move to previous cell
+    - `↑` `↓` - Move up/down (when not editing)
+  </Tab>
+  
+  <Tab title="Number Fields">
+    1. Click the number cell
+    2. Type a new number
+    3. Use `+` `-` for quick adjustments
+    4. Press `Enter` to save
+    
+    **Number formatting:**
+    - Currency fields show $ symbol
+    - Decimal precision is preserved
+    - Negative numbers in red (optional)
+  </Tab>
+  
+  <Tab title="Date Fields">
+    1. Click the date cell
+    2. Choose from date picker or type date
+    3. Use shortcuts:
+       - "today"
+       - "tomorrow"
+       - "next week"
+    4. Press `Enter` to save
+  </Tab>
+  
+  <Tab title="Select Fields">
+    1. Click the select cell
+    2. Dropdown appears with options
+    3. Click to choose
+    4. For multi-select, click multiple options
+    
+    **Keyboard:**
+    - Type to filter options
+    - `↑` `↓` to navigate
+    - `Enter` to select
+  </Tab>
+  
+  <Tab title="Relation Fields">
+    1. Click the relation cell
+    2. Search for records or create new
+    3. Select the record to link
+    4. For many-to-many, add multiple
+    
+    **Features:**
+    - Type to search
+    - Click X to remove link
+    - Click linked record to open
+  </Tab>
+  
+  <Tab title="Boolean Fields">
+    1. Click the checkbox cell
+    2. Toggles immediately
+    3. Check mark for true
+    4. Empty for false
+    
+    No need to press Enter.
+  </Tab>
+</Tabs>
+
+<Warning>
+Changes save immediately. There's no undo button (yet), so edit carefully.
+</Warning>
+
+## Selecting Rows
+
+Select rows to perform bulk actions:
+
+### Selection Methods
+
+<CardGroup cols={2}>
+  <Card title="Click Checkbox" icon="check-square">
+    Click the checkbox at the start of a row to select it.
+  </Card>
+  
+  <Card title="Select Range" icon="list">
+    Click one row, hold `Shift`, click another row to select range.
+  </Card>
+  
+  <Card title="Select All" icon="check-double">
+    Press `Cmd/Ctrl+A` or click the header checkbox to select all visible rows.
+  </Card>
+  
+  <Card title="Multi-Select" icon="hand-pointer">
+    Hold `Cmd/Ctrl` and click multiple rows to select non-contiguous rows.
+  </Card>
+</CardGroup>
+
+### Bulk Actions
+
+When rows are selected, the action bar appears:
+
+- **Edit** - Update field values for all selected
+- **Delete** - Remove selected records
+- **Export** - Download selected as CSV
+- **Assign** - Change owner or assignee
+- **Run Workflow** - Execute workflow on selected
+
+<Info>
+Selected count appears in the action bar. Click X to deselect all.
+</Info>
+
+## Table View Settings
+
+Customize how your table appears and behaves.
+
+### View Options
+
+Click the settings icon to access:
+
+<AccordionGroup>
+  <Accordion title="Columns">
+    - Show/hide columns
+    - Reorder columns
+    - Set default column widths
+    - Choose label identifier field
+  </Accordion>
+  
+  <Accordion title="Filters">
+    - Add filter conditions
+    - Combine filters with AND/OR
+    - Save filter presets
+    
+    <Card title="Learn More" icon="filter" href="/user-guide/views/filters-and-sorting">
+      See the Filters guide for details →
+    </Card>
+  </Accordion>
+  
+  <Accordion title="Sorting">
+    - Sort by any column
+    - Multi-column sorting
+    - Ascending or descending
+    
+    <Card title="Learn More" icon="arrow-up-arrow-down" href="/user-guide/views/filters-and-sorting">
+      See the Filters guide for details →
+    </Card>
+  </Accordion>
+  
+  <Accordion title="Grouping">
+    - Group rows by select fields
+    - Collapsible groups
+    - Group summaries
+    
+    Example: Group projects by status to see all "In Progress" together.
+  </Accordion>
+  
+  <Accordion title="Display Options">
+    - Row height (compact, normal, tall)
+    - Show/hide row numbers
+    - Wrap text in cells
+    - Freeze first column
+  </Accordion>
+</AccordionGroup>
+
+### Saving View Changes
+
+Changes to views can be:
+
+**Auto-saved:**
+- Column reordering
+- Column resizing
+- Filter changes
+- Sort changes
+
+**Manual save required:**
+- View name changes
+- Sharing settings changes
+
+Look for the "Saved" indicator or "Save" button in the view header.
+
+## Advanced Features
+
+### Aggregation
+
+See summary statistics at the bottom of columns:
+
+**Available aggregations:**
+- **Count** - Number of records
+- **Sum** - Total of number fields
+- **Average** - Mean value
+- **Min/Max** - Lowest/highest value
+- **Empty/Not Empty** - Count of blank cells
+
+To enable:
+1. Click column menu (•••)
+2. Select **Aggregate**
+3. Choose aggregation type
+
+### Grouping Records
+
+Organize rows into collapsible groups:
+
+<Steps>
+  <Step title="Open view settings">
+    Click the settings icon in the view header.
+  </Step>
+  
+  <Step title="Select Group By">
+    Choose a select or relation field to group by.
+  </Step>
+  
+  <Step title="View grouped data">
+    Records appear in sections by field value:
+    ```
+    ▼ Not Started (5)
+    ▼ In Progress (12)
+    ▼ Completed (23)
+    ```
+  </Step>
+  
+  <Step title="Collapse/expand groups">
+    Click the arrow to show/hide group contents.
+  </Step>
+</Steps>
+
+**Best fields for grouping:**
+- Status fields
+- Priority levels
+- Assigned users
+- Categories or types
+
+### Quick Filters
+
+Filter without opening settings:
+
+1. Click the filter icon in column header
+2. Choose filter operator
+3. Enter value
+4. Filter applies immediately
+
+Quick filters are temporary unless saved to the view.
+
+### Column Formulas
+
+<Info>
+Formulas are coming soon. You'll be able to create calculated columns based on other fields.
+</Info>
+
+## View Sharing
+
+Control who can see and use your views:
+
+### Personal Views
+
+Default for new views you create:
+- Only you can see the view
+- Not visible to other workspace members
+- Perfect for personal work views
+
+### Shared Views
+
+Make views available to your team:
+
+1. Open view settings
+2. Toggle **Share view**
+3. Choose who can access:
+   - Everyone in workspace
+   - Specific roles
+   - Specific users
+
+Shared views appear in everyone's view list.
+
+### View Permissions
+
+- **Can View** - See the view and data
+- **Can Edit View** - Modify view settings
+- **Can Edit Data** - Change record values (follows object permissions)
+
+## Table View Best Practices
+
+<AccordionGroup>
+  <Accordion title="Create views for different workflows">
+    Instead of one view for everything, create focused views:
+    
+    ✅ **Good:**
+    - "My Open Tasks"
+    - "High Priority This Week"
+    - "Completed This Month"
+    
+    ❌ **Avoid:**
+    - "All Tasks" (too broad)
+  </Accordion>
+  
+  <Accordion title="Show only necessary columns">
+    Too many columns make tables hard to use:
+    - Start with 5-8 key columns
+    - Add more only if needed
+    - Hide columns you rarely use
+    
+    Less scrolling = faster work.
+  </Accordion>
+  
+  <Accordion title="Use consistent sorting">
+    Set a default sort that makes sense:
+    - Tasks: Sort by due date
+    - Leads: Sort by score or created date
+    - Projects: Sort by priority then deadline
+  </Accordion>
+  
+  <Accordion title="Name views descriptively">
+    View names should indicate:
+    - What's included
+    - Who it's for
+    - When to use it
+    
+    Examples:
+    - "Sales Pipeline - Q1"
+    - "My Active Projects"
+    - "Overdue Invoices"
+  </Accordion>
+  
+  <Accordion title="Save filters you use often">
+    Instead of recreating filters:
+    1. Set up filters once
+    2. Save as a new view
+    3. Access instantly next time
+  </Accordion>
+  
+  <Accordion title="Use keyboard shortcuts">
+    Navigate faster:
+    - `↑` `↓` `←` `→` to move between cells
+    - `Enter` to edit
+    - `Tab` to move to next cell
+    - `Esc` to cancel
+    - `Cmd/Ctrl+A` to select all
+  </Accordion>
+</AccordionGroup>
+
+## Performance Tips
+
+For large tables:
+
+- **Use filters** to limit visible records
+- **Hide unused columns** to reduce rendering
+- **Avoid too many relation fields** (they load additional data)
+- **Use pagination** instead of loading all records
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Kanban Views" icon="columns" href="/user-guide/views/kanban-views">
+    Visualize workflows with kanban boards
+  </Card>
+  
+  <Card title="Filters and Sorting" icon="filter" href="/user-guide/views/filters-and-sorting">
+    Master advanced filtering and sorting
+  </Card>
+  
+  <Card title="Importing Data" icon="file-import" href="/user-guide/data-management/import">
+    Bring data into table views via CSV
+  </Card>
+</CardGroup>

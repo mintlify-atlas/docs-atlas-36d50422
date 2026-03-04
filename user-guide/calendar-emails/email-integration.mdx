@@ -1,0 +1,458 @@
+---
+title: Email Integration
+description: Connect your email to Twenty
+icon: envelope
+---
+
+Connect your email to Twenty to track communications, sync conversations, and manage all customer interactions in one place.
+
+## Email Integration Overview
+
+Integrating your email with Twenty enables:
+
+- **Email sync** - View emails alongside CRM records
+- **Two-way sync** - Send and receive emails from Twenty
+- **Automatic linking** - Associate emails with contacts and companies
+- **Activity tracking** - See communication history
+- **Thread tracking** - Follow entire conversations
+
+## Supported Email Providers
+
+<CardGroup cols={2}>
+  <Card title="Gmail" icon="google">
+    Connect Google Workspace or personal Gmail accounts
+  </Card>
+  
+  <Card title="Outlook" icon="microsoft">
+    Connect Microsoft 365 or Outlook.com accounts
+  </Card>
+  
+  <Card title="IMAP/SMTP" icon="server">
+    Connect any email provider with IMAP support
+  </Card>
+  
+  <Card title="Exchange" icon="building">
+    Connect Microsoft Exchange servers (coming soon)
+  </Card>
+</CardGroup>
+
+## Connecting Your Email
+
+### Gmail Integration
+
+<Steps>
+  <Step title="Navigate to settings">
+    Go to **Settings → Integrations → Email**.
+  </Step>
+  
+  <Step title="Select Gmail">
+    Click **Connect Gmail** to begin the authentication flow.
+  </Step>
+  
+  <Step title="Sign in to Google">
+    Authenticate with your Google account in the popup window.
+  </Step>
+  
+  <Step title="Grant permissions">
+    Allow Twenty to access your email:
+    - Read emails
+    - Send emails
+    - Manage labels
+  </Step>
+  
+  <Step title="Configure sync settings">
+    Choose what to sync:
+    - Sync all emails or specific labels
+    - Sync from date (e.g., last 30 days)
+    - Auto-link emails to records
+  </Step>
+  
+  <Step title="Complete setup">
+    Click **Start Sync** to begin importing emails.
+  </Step>
+</Steps>
+
+<Info>
+Initial sync may take a few minutes depending on email volume. Subsequent syncs happen in real-time.
+</Info>
+
+### Outlook Integration
+
+<Steps>
+  <Step title="Navigate to settings">
+    Go to **Settings → Integrations → Email**.
+  </Step>
+  
+  <Step title="Select Outlook">
+    Click **Connect Outlook** to start authentication.
+  </Step>
+  
+  <Step title="Sign in to Microsoft">
+    Authenticate with your Microsoft account.
+  </Step>
+  
+  <Step title="Grant permissions">
+    Allow Twenty to:
+    - Read mail
+    - Send mail
+    - Access contacts
+  </Step>
+  
+  <Step title="Configure sync">
+    Set sync preferences:
+    - Which folders to sync
+    - Sync start date
+    - Auto-link settings
+  </Step>
+  
+  <Step title="Start syncing">
+    Click **Complete Setup** to begin sync.
+  </Step>
+</Steps>
+
+### IMAP/SMTP Setup
+
+For other email providers:
+
+<Steps>
+  <Step title="Gather credentials">
+    Get from your email provider:
+    - IMAP server address
+    - IMAP port (usually 993)
+    - SMTP server address
+    - SMTP port (usually 587 or 465)
+    - Username (usually your email)
+    - Password or app-specific password
+  </Step>
+  
+  <Step title="Navigate to settings">
+    Go to **Settings → Integrations → Email**.
+  </Step>
+  
+  <Step title="Select IMAP/SMTP">
+    Click **Connect via IMAP/SMTP**.
+  </Step>
+  
+  <Step title="Enter server details">
+    Fill in the connection information:
+    ```yaml
+    IMAP Server: imap.example.com
+    IMAP Port: 993
+    SMTP Server: smtp.example.com
+    SMTP Port: 587
+    Username: your@email.com
+    Password: your-password
+    Use SSL: Yes
+    ```
+  </Step>
+  
+  <Step title="Test connection">
+    Click **Test** to verify settings work.
+  </Step>
+  
+  <Step title="Save and sync">
+    If test succeeds, click **Save** to start syncing.
+  </Step>
+</Steps>
+
+<Tip>
+Many email providers require app-specific passwords instead of your regular password. Check your provider's documentation.
+</Tip>
+
+## Email Syncing
+
+### What Gets Synced
+
+Twenty syncs:
+
+- **Received emails** - Emails you receive
+- **Sent emails** - Emails you send
+- **Email threads** - Complete conversation history
+- **Attachments** - Files attached to emails
+- **Participants** - To, from, CC, BCC addresses
+
+### Automatic Record Linking
+
+Twenty automatically associates emails with:
+
+- **People** - Matches by email address
+- **Companies** - Matches by domain or linked people
+- **Opportunities** - If sender is involved in a deal
+- **Projects** - If mentioned in subject or body
+
+**Example:**
+Email from `john@acmecorp.com`:
+- Links to Person: John Doe
+- Links to Company: Acme Corp
+- Links to Opportunity: "Acme Corp - Q1 Deal"
+
+### Manual Linking
+
+Link emails to records manually:
+
+1. Open an email in Twenty
+2. Click **Link to Record**
+3. Search for the record
+4. Select to create the link
+
+The email appears on the record's timeline.
+
+### Sync Settings
+
+Customize what syncs:
+
+<AccordionGroup>
+  <Accordion title="Sync Direction">
+    Choose what to sync:
+    - **Two-way** - Sync sent and received
+    - **Receive only** - Only incoming emails
+    - **Send only** - Only outgoing emails
+  </Accordion>
+  
+  <Accordion title="Sync Scope">
+    Limit what syncs:
+    ```yaml
+    Gmail:
+      - All mail
+      - Specific labels only
+      - Exclude labels
+    
+    Outlook:
+      - All folders
+      - Specific folders only
+      - Exclude folders
+    ```
+  </Accordion>
+  
+  <Accordion title="Date Range">
+    How far back to sync:
+    - Last 7 days
+    - Last 30 days
+    - Last 90 days
+    - All emails
+    - Custom date
+  </Accordion>
+  
+  <Accordion title="Auto-linking Rules">
+    Configure automatic linking:
+    - Link by email address
+    - Link by domain
+    - Link by subject keywords
+    - Require manual confirmation
+  </Accordion>
+</AccordionGroup>
+
+## Sending Emails from Twenty
+
+Compose and send emails directly from Twenty.
+
+### Composing Emails
+
+<Steps>
+  <Step title="Open a record">
+    Navigate to a Person, Company, or Opportunity.
+  </Step>
+  
+  <Step title="Click Email">
+    Click the **Email** button in the record header.
+  </Step>
+  
+  <Step title="Compose message">
+    Write your email:
+    - **To:** Pre-filled with record's email
+    - **Subject:** Enter subject line
+    - **Body:** Compose message
+    - **CC/BCC:** Add additional recipients
+  </Step>
+  
+  <Step title="Add attachments">
+    Attach files from:
+    - Your computer
+    - Record's files
+    - Recent attachments
+  </Step>
+  
+  <Step title="Send or schedule">
+    - **Send Now** - Deliver immediately
+    - **Schedule** - Send at specific time
+    - **Save Draft** - Finish later
+  </Step>
+</Steps>
+
+### Email Templates
+
+Create reusable email templates:
+
+1. Go to **Settings → Email → Templates**
+2. Click **+ New Template**
+3. Name your template
+4. Write the email content
+5. Use variables for personalization:
+   ```
+   Hi {{First Name}},
+   
+   I wanted to follow up on {{Opportunity Name}}.
+   We discussed {{Custom Field}} during our last call.
+   
+   Best,
+   {{User Name}}
+   ```
+6. Save the template
+
+Use templates when composing:
+1. Click **Templates** in composer
+2. Select template
+3. Variables auto-fill with record data
+4. Edit as needed and send
+
+### Email Tracking
+
+Track email engagement:
+
+- **Open tracking** - See when emails are opened
+- **Click tracking** - Track link clicks
+- **Reply tracking** - Monitor responses
+
+<Info>
+Tracking requires recipient to load images. Some email clients block tracking pixels.
+</Info>
+
+View tracking data:
+- Timeline shows opens and clicks
+- Email detail shows engagement
+- Reports include email metrics
+
+## Viewing Emails in Twenty
+
+### Email Timeline
+
+See all emails on a record's timeline:
+
+1. Open any record
+2. Go to **Timeline** tab
+3. View chronological email history
+4. Filter by:
+   - Sent vs received
+   - Date range
+   - Participants
+
+### Email Details
+
+Click an email to see:
+
+- Full message content
+- Participants (to, from, CC, BCC)
+- Attachments
+- Thread history
+- Linked records
+- Tracking data (opens, clicks)
+
+### Email Search
+
+Find emails quickly:
+
+1. Use global search (`Cmd/Ctrl+K`)
+2. Type email sender, subject, or content
+3. Filter by:
+   - Date sent
+   - Has attachments
+   - Linked to specific record
+   - Read/unread status
+
+## Email Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use a dedicated email for CRM">
+    Consider using a specific email for business communications:
+    - Keeps personal email separate
+    - Easier to manage sync scope
+    - Cleaner data in CRM
+  </Accordion>
+  
+  <Accordion title="Set up filters/labels before syncing">
+    Organize your email first:
+    - Create labels for customer emails
+    - Set up filters to auto-label
+    - Sync only relevant labels to Twenty
+  </Accordion>
+  
+  <Accordion title="Review auto-linked emails">
+    Periodically check:
+    - Are emails linking correctly?
+    - Any false matches?
+    - Emails missing links?
+    
+    Adjust auto-linking rules as needed.
+  </Accordion>
+  
+  <Accordion title="Use email templates">
+    Create templates for:
+    - Introduction emails
+    - Follow-ups
+    - Meeting confirmations
+    - Status updates
+    
+    Saves time and ensures consistency.
+  </Accordion>
+  
+  <Accordion title="Respect privacy">
+    Be mindful:
+    - Only sync work-related emails
+    - Don't sync personal communications
+    - Follow company email policies
+    - Respect recipient privacy
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Emails Not Syncing
+
+**Check:**
+1. Connection status in settings
+2. Sync settings and scope
+3. Email provider permissions
+4. Internet connection
+
+**Solutions:**
+- Reconnect email account
+- Verify sync settings
+- Check provider's status page
+- Review error logs
+
+### Emails Linking Incorrectly
+
+**Causes:**
+- Similar email addresses
+- Multiple contacts with same email
+- Domain matching too broad
+
+**Solutions:**
+- Manually unlink and relink
+- Adjust auto-linking rules
+- Clean up duplicate contacts
+
+### Cannot Send Emails
+
+**Check:**
+1. SMTP settings correct
+2. Authentication valid
+3. Sending limits not exceeded
+4. Recipient addresses valid
+
+**Solutions:**
+- Test SMTP connection
+- Refresh authentication
+- Check daily sending quota
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Calendar Sync" icon="calendar" href="/user-guide/calendar-emails/calendar-sync">
+    Connect your calendar to Twenty
+  </Card>
+  
+  <Card title="Workflow Automation" icon="bolt" href="/user-guide/workflows/automation">
+    Automate actions based on emails
+  </Card>
+</CardGroup>

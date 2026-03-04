@@ -1,97 +1,344 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: Twenty CRM Documentation
+description: Build better customer relationships with the open-source CRM that gives you full control
+mode: custom
 ---
 
-## Setting up
+<div className="relative overflow-hidden dark:bg-[#0f1117] bg-white">
+  {/* Hero Section */}
+  <div className="relative py-20 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Content */}
+        <div className="lg:col-span-7 space-y-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold dark:text-white text-gray-900 leading-tight">
+            Welcome to Twenty Documentation
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl dark:text-gray-400 text-gray-600 max-w-2xl">
+            Learn how to build better customer relationships with the open-source CRM designed for modern teams. Get started in minutes, customize everything, and own your data.
+          </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <a 
+              href="/quickstart"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-[#141414] text-white hover:bg-[#2a2a2a] transition-colors"
+            >
+              Get Started
+            </a>
+            <a 
+              href="/developers/api/graphql-api"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg border dark:border-[#27272a] border-gray-300 dark:bg-[#1a1d27] bg-white dark:text-white text-gray-900 dark:hover:bg-[#242838] hover:bg-gray-50 transition-colors"
+            >
+              Explore API
+            </a>
+          </div>
+        </div>
 
-Get your documentation site up and running in minutes.
+        {/* Hero Image */}
+        <div className="lg:col-span-5">
+          <div className="relative">
+            <div className="rounded-2xl overflow-hidden border dark:border-[#27272a] border-gray-200 shadow-2xl">
+              <img 
+                src="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/views-light.png"
+                alt="Twenty CRM Interface showing Kanban board view"
+                className="w-full h-auto dark:hidden"
+                noZoom
+              />
+              <img 
+                src="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/views-dark.png"
+                alt="Twenty CRM Interface showing Kanban board view"
+                className="w-full h-auto hidden dark:block"
+                noZoom
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+  {/* Quick Start Section */}
+  <div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+    <div className="space-y-4 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">
+        Quick Start
+      </h2>
+      <p className="text-base dark:text-gray-400 text-gray-600">
+        Get up and running with Twenty in just a few minutes
+      </p>
+    </div>
 
-## Make it yours
+    <Steps>
+      <Step title="Create your workspace">
+        Sign up for a free Twenty account or self-host your own instance. Choose between our cloud platform for instant access or deploy on your infrastructure for complete control.
+        
+        <CodeGroup>
+        ```bash Docker
+        docker run -d -p 3000:3000 twentycrm/twenty:latest
+        ```
+        ```bash Docker Compose
+        curl -O https://raw.githubusercontent.com/twentyhq/twenty/main/packages/twenty-docker/docker-compose.yml
+        docker-compose up -d
+        ```
+        </CodeGroup>
+      </Step>
 
-Design a docs site that looks great and empowers your users.
+      <Step title="Configure your data model">
+        Customize Twenty to match your business needs. Create custom objects to track any type of data, add custom fields, and define relationships between objects.
+        
+        <Note>
+          Twenty comes with pre-built objects for Companies, People, and Opportunities to help you get started quickly.
+        </Note>
+      </Step>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      <Step title="Import your data">
+        Bring in your existing customer data from CSV files or connect to your email and calendar. Twenty supports bulk imports and can automatically deduplicate records.
+        
+        ```bash
+        # Or use the API for programmatic imports
+        curl -X POST https://api.twenty.com/graphql \
+          -H "Authorization: Bearer YOUR_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"query": "mutation { createCompany(data: {...}) { id } }"}'
+        ```
+      </Step>
 
-## Create beautiful pages
+      <Step title="Start building workflows">
+        Automate your processes with Twenty's workflow engine. Set up triggers based on record changes and define actions like sending emails, updating fields, or calling webhooks.
+      </Step>
+    </Steps>
+  </div>
 
-Everything you need to create world-class documentation.
+  {/* Explore by Topic Section */}
+  <div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+    <div className="space-y-4 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">
+        Explore by Topic
+      </h2>
+      <p className="text-base dark:text-gray-400 text-gray-600">
+        Find what you need to succeed with Twenty
+      </p>
+    </div>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    <CardGroup cols={3}>
+      <Card
+        title="Custom Objects"
+        icon="database"
+        href="/user-guide/data-model/custom-objects"
+      >
+        Create custom data models to track anything your business needs
+      </Card>
+      <Card
+        title="Views & Filters"
+        icon="table-cells"
+        href="/user-guide/views/table-views"
+      >
+        Organize your data with table and kanban views, filters, and sorting
+      </Card>
+      <Card
+        title="Workflows"
+        icon="bolt"
+        href="/user-guide/workflows/automation"
+      >
+        Automate repetitive tasks with powerful workflow triggers and actions
+      </Card>
+      <Card
+        title="Email Integration"
+        icon="envelope"
+        href="/user-guide/calendar-emails/email-integration"
+      >
+        Connect your email and sync conversations with customer records
+      </Card>
+      <Card
+        title="Permissions"
+        icon="shield"
+        href="/user-guide/permissions/roles"
+      >
+        Control access with flexible role-based permissions
+      </Card>
+      <Card
+        title="GraphQL API"
+        icon="code"
+        href="/developers/api/graphql-api"
+      >
+        Build integrations with our powerful GraphQL and REST APIs
+      </Card>
+    </CardGroup>
+  </div>
 
-## Need inspiration?
+  {/* For Developers Section */}
+  <div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+    <div className="space-y-4 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">
+        For Developers
+      </h2>
+      <p className="text-base dark:text-gray-400 text-gray-600">
+        Extend Twenty or deploy it on your infrastructure
+      </p>
+    </div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a 
+        href="/developers/local-setup"
+        className="group block rounded-2xl border dark:border-[#27272a] border-gray-200 dark:hover:border-[#141414] hover:border-[#141414] overflow-hidden no-underline transition-colors"
+      >
+        <div className="h-48 overflow-hidden flex items-center justify-center dark:bg-[#1a1d27] bg-gray-50">
+          <img 
+            src="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/github-cover-light.png"
+            alt="Twenty Development Environment"
+            className="w-full h-full object-cover dark:hidden"
+            noZoom
+          />
+          <img 
+            src="https://raw.githubusercontent.com/twentyhq/twenty/refs/heads/main/packages/twenty-website/public/images/readme/github-cover-dark.png"
+            alt="Twenty Development Environment"
+            className="w-full h-full object-cover hidden dark:block"
+            noZoom
+          />
+        </div>
+        <div className="p-6 dark:bg-[#1a1d27] bg-white">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-2">
+            Local Development
+          </h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-3">
+            Set up a local development environment and start contributing to Twenty
+          </p>
+          <div className="flex items-center text-sm font-medium dark:text-gray-400 text-gray-600 dark:group-hover:text-[#141414] group-hover:text-[#141414] transition-colors">
+            Get started
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <a 
+        href="/developers/self-hosting/docker-compose"
+        className="group block rounded-2xl border dark:border-[#27272a] border-gray-200 dark:hover:border-[#141414] hover:border-[#141414] overflow-hidden no-underline transition-colors"
+      >
+        <div className="h-48 overflow-hidden flex items-center justify-center dark:bg-[#1a1d27] bg-gray-50">
+          <svg className="w-24 h-24 dark:text-gray-600 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M13.5 3c-.28 0-.5.22-.5.5V5h-2V3.5c0-.28-.22-.5-.5-.5s-.5.22-.5.5V5H8V3.5c0-.28-.22-.5-.5-.5S7 3.22 7 3.5V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-2V3.5c0-.28-.22-.5-.5-.5zM19 19H5V9h14v10z"/>
+          </svg>
+        </div>
+        <div className="p-6 dark:bg-[#1a1d27] bg-white">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-2">
+            Self-Hosting
+          </h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-3">
+            Deploy Twenty on your own infrastructure with Docker or Kubernetes
+          </p>
+          <div className="flex items-center text-sm font-medium dark:text-gray-400 text-gray-600 dark:group-hover:text-[#141414] group-hover:text-[#141414] transition-colors">
+            Deploy now
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <a 
+        href="/developers/extending/custom-apps"
+        className="group block rounded-2xl border dark:border-[#27272a] border-gray-200 dark:hover:border-[#141414] hover:border-[#141414] overflow-hidden no-underline transition-colors"
+      >
+        <div className="h-48 overflow-hidden flex items-center justify-center dark:bg-[#1a1d27] bg-gray-50">
+          <svg className="w-24 h-24 dark:text-gray-600 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+          </svg>
+        </div>
+        <div className="p-6 dark:bg-[#1a1d27] bg-white">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-2">
+            Build Custom Apps
+          </h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-3">
+            Extend Twenty with custom applications and integrations
+          </p>
+          <div className="flex items-center text-sm font-medium dark:text-gray-400 text-gray-600 dark:group-hover:text-[#141414] group-hover:text-[#141414] transition-colors">
+            Learn more
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <a 
+        href="/developers/api/graphql-api"
+        className="group block rounded-2xl border dark:border-[#27272a] border-gray-200 dark:hover:border-[#141414] hover:border-[#141414] overflow-hidden no-underline transition-colors"
+      >
+        <div className="h-48 overflow-hidden flex items-center justify-center dark:bg-[#1a1d27] bg-gray-50">
+          <svg className="w-24 h-24 dark:text-gray-600 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 10l-5 3V9l5-3 5 3v6l-5-3z"/>
+          </svg>
+        </div>
+        <div className="p-6 dark:bg-[#1a1d27] bg-white">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-2">
+            API Reference
+          </h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-3">
+            Explore our GraphQL and REST APIs for building integrations
+          </p>
+          <div className="flex items-center text-sm font-medium dark:text-gray-400 text-gray-600 dark:group-hover:text-[#141414] group-hover:text-[#141414] transition-colors">
+            View docs
+            <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  {/* Community Section */}
+  <div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+    <div className="space-y-4 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900">
+        Join the Community
+      </h2>
+      <p className="text-base dark:text-gray-400 text-gray-600">
+        Get help, share ideas, and connect with other Twenty users
+      </p>
+    </div>
+
+    <CardGroup cols={3}>
+      <Card
+        title="Discord Community"
+        icon="discord"
+        href="https://discord.gg/cx5n4Jzs57"
+      >
+        Join our Discord server to chat with the team and community
+      </Card>
+      <Card
+        title="GitHub Discussions"
+        icon="github"
+        href="https://github.com/twentyhq/twenty/discussions"
+      >
+        Share feedback, ask questions, and discuss features
+      </Card>
+      <Card
+        title="Contributing"
+        icon="code-pull-request"
+        href="/developers/contributing/getting-started"
+      >
+        Learn how to contribute to Twenty and make it even better
+      </Card>
+    </CardGroup>
+  </div>
+
+  {/* Closing CTA */}
+  <div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+    <div className="rounded-2xl border dark:border-[#27272a] border-gray-200 dark:bg-[#1a1d27] bg-gray-50 p-8 sm:p-12 text-center">
+      <h2 className="text-2xl sm:text-3xl font-bold dark:text-white text-gray-900 mb-4">
+        Ready to get started?
+      </h2>
+      <p className="text-base dark:text-gray-400 text-gray-600 max-w-2xl mx-auto mb-6">
+        Create your workspace today and start building better customer relationships with Twenty.
+      </p>
+      <a 
+        href="/quickstart"
+        className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-[#141414] text-white hover:bg-[#2a2a2a] transition-colors"
+      >
+        Get Started Now
+      </a>
+    </div>
+  </div>
+</div>

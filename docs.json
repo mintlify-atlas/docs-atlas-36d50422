@@ -1,122 +1,201 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "name": "Twenty",
   "theme": "mint",
-  "name": "Mint Starter Kit",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#141414",
+    "light": "#7c7c7c",
+    "dark": "#c4c4c4"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "https://media.brand.dev/ff020248-3045-4273-bc05-0a692bf3121a.png",
+  "logo": {
+    "light": "https://media.brand.dev/8d1e1f7c-3151-4a9d-97e4-e2408b9224d1.svg",
+    "dark": "https://media.brand.dev/d6216361-3140-4c07-aff0-7adca273bec6.png"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/twentyhq/twenty"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/twentyhq/twenty",
+      "twitter": "https://twitter.com/twentycrm",
+      "discord": "https://discord.gg/cx5n4Jzs57"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
+              "introduction",
               "quickstart",
-              "development"
+              "key-features"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "core-concepts/objects-and-fields",
+              "core-concepts/views-and-filters",
+              "core-concepts/workflows",
+              "core-concepts/permissions"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "User Guide",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Getting Started",
             "pages": [
-              "api-reference/introduction"
+              "user-guide/workspace-setup",
+              "user-guide/navigation"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Data Model",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "user-guide/data-model/custom-objects",
+              "user-guide/data-model/custom-fields",
+              "user-guide/data-model/relations"
+            ]
+          },
+          {
+            "group": "Views & Pipelines",
+            "pages": [
+              "user-guide/views/table-views",
+              "user-guide/views/kanban-views",
+              "user-guide/views/filters-and-sorting"
+            ]
+          },
+          {
+            "group": "Workflows",
+            "pages": [
+              "user-guide/workflows/automation",
+              "user-guide/workflows/triggers",
+              "user-guide/workflows/actions"
+            ]
+          },
+          {
+            "group": "Calendar & Emails",
+            "pages": [
+              "user-guide/calendar-emails/email-integration",
+              "user-guide/calendar-emails/calendar-sync"
+            ]
+          },
+          {
+            "group": "Data Management",
+            "pages": [
+              "user-guide/data-management/import",
+              "user-guide/data-management/export",
+              "user-guide/data-management/migration"
+            ]
+          },
+          {
+            "group": "Permissions",
+            "pages": [
+              "user-guide/permissions/roles",
+              "user-guide/permissions/access-control"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developers",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "developers/local-setup",
+              "developers/architecture"
+            ]
+          },
+          {
+            "group": "Self-Hosting",
+            "pages": [
+              "developers/self-hosting/docker-compose",
+              "developers/self-hosting/kubernetes",
+              "developers/self-hosting/configuration",
+              "developers/self-hosting/troubleshooting"
+            ]
+          },
+          {
+            "group": "Extending Twenty",
+            "pages": [
+              "developers/extending/custom-apps",
+              "developers/extending/webhooks",
+              "developers/extending/integrations"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "developers/api/graphql-api",
+              "developers/api/rest-api",
+              "developers/api/authentication",
+              "developers/api/sdk"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "developers/contributing/getting-started",
+              "developers/contributing/code-style",
+              "developers/contributing/testing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integrations",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "integrations/overview"
+            ]
+          },
+          {
+            "group": "Email Providers",
+            "pages": [
+              "integrations/email/google-workspace",
+              "integrations/email/microsoft-365"
+            ]
+          },
+          {
+            "group": "Third-Party Tools",
+            "pages": [
+              "integrations/tools/zapier",
+              "integrations/tools/slack"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "AI Features",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "ai/overview"
+            ]
+          },
+          {
+            "group": "Capabilities",
+            "pages": [
+              "ai/capabilities/email-generation",
+              "ai/capabilities/data-enrichment"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

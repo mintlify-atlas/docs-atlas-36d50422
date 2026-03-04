@@ -1,0 +1,866 @@
+---
+title: JavaScript SDK
+description: Use the Twenty SDK in your applications
+icon: js
+---
+
+The Twenty SDK provides a type-safe, developer-friendly way to interact with Twenty from JavaScript and TypeScript applications.
+
+## Overview
+
+The Twenty SDK includes:
+- **Type-safe API clients** - Fully typed GraphQL clients
+- **CLI tools** - Command-line interface for development
+- **App framework** - Build custom applications
+- **Auto-generated types** - TypeScript definitions from your schema
+
+## Installation
+
+<CodeGroup>
+```bash npm
+npm install twenty-sdk
+```
+
+```bash yarn
+yarn add twenty-sdk
+```
+
+```bash pnpm
+pnpm add twenty-sdk
+```
+</CodeGroup>
+
+## Quick Start
+
+### Initialize Client
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: 'https://api.twenty.com', // or http://localhost:3000
+});
+```
+
+### Basic Operations
+
+```typescript
+// Create a person
+const person = await client.createOne('person', {
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  jobTitle: 'Software Engineer',
+});
+
+console.log('Created:', person.id);
+
+// Find people
+const people = await client.findMany('person', {
+  filter: {
+    email: { contains: '@example.com' },
+  },
+  orderBy: {
+    createdAt: 'desc',
+  },
+  limit: 10,
+});
+
+// Update person
+const updated = await client.updateOne('person', person.id, {
+  jobTitle: 'Senior Software Engineer',
+});
+
+// Delete person
+await client.deleteOne('person', person.id);
+```
+
+## Core API Client
+
+The `CoreApiClient` provides methods for workspace data operations.
+
+### Query Methods
+
+#### findMany
+
+Retrieve multiple records:
+
+```typescript
+const people = await client.findMany('person', {
+  filter: {
+    and: [
+      { email: { isNot: null } },
+      { jobTitle: { contains: 'engineer' } },
+    ],
+  },
+  orderBy: {
+    createdAt: 'desc',
+  },
+  limit: 20,
+  offset: 0,
+});
+```
+
+<ParamField path="filter" type="object">
+  Filter criteria with operators: `eq`, `neq`, `contains`, `gt`, `gte`, `lt`, `lte`, `in`, `isNot`, etc.
+</ParamField>
+
+<ParamField path="orderBy" type="object">
+  Sort order: field name mapped to `'asc'` or `'desc'`
+</ParamField>
+
+<ParamField path="limit" type="number">
+  Maximum number of records to return
+</ParamField>
+
+<ParamField path="offset" type="number">
+  Number of records to skip
+</ParamField>
+
+#### findOne
+
+Retrieve a single record by ID:
+
+```typescript
+const person = await client.findOne('person', 'record-id');
+
+console.log(person.firstName, person.lastName);
+```
+
+#### findFirst
+
+Find the first record matching criteria:
+
+```typescript
+const person = await client.findFirst('person', {
+  filter: {
+    email: { eq: 'john@example.com' },
+  },
+});
+```
+
+### Mutation Methods
+
+#### createOne
+
+Create a single record:
+
+```typescript
+const company = await client.createOne('company', {
+  name: 'Acme Corp',
+  website: 'https://acme.com',
+  employees: 50,
+  industry: 'Technology',
+});
+```
+
+#### createMany
+
+Create multiple records:
+
+```typescript
+const people = await client.createMany('person', [
+  {
+    firstName: 'Alice',
+    email: 'alice@example.com',
+  },
+  {
+    firstName: 'Bob',
+    email: 'bob@example.com',
+  },
+]);
+
+console.log(`Created ${people.length} people`);
+```
+
+#### updateOne
+
+Update a single record:
+
+```typescript
+const updated = await client.updateOne('person', 'record-id', {
+  jobTitle: 'Senior Engineer',
+  phone: '+1-555-0100',
+});
+```
+
+#### updateMany
+
+Update multiple records:
+
+```typescript
+const updated = await client.updateMany('person', {
+  filter: {
+    company: { id: { eq: 'company-id' } },
+  },
+  data: {
+    tags: ['team-member'],
+  },
+});
+
+console.log(`Updated ${updated.length} records`);
+```
+
+#### deleteOne
+
+Soft-delete a record:
+
+```typescript
+await client.deleteOne('person', 'record-id');
+```
+
+#### deleteMany
+
+Soft-delete multiple records:
+
+```typescript
+await client.deleteMany('person', {
+  filter: {
+    email: { contains: 'temporary' },
+  },
+});
+```
+
+### Working with Relations
+
+```typescript
+// Create with relation
+const person = await client.createOne('person', {
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  company: {
+    connect: 'company-id', // Link to existing company
+  },
+});
+
+// Update relation
+await client.updateOne('person', person.id, {
+  company: {
+    connect: 'different-company-id',
+  },
+});
+
+// Remove relation
+await client.updateOne('person', person.id, {
+  company: {
+    disconnect: true,
+  },
+});
+
+// Query with relations
+const personWithCompany = await client.findOne('person', person.id, {
+  include: {
+    company: true,
+    activities: {
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    },
+  },
+});
+```
+
+## Metadata API Client
+
+The `MetadataApiClient` manages workspace schema:
+
+```typescript
+import { MetadataApiClient } from 'twenty-sdk';
+
+const metadataClient = new MetadataApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: 'https://api.twenty.com',
+});
+
+// Get all objects
+const objects = await metadataClient.getObjects();
+
+// Get fields for an object
+const fields = await metadataClient.getFieldsForObject('person');
+
+// Create custom object
+const customObject = await metadataClient.createObject({
+  nameSingular: 'project',
+  namePlural: 'projects',
+  labelSingular: 'Project',
+  labelPlural: 'Projects',
+  description: 'Customer projects',
+  icon: 'folder',
+});
+
+// Create custom field
+const customField = await metadataClient.createField({
+  objectMetadataId: customObject.id,
+  name: 'budget',
+  label: 'Budget',
+  type: 'CURRENCY',
+  description: 'Project budget',
+});
+```
+
+## CLI Usage
+
+The SDK includes a powerful CLI for development:
+
+### Authentication
+
+```bash
+# Login interactively
+yarn twenty auth:login
+
+# Login with credentials
+yarn twenty auth:login --api-key YOUR_KEY --api-url https://api.twenty.com
+
+# Check status
+yarn twenty auth:status
+
+# Logout
+yarn twenty auth:logout
+```
+
+### Multi-Workspace Management
+
+```bash
+# List workspaces
+yarn twenty auth:list
+
+# Login to additional workspace
+yarn twenty auth:login --workspace production
+
+# Switch default workspace
+yarn twenty auth:switch production
+
+# Use specific workspace for command
+yarn twenty app:dev --workspace staging
+```
+
+### App Development
+
+```bash
+# Start dev mode (watch and sync)
+yarn twenty app:dev
+
+# Type check
+yarn twenty app:typecheck
+
+# Uninstall app
+yarn twenty app:uninstall
+```
+
+### Entity Management
+
+```bash
+# Add new object
+yarn twenty entity:add object
+
+# Add new field
+yarn twenty entity:add field
+
+# Add new function
+yarn twenty entity:add function
+
+# Add front component
+yarn twenty entity:add front-component
+
+# Add custom view
+yarn twenty entity:add view
+
+# Add navigation item
+yarn twenty entity:add navigation-menu-item
+```
+
+### Function Tools
+
+```bash
+# Watch function logs
+yarn twenty function:logs
+
+# Watch specific function
+yarn twenty function:logs -n myFunction
+
+# Execute function
+yarn twenty function:execute -n myFunction -p '{"key": "value"}'
+
+# Execute by ID
+yarn twenty function:execute -u function-id -p '{"data": "test"}'
+```
+
+## Type Safety
+
+### Auto-Generated Types
+
+The SDK automatically generates TypeScript types from your workspace schema:
+
+```typescript
+import { Person, Company, CreatePersonInput } from 'twenty-sdk';
+
+// Type-safe create
+const personData: CreatePersonInput = {
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+};
+
+const person: Person = await client.createOne('person', personData);
+
+// Type-safe access
+const fullName = `${person.firstName} ${person.lastName}`;
+const companyName: string = person.company?.name ?? 'No company';
+```
+
+### Custom Type Guards
+
+```typescript
+import { isDefined, isNonEmptyString } from 'twenty-sdk';
+
+function processEmail(email: string | null | undefined) {
+  if (isNonEmptyString(email)) {
+    // TypeScript knows email is string here
+    console.log('Email:', email.toLowerCase());
+  }
+}
+
+function processPerson(person: Person | null) {
+  if (isDefined(person)) {
+    // TypeScript knows person is not null
+    console.log('Name:', person.firstName);
+  }
+}
+```
+
+## Error Handling
+
+```typescript
+import { TwentyError, TwentyApiError } from 'twenty-sdk';
+
+try {
+  const person = await client.createOne('person', {
+    firstName: 'John',
+    email: 'invalid-email', // Invalid format
+  });
+} catch (error) {
+  if (error instanceof TwentyApiError) {
+    console.error('API Error:', error.message);
+    console.error('Status:', error.statusCode);
+    console.error('Details:', error.details);
+  } else if (error instanceof TwentyError) {
+    console.error('SDK Error:', error.message);
+  } else {
+    console.error('Unknown error:', error);
+  }
+}
+```
+
+## Advanced Usage
+
+### Custom GraphQL Queries
+
+Execute raw GraphQL queries:
+
+```typescript
+const result = await client.query({
+  query: `
+    query GetPeopleWithCompanies {
+      people {
+        edges {
+          node {
+            id
+            firstName
+            company {
+              name
+              website
+            }
+          }
+        }
+      }
+    }
+  `,
+});
+```
+
+### Batch Operations
+
+```typescript
+// Create multiple records efficiently
+const people = await client.createMany('person', [
+  { firstName: 'Alice', email: 'alice@example.com' },
+  { firstName: 'Bob', email: 'bob@example.com' },
+  { firstName: 'Charlie', email: 'charlie@example.com' },
+]);
+
+// Update multiple records
+for (const person of people) {
+  await client.updateOne('person', person.id, {
+    tags: ['batch-import'],
+  });
+}
+```
+
+### Pagination Helper
+
+```typescript
+async function* getAllRecords(objectName: string) {
+  let hasMore = true;
+  let offset = 0;
+  const limit = 100;
+  
+  while (hasMore) {
+    const records = await client.findMany(objectName, {
+      limit,
+      offset,
+    });
+    
+    yield* records;
+    
+    hasMore = records.length === limit;
+    offset += limit;
+  }
+}
+
+// Usage
+for await (const person of getAllRecords('person')) {
+  console.log(person.firstName);
+}
+```
+
+## React Hooks
+
+Use Twenty SDK with React:
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+import { useEffect, useState } from 'react';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+function usePeople(filter = {}) {
+  const [people, setPeople] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    async function fetchPeople() {
+      try {
+        setLoading(true);
+        const data = await client.findMany('person', { filter });
+        setPeople(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchPeople();
+  }, [filter]);
+  
+  return { people, loading, error };
+}
+
+// Component
+function PeopleList() {
+  const { people, loading, error } = usePeople({
+    email: { isNot: null },
+  });
+  
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  
+  return (
+    <ul>
+      {people.map(person => (
+        <li key={person.id}>
+          {person.firstName} {person.lastName}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Configuration
+
+The CLI stores configuration in `~/.twenty/config.json`:
+
+```json
+{
+  "defaultWorkspace": "production",
+  "profiles": {
+    "default": {
+      "apiUrl": "http://localhost:3000",
+      "apiKey": "local-dev-key"
+    },
+    "production": {
+      "apiUrl": "https://api.twenty.com",
+      "apiKey": "prod-api-key"
+    },
+    "staging": {
+      "apiUrl": "https://staging.twenty.com",
+      "apiKey": "staging-api-key"
+    }
+  }
+}
+```
+
+### Workspace Profiles
+
+```bash
+# Use default workspace
+yarn twenty app:dev
+
+# Use specific workspace
+yarn twenty app:dev --workspace staging
+
+# Switch default workspace
+yarn twenty auth:switch production
+```
+
+## Examples
+
+### Data Import Script
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+import { readFileSync } from 'fs';
+import { parse } from 'csv-parse/sync';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+async function importPeopleFromCSV(filePath: string) {
+  // Read CSV file
+  const csvContent = readFileSync(filePath, 'utf-8');
+  const records = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+  
+  console.log(`Importing ${records.length} people...`);
+  
+  // Import in batches
+  const batchSize = 50;
+  for (let i = 0; i < records.length; i += batchSize) {
+    const batch = records.slice(i, i + batchSize);
+    
+    const people = await client.createMany('person', batch.map(record => ({
+      firstName: record.firstName,
+      lastName: record.lastName,
+      email: record.email,
+      phone: record.phone,
+      jobTitle: record.jobTitle,
+    })));
+    
+    console.log(`Imported batch ${i / batchSize + 1}: ${people.length} records`);
+  }
+  
+  console.log('Import complete!');
+}
+
+importPeopleFromCSV('./contacts.csv');
+```
+
+### Sync Script
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+import { CronJob } from 'cron';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+async function syncWithExternalCRM() {
+  console.log('Starting sync...');
+  
+  // Fetch from external CRM
+  const externalContacts = await externalCRM.getContacts();
+  
+  for (const contact of externalContacts) {
+    // Check if exists
+    const existing = await client.findFirst('person', {
+      filter: { externalId: { eq: contact.id } },
+    });
+    
+    if (existing) {
+      // Update existing
+      await client.updateOne('person', existing.id, {
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        email: contact.email,
+        phone: contact.phone,
+      });
+      console.log('Updated:', contact.email);
+    } else {
+      // Create new
+      await client.createOne('person', {
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        email: contact.email,
+        phone: contact.phone,
+        externalId: contact.id,
+      });
+      console.log('Created:', contact.email);
+    }
+  }
+  
+  console.log('Sync complete!');
+}
+
+// Run every hour
+const job = new CronJob('0 * * * *', syncWithExternalCRM);
+job.start();
+```
+
+### Data Export
+
+```typescript
+import { CoreApiClient } from 'twenty-sdk';
+import { writeFileSync } from 'fs';
+import { stringify } from 'csv-stringify/sync';
+
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY,
+  apiUrl: process.env.TWENTY_API_URL,
+});
+
+async function exportToCSV(objectName: string, outputPath: string) {
+  const records = [];
+  let offset = 0;
+  const limit = 100;
+  
+  // Fetch all records
+  while (true) {
+    const batch = await client.findMany(objectName, {
+      limit,
+      offset,
+    });
+    
+    if (batch.length === 0) break;
+    
+    records.push(...batch);
+    offset += limit;
+    
+    console.log(`Fetched ${records.length} records...`);
+  }
+  
+  // Convert to CSV
+  const csv = stringify(records, {
+    header: true,
+  });
+  
+  // Write to file
+  writeFileSync(outputPath, csv);
+  console.log(`Exported ${records.length} records to ${outputPath}`);
+}
+
+exportToCSV('person', './people-export.csv');
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Type Safety" icon="shield-check">
+    Enable TypeScript for better DX and fewer bugs
+  </Card>
+  <Card title="Handle Errors" icon="circle-exclamation">
+    Always wrap API calls in try-catch blocks
+  </Card>
+  <Card title="Batch Operations" icon="layer-group">
+    Use createMany/updateMany for better performance
+  </Card>
+  <Card title="Limit Queries" icon="filter">
+    Always specify limit to avoid fetching too much data
+  </Card>
+</CardGroup>
+
+### Environment Variables
+
+```bash .env
+TWENTY_API_KEY=your-api-key
+TWENTY_API_URL=https://api.twenty.com
+```
+
+```typescript
+import 'dotenv/config';
+import { CoreApiClient } from 'twenty-sdk';
+
+// Never hardcode credentials
+const client = new CoreApiClient({
+  apiKey: process.env.TWENTY_API_KEY!,
+  apiUrl: process.env.TWENTY_API_URL!,
+});
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Types not generated">
+    Restart dev mode to regenerate types:
+    ```bash
+    yarn twenty app:dev
+    ```
+    Types are generated from your workspace schema.
+  </Accordion>
+
+  <Accordion title="Authentication errors">
+    Verify credentials:
+    ```bash
+    yarn twenty auth:status
+    ```
+    Re-login if needed:
+    ```bash
+    yarn twenty auth:login
+    ```
+  </Accordion>
+
+  <Accordion title="Module not found errors">
+    Ensure SDK is installed:
+    ```bash
+    yarn add twenty-sdk
+    ```
+    Check import paths are correct.
+  </Accordion>
+
+  <Accordion title="Rate limit errors">
+    Implement retry logic with exponential backoff:
+    ```typescript
+    async function withRetry(fn, maxRetries = 3) {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          return await fn();
+        } catch (error) {
+          if (error.statusCode === 429 && i < maxRetries - 1) {
+            await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+            continue;
+          }
+          throw error;
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Building Apps" icon="cube" href="/developers/extending/custom-apps">
+    Create custom applications
+  </Card>
+  <Card title="GraphQL API" icon="diagram-project" href="/developers/api/graphql-api">
+    Direct GraphQL access
+  </Card>
+  <Card title="REST API" icon="brackets-curly" href="/developers/api/rest-api">
+    Simple REST alternative
+  </Card>
+  <Card title="Examples" icon="code" href="https://github.com/twentyhq/twenty/tree/main/packages/twenty-apps">
+    Browse example applications
+  </Card>
+</CardGroup>

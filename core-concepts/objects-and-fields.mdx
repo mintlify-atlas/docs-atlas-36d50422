@@ -1,0 +1,353 @@
+---
+title: "Objects and Fields"
+description: "Understanding Twenty's flexible data model"
+---
+
+Twenty's data model is built around **objects** and **fields**, giving you complete flexibility to structure your CRM data exactly how your business needs it.
+
+## What are objects?
+
+Objects are like tables in a database or tabs in a spreadsheet. Each object represents a type of thing you want to track in your CRM.
+
+### Standard objects
+
+Twenty comes with pre-configured standard objects:
+
+- **Companies**: Organizations you do business with
+- **People**: Individual contacts
+- **Opportunities**: Sales deals and pipeline stages
+- **Tasks**: To-do items and action items
+- **Notes**: Text notes and documentation
+- **Activities**: Logged interactions and timeline events
+
+<Info>
+  Standard objects are fully customizable. You can add fields, modify settings, and adjust them to fit your workflow.
+</Info>
+
+### Custom objects
+
+Create unlimited custom objects to track anything:
+
+- **Projects**: Track project deliverables and milestones
+- **Support tickets**: Manage customer support cases
+- **Products**: Catalog your product inventory
+- **Events**: Conference booths, webinars, or meetings
+- **Contracts**: Legal agreements and renewal dates
+
+<Steps>
+  <Step title="Navigate to Settings">
+    Click the settings icon in the sidebar to open workspace settings.
+  </Step>
+  
+  <Step title="Go to Data Model">
+    Select "Data Model" from the settings menu to see all objects.
+  </Step>
+  
+  <Step title="Create new object">
+    Click "New Object" and provide:
+    - **Name (singular)**: "Project" (lowercase, no spaces)
+    - **Label (singular)**: "Project" (displayed in UI)
+    - **Label (plural)**: "Projects"
+    - **Icon**: Choose from icon library
+    - **Description**: Optional help text
+  </Step>
+  
+  <Step title="Add fields">
+    After creating the object, add fields to capture the data you need.
+  </Step>
+</Steps>
+
+## What are fields?
+
+Fields are the properties or attributes of an object. They define what data you can store for each record.
+
+### Field types
+
+Twenty supports a rich set of field types:
+
+#### Basic types
+
+<Tabs>
+  <Tab title="Text & Numbers">
+    - **TEXT**: Single-line text input
+    - **RICH_TEXT_V2**: Multi-line formatted text with markdown
+    - **NUMBER**: Integers or decimals with configurable precision
+    - **CURRENCY**: Monetary values with currency code (USD, EUR, etc.)
+    - **BOOLEAN**: True/false checkbox
+  </Tab>
+  
+  <Tab title="Dates & Time">
+    - **DATE**: Date picker (YYYY-MM-DD)
+    - **DATE_TIME**: Date and time picker with timezone support
+  </Tab>
+  
+  <Tab title="Selection">
+    - **SELECT**: Single-choice dropdown with predefined options
+    - **MULTI_SELECT**: Multiple-choice selection with tags
+    - **RATING**: Star rating (1-5 stars)
+  </Tab>
+  
+  <Tab title="Unique Identifiers">
+    - **UUID**: Auto-generated unique identifier
+  </Tab>
+</Tabs>
+
+#### Composite types
+
+Composite fields contain multiple sub-fields:
+
+```typescript Example: Composite Fields
+// FULL_NAME field has:
+fullName.firstName
+fullName.lastName
+
+// ADDRESS field has:
+address.addressStreet1
+address.addressStreet2
+address.addressCity
+address.addressState
+address.addressPostCode
+address.addressCountry
+
+// CURRENCY field has:
+amount.amountMicros      // Amount in micro units
+amount.currencyCode      // Currency (USD, EUR, etc.)
+
+// EMAILS field contains array of:
+emails[].email
+emails[].isPrimary
+
+// PHONES field contains array of:
+phones[].number
+phones[].countryCode
+phones[].isPrimary
+
+// LINKS field contains array of:
+links[].url
+links[].label
+```
+
+#### Special types
+
+- **RELATION**: Link to records in another object (one-to-many or many-to-many)
+- **FILES**: Attach files and documents to records
+- **ACTOR**: Track who created or modified a record
+- **RAW_JSON**: Store unstructured JSON data
+- **POSITION**: Internal field for drag-and-drop ordering
+
+### Creating fields
+
+<Steps>
+  <Step title="Open object settings">
+    In Data Model settings, click on an object to view its fields.
+  </Step>
+  
+  <Step title="Add new field">
+    Click "Add Field" and configure:
+    
+    - **Name**: Internal field name (camelCase, e.g., `projectStatus`)
+    - **Label**: Display name shown in UI (e.g., "Project Status")
+    - **Type**: Choose from available field types
+    - **Description**: Optional help text for users
+    - **Icon**: Visual indicator in the UI
+  </Step>
+  
+  <Step title="Configure field settings">
+    Depending on field type, set:
+    
+    - **Default value**: Pre-fill new records
+    - **Required**: Make field mandatory
+    - **Nullable**: Allow empty values
+    - **Options**: For SELECT/MULTI_SELECT fields
+    - **Settings**: Type-specific configuration
+  </Step>
+</Steps>
+
+### Field settings by type
+
+<CodeGroup>
+```typescript NUMBER Field
+{
+  type: "NUMBER",
+  settings: {
+    decimals: 2,           // Decimal places
+    variant: "DECIMAL"     // or "INTEGER"
+  }
+}
+```
+
+```typescript SELECT Field
+{
+  type: "SELECT",
+  options: [
+    { value: "new", label: "New", color: "blue" },
+    { value: "in_progress", label: "In Progress", color: "yellow" },
+    { value: "completed", label: "Completed", color: "green" }
+  ]
+}
+```
+
+```typescript DATE Field
+{
+  type: "DATE",
+  settings: {
+    displayFormat: "MM/DD/YYYY"  // or "DD/MM/YYYY", "YYYY-MM-DD"
+  }
+}
+```
+</CodeGroup>
+
+## Relations between objects
+
+Relations connect records across different objects, creating a relational data model.
+
+### Relation types
+
+#### One-to-many relations
+
+A record in one object can relate to multiple records in another:
+
+- One **Company** has many **People**
+- One **Opportunity** has many **Tasks**
+- One **Person** has many **Notes**
+
+#### Many-to-many relations
+
+Records in both objects can relate to multiple records:
+
+- **People** can work at multiple **Companies** (with roles)
+- **Projects** can involve multiple **People**
+- **Products** can be in multiple **Opportunities**
+
+### Creating relations
+
+<Steps>
+  <Step title="Add a RELATION field">
+    When creating a field, select the RELATION type.
+  </Step>
+  
+  <Step title="Choose target object">
+    Select which object this relation links to (e.g., Company, Person).
+  </Step>
+  
+  <Step title="Configure relation settings">
+    - **Relation type**: One-to-many or many-to-many
+    - **Inverse field name**: Name for the reverse relation
+    - **On delete action**: What happens when related record is deleted
+      - `CASCADE`: Delete related records
+      - `SET_NULL`: Clear the relation
+      - `RESTRICT`: Prevent deletion
+  </Step>
+</Steps>
+
+<Warning>
+  Be careful with CASCADE delete actions. Deleting a company with CASCADE will delete all related people, opportunities, and tasks.
+</Warning>
+
+## Best practices
+
+### Naming conventions
+
+- **Object names**: Singular, lowercase, no spaces (e.g., `project`, `supportTicket`)
+- **Field names**: camelCase (e.g., `startDate`, `projectStatus`, `annualRevenue`)
+- **Labels**: Human-readable with proper capitalization (e.g., "Project Status", "Annual Revenue")
+
+### Data modeling tips
+
+<Tip>
+  Start with standard objects and add custom fields before creating entirely new objects.
+</Tip>
+
+1. **Keep it simple**: Start with basic fields and add complexity as needed
+2. **Use standard objects**: Leverage Companies and People before creating custom contacts
+3. **Think about relations**: Plan how objects connect before creating them
+4. **Use appropriate field types**: SELECT fields for status, RATING for priorities
+5. **Add descriptions**: Help text ensures everyone uses fields correctly
+
+### Performance considerations
+
+- **Limit fields per object**: Keep under 50 fields for optimal performance
+- **Index frequently filtered fields**: Improves query speed
+- **Avoid deep nesting**: Relations beyond 3 levels become hard to query
+- **Use RAW_JSON sparingly**: Unstructured data can't be filtered or sorted
+
+## Field examples by use case
+
+<Tabs>
+  <Tab title="Sales Pipeline">
+    ```typescript Opportunity Object
+    {
+      name: TEXT,
+      amount: CURRENCY,
+      stage: SELECT,              // "Prospecting", "Proposal", "Closed Won"
+      probability: NUMBER,         // 0-100 percentage
+      closeDate: DATE,
+      company: RELATION,           // Links to Company
+      owner: RELATION,             // Links to Person (sales rep)
+      notes: RICH_TEXT_V2
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Project Management">
+    ```typescript Project Object
+    {
+      title: TEXT,
+      description: RICH_TEXT_V2,
+      status: SELECT,              // "Planning", "In Progress", "Completed"
+      priority: RATING,
+      startDate: DATE,
+      dueDate: DATE,
+      budget: CURRENCY,
+      company: RELATION,
+      assignees: RELATION,         // Many-to-many to People
+      attachments: FILES
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Customer Support">
+    ```typescript Ticket Object
+    {
+      subject: TEXT,
+      description: RICH_TEXT_V2,
+      status: SELECT,              // "Open", "In Progress", "Resolved"
+      priority: SELECT,            // "Low", "Medium", "High", "Urgent"
+      category: MULTI_SELECT,      // "Bug", "Feature Request", "Question"
+      customer: RELATION,          // Links to Person
+      assignedTo: RELATION,        // Links to User
+      createdAt: DATE_TIME,
+      resolvedAt: DATE_TIME
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## System fields
+
+Twenty automatically adds system fields to every object:
+
+- `id`: Unique UUID identifier
+- `createdAt`: Timestamp when record was created
+- `updatedAt`: Timestamp of last modification
+- `createdBy`: User who created the record (ACTOR type)
+- `position`: For drag-and-drop ordering in views
+
+These fields cannot be deleted or modified.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Views and filters" icon="filter" href="/core-concepts/views-and-filters">
+    Learn how to query and visualize your object data
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/core-concepts/workflows">
+    Automate processes based on object record changes
+  </Card>
+  <Card title="Permissions" icon="shield-halved" href="/core-concepts/permissions">
+    Control who can access and modify objects
+  </Card>
+  <Card title="API Reference" icon="code" href="/developers/api/graphql-api">
+    Query objects programmatically via GraphQL or REST
+  </Card>
+</CardGroup>

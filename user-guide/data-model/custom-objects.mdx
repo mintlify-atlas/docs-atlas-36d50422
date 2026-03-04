@@ -1,0 +1,316 @@
+---
+title: Creating Custom Objects
+description: Build custom data models for your business
+icon: cube
+---
+
+Custom objects let you model any type of data your business needs. Beyond the standard CRM objects (Companies, People, Opportunities), create objects for projects, products, contracts, or anything else.
+
+## What Are Objects?
+
+Objects are the building blocks of your data model. Each object represents a type of record:
+
+- **Companies** - Organizations you work with
+- **People** - Individual contacts
+- **Opportunities** - Sales deals in your pipeline
+- **Custom objects** - Anything you create
+
+Each object has:
+- **Fields** - The data points you track
+- **Records** - Individual entries (e.g., a specific company)
+- **Views** - Different ways to display the data
+- **Relations** - Connections to other objects
+
+## Creating a Custom Object
+
+<Steps>
+  <Step title="Navigate to data model settings">
+    Go to **Settings → Data Model → Objects** to access object management.
+  </Step>
+  
+  <Step title="Click New Object">
+    Select **+ New Object** in the top right.
+  </Step>
+  
+  <Step title="Configure object details">
+    Fill in the object configuration:
+    
+    **Name (Singular)** - The name for a single record
+    ```
+    Project
+    ```
+    
+    **Name (Plural)** - The name for multiple records
+    ```
+    Projects
+    ```
+    
+    **Description** - What this object represents
+    ```
+    Client projects with timelines and deliverables
+    ```
+    
+    <Info>
+    The system automatically generates a plural name and API identifier, but you can customize both.
+    </Info>
+  </Step>
+  
+  <Step title="Choose an icon">
+    Select an icon to represent your object in the navigation. This helps users quickly identify the object.
+  </Step>
+  
+  <Step title="Save the object">
+    Click **Save** to create your object. You'll be taken to the object detail page to add fields.
+  </Step>
+</Steps>
+
+## Object Configuration
+
+After creating an object, configure its settings from **Settings → Data Model → Objects → [Your Object]**.
+
+### About Tab
+
+Update basic object information:
+
+<CardGroup cols={2}>
+  <Card title="Label" icon="tag">
+    The display name users see throughout the interface
+  </Card>
+  
+  <Card title="Description" icon="file-lines">
+    Helps team members understand the object's purpose
+  </Card>
+  
+  <Card title="Icon" icon="icons">
+    Visual identifier in navigation and views
+  </Card>
+  
+  <Card title="Color" icon="palette">
+    Accent color for the object (appears in some UI elements)
+  </Card>
+</CardGroup>
+
+### Label Identifier Field
+
+The label identifier is the primary field displayed for records:
+
+- Appears as the record title
+- Used in search results
+- Shows in relation fields
+- Typically a "Name" or "Title" field
+
+<Tip>
+Choose a field that uniquely identifies each record at a glance.
+</Tip>
+
+### Visibility Settings
+
+- **Show in navigation** - Display in the left sidebar
+- **Allow creation** - Enable users to create new records
+- **Allow deletion** - Permit record deletion
+
+## Standard Fields
+
+Every object includes automatic system fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| ID | UUID | Unique identifier for each record |
+| Created at | Date/Time | When the record was created |
+| Updated at | Date/Time | Last modification time |
+| Created by | Relation | User who created the record |
+
+<Info>
+System fields are read-only and managed automatically.
+</Info>
+
+## Example: Creating a Project Object
+
+Let's create a comprehensive project management object:
+
+### Step 1: Create the Object
+
+```yaml
+Name (Singular): Project
+Name (Plural): Projects
+Description: Client projects with deliverables and timelines
+Icon: briefcase
+```
+
+### Step 2: Add Fields
+
+Add fields to capture project information:
+
+1. **Project Name** (Text) - Label identifier field
+2. **Status** (Select) - Not Started, In Progress, Completed
+3. **Start Date** (Date)
+4. **End Date** (Date)
+5. **Budget** (Number)
+6. **Client** (Relation to Companies)
+7. **Project Manager** (Relation to People)
+8. **Description** (Text)
+9. **Priority** (Select) - Low, Medium, High
+
+<Card title="Adding Fields" icon="plus" href="/user-guide/data-model/custom-fields">
+Learn how to add and configure fields →
+</Card>
+
+### Step 3: Create Relations
+
+Connect projects to other objects:
+
+- **Project → Company** - Which client owns the project
+- **Project → People** - Team members assigned
+- **Project → Opportunities** - Related sales deals
+
+<Card title="Defining Relations" icon="link" href="/user-guide/data-model/relations">
+Learn how to create relationships →
+</Card>
+
+## Object Best Practices
+
+<AccordionGroup>
+  <Accordion title="Plan your data model first">
+    Sketch out your objects and their relationships before building. Consider:
+    - What entities do you need to track?
+    - How do they relate to each other?
+    - What information is essential vs. nice-to-have?
+  </Accordion>
+  
+  <Accordion title="Use clear, descriptive names">
+    Object names should be immediately understandable:
+    - ✅ Project, Contract, Product
+    - ❌ Thing, Item, Data
+    
+    Use singular form for the singular name and proper plural for the plural name.
+  </Accordion>
+  
+  <Accordion title="Start simple, then expand">
+    Begin with core fields and add more as you understand your needs:
+    1. Create the object with essential fields
+    2. Use it for a few days
+    3. Add fields based on what you find yourself needing
+  </Accordion>
+  
+  <Accordion title="Consider relationships early">
+    Think about how objects connect:
+    - Which objects should link to each other?
+    - Should connections be one-way or two-way?
+    - What information flows through the relationships?
+  </Accordion>
+  
+  <Accordion title="Choose meaningful icons">
+    Icons help users navigate quickly. Pick icons that represent the object's purpose:
+    - 📋 Project → briefcase
+    - 📄 Contract → file-contract
+    - 📦 Product → box
+  </Accordion>
+  
+  <Accordion title="Write helpful descriptions">
+    Good descriptions prevent confusion:
+    ```
+    ✅ "Client projects with timelines, budgets, and deliverables"
+    ❌ "Projects"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Custom Objects
+
+Here are examples of objects teams commonly create:
+
+<CardGroup cols={2}>
+  <Card title="Projects" icon="briefcase">
+    Track client work, internal initiatives, or development projects
+  </Card>
+  
+  <Card title="Products" icon="box">
+    Manage your product catalog with pricing and inventory
+  </Card>
+  
+  <Card title="Contracts" icon="file-contract">
+    Monitor agreements, renewals, and terms
+  </Card>
+  
+  <Card title="Support Tickets" icon="headset">
+    Handle customer support requests and issues
+  </Card>
+  
+  <Card title="Invoices" icon="file-invoice">
+    Track billing, payments, and financial records
+  </Card>
+  
+  <Card title="Events" icon="calendar">
+    Organize conferences, webinars, or meetings
+  </Card>
+</CardGroup>
+
+## Managing Objects
+
+### Editing Objects
+
+1. Go to **Settings → Data Model → Objects**
+2. Click the object you want to edit
+3. Modify settings in the **About** tab
+4. Changes save automatically
+
+### Deactivating Objects
+
+<Warning>
+Deactivating an object hides it from navigation but preserves all data. You can reactivate it later.
+</Warning>
+
+To deactivate:
+
+1. Navigate to **Settings → Data Model → Objects**
+2. Click the object
+3. Click **Deactivate** in the top-right menu
+4. Confirm the action
+
+### Deleting Objects
+
+<Warning>
+Deleting an object permanently removes all records and cannot be undone. Consider deactivating instead.
+</Warning>
+
+Standard objects (Companies, People, Opportunities) cannot be deleted.
+
+## API Access
+
+Custom objects are automatically available in the API:
+
+```graphql
+query {
+  projects {
+    edges {
+      node {
+        id
+        projectName
+        status
+        startDate
+        client {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+The API identifier is based on your plural name (converted to camelCase).
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Adding Custom Fields" icon="input-text" href="/user-guide/data-model/custom-fields">
+    Add fields to capture the data you need
+  </Card>
+  
+  <Card title="Defining Relations" icon="link" href="/user-guide/data-model/relations">
+    Connect objects with relationships
+  </Card>
+  
+  <Card title="Table Views" icon="table" href="/user-guide/views/table-views">
+    Create views to work with your data
+  </Card>
+</CardGroup>

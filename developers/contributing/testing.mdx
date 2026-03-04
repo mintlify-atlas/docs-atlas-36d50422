@@ -1,0 +1,789 @@
+---
+title: Testing
+description: Write and run tests for Twenty
+icon: flask
+---
+
+Twenty follows a comprehensive testing strategy to ensure code quality and prevent regressions.
+
+## Testing Philosophy
+
+Our testing approach:
+
+<CardGroup cols={2}>
+  <Card title="Test Behavior" icon="user">
+    Test what users experience, not implementation details
+  </Card>
+  <Card title="Test Pyramid" icon="chart-pyramid">
+    70% unit, 20% integration, 10% E2E tests
+  </Card>
+  <Card title="Fast Feedback" icon="bolt">
+    Prefer fast unit tests over slow integration tests
+  </Card>
+  <Card title="Maintainable" icon="wrench">
+    Write tests that are easy to understand and maintain
+  </Card>
+</CardGroup>
+
+## Running Tests
+
+### Quick Commands
+
+```bash
+# Run a single test file (fastest - preferred)
+npx jest path/to/test.test.ts --config=packages/twenty-front/jest.config.mjs
+
+# Run all tests for a package
+npx nx test twenty-front
+npx nx test twenty-server
+
+# Run integration tests with database reset
+npx nx run twenty-server:test:integration:with-db-reset
+
+# Run tests in watch mode
+npx nx test twenty-front --watch
+
+# Run tests with coverage
+npx nx test twenty-front --coverage
+```
+
+### Run Tests by Pattern
+
+```bash
+# In specific workspace
+cd packages/twenty-front
+npx jest "user"
+
+# All tests matching pattern
+cd packages/twenty-server
+npx jest "user.service"
+```
+
+## Unit Testing
+
+### Frontend Unit Tests
+
+Test React components using Testing Library:
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from '../button.component';
+
+describe('Button', () => {
+  it('should render button with label', () => {
+    render(<Button label="Click me" onClick={() => {}} />);
+    
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  it('should call onClick when clicked', () => {
+    const handleClick = jest.fn();
+    render(<Button label="Click me" onClick={handleClick} />);
+    
+    fireEvent.click(screen.getByText('Click me'));
+    
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('should be disabled when disabled prop is true', () => {
+    render(<Button label="Click me" onClick={() => {}} disabled />);
+    
+    expect(screen.getByRole('button')).toBeDisabled();
+  });
+});
+```
+
+### Testing Hooks
+
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { useCounter } from '../use-counter.hook';
+
+describe('useCounter', () => {
+  it('should initialize with default value', () => {
+    const { result } = renderHook(() => useCounter(0));
+    
+    expect(result.current.count).toBe(0);
+  });
+
+  it('should increment count', () => {
+    const { result } = renderHook(() => useCounter(0));
+    
+    act(() => {
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(1);
+  });
+
+  it('should decrement count', () => {
+    const { result } = renderHook(() => useCounter(5));
+    
+    act(() => {
+      result.current.decrement();
+    });
+    
+    expect(result.current.count).toBe(4);
+  });
+});
+```
+
+### Backend Unit Tests
+
+Test NestJS services:
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserService } from '../user.service';
+import { Repository } from 'typeorm';
+import { UserEntity } from '../user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+
+describe('UserService', () => {
+  let service: UserService;
+  let repository: Repository<UserEntity>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: getRepositoryToken(UserEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+    repository = module.get<Repository<UserEntity>>(
+      getRepositoryToken(UserEntity),
+    );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('findById', () => {
+    it('should return user when found', async () => {
+      const mockUser = {
+        id: 'user-id',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+      };
+
+      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUser as any);
+
+      const result = await service.findById('user-id');
+
+      expect(result).toEqual(mockUser);
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { id: 'user-id' },
+      });
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+
+      await expect(service.findById('invalid-id')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('create', () => {
+    it('should create and return new user', async () => {
+      const createUserDto = {
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane@example.com',
+      };
+
+      const savedUser = {
+        id: 'new-user-id',
+        ...createUserDto,
+      };
+
+      jest.spyOn(repository, 'save').mockResolvedValue(savedUser as any);
+
+      const result = await service.create(createUserDto);
+
+      expect(result).toEqual(savedUser);
+      expect(repository.save).toHaveBeenCalledWith(createUserDto);
+    });
+  });
+});
+```
+
+## Integration Testing
+
+### GraphQL Integration Tests
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../app.module';
+
+describe('User GraphQL Integration', () => {
+  let app: INestApplication;
+  let userId: string;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('createUser mutation', () => {
+    it('should create a new user', async () => {
+      const mutation = `
+        mutation CreateUser($data: CreateUserInput!) {
+          createUser(data: $data) {
+            id
+            firstName
+            lastName
+            email
+          }
+        }
+      `;
+
+      const variables = {
+        data: {
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+        },
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({ query: mutation, variables })
+        .expect(200);
+
+      expect(response.body.data.createUser).toMatchObject({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+      });
+
+      userId = response.body.data.createUser.id;
+    });
+  });
+
+  describe('user query', () => {
+    it('should fetch user by id', async () => {
+      const query = `
+        query GetUser($id: UUID!) {
+          user(id: $id) {
+            id
+            firstName
+            email
+          }
+        }
+      `;
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({ query, variables: { id: userId } })
+        .expect(200);
+
+      expect(response.body.data.user).toMatchObject({
+        id: userId,
+        firstName: 'John',
+        email: 'john@example.com',
+      });
+    });
+  });
+});
+```
+
+### Database Integration Tests
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserService } from '../user.service';
+import { UserEntity } from '../user.entity';
+import { Repository } from 'typeorm';
+
+describe('UserService Integration', () => {
+  let service: UserService;
+  let repository: Repository<UserEntity>;
+  let module: TestingModule;
+
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [
+        TypeOrmModule.forRoot({
+          type: 'postgres',
+          host: 'localhost',
+          port: 5432,
+          username: 'test',
+          password: 'test',
+          database: 'test',
+          entities: [UserEntity],
+          synchronize: true,
+        }),
+        TypeOrmModule.forFeature([UserEntity]),
+      ],
+      providers: [UserService],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+    repository = module.get<Repository<UserEntity>>(
+      getRepositoryToken(UserEntity),
+    );
+  });
+
+  afterAll(async () => {
+    await repository.clear();
+    await module.close();
+  });
+
+  afterEach(async () => {
+    await repository.clear();
+  });
+
+  it('should create and retrieve user', async () => {
+    const userData = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    };
+
+    const created = await service.create(userData);
+    expect(created.id).toBeDefined();
+
+    const found = await service.findById(created.id);
+    expect(found).toMatchObject(userData);
+  });
+
+  it('should update user', async () => {
+    const user = await service.create({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+    });
+
+    const updated = await service.update(user.id, {
+      firstName: 'Jane',
+    });
+
+    expect(updated.firstName).toBe('Jane');
+    expect(updated.lastName).toBe('Doe');
+  });
+});
+```
+
+## E2E Testing
+
+Playwright tests for end-to-end scenarios:
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('User Management', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('http://localhost:3001');
+    // Login if needed
+    await page.click('text=Continue with Email');
+  });
+
+  test('should create a new person', async ({ page }) => {
+    // Navigate to people
+    await page.click('[data-testid="nav-people"]');
+
+    // Click add button
+    await page.click('[data-testid="add-person"]');
+
+    // Fill form
+    await page.fill('[name="firstName"]', 'John');
+    await page.fill('[name="lastName"]', 'Doe');
+    await page.fill('[name="email"]', 'john@example.com');
+
+    // Submit
+    await page.click('button[type="submit"]');
+
+    // Verify created
+    await expect(page.locator('text=John Doe')).toBeVisible();
+  });
+
+  test('should edit person details', async ({ page }) => {
+    // Open person
+    await page.click('text=John Doe');
+
+    // Edit job title
+    await page.click('[data-field="jobTitle"]');
+    await page.fill('input[name="jobTitle"]', 'Software Engineer');
+    await page.press('input[name="jobTitle"]', 'Enter');
+
+    // Verify updated
+    await expect(page.locator('text=Software Engineer')).toBeVisible();
+  });
+});
+```
+
+## Testing Best Practices
+
+### Test Naming
+
+Use descriptive test names:
+
+```typescript
+// Good
+it('should return user when valid ID is provided', () => {});
+it('should throw NotFoundException when user does not exist', () => {});
+it('should validate email format before creating user', () => {});
+
+// Bad
+it('works', () => {});
+it('test user', () => {});
+it('should work correctly', () => {});
+```
+
+### Arrange-Act-Assert
+
+Structure tests clearly:
+
+```typescript
+it('should increment counter', () => {
+  // Arrange
+  const initialCount = 0;
+  const { result } = renderHook(() => useCounter(initialCount));
+
+  // Act
+  act(() => {
+    result.current.increment();
+  });
+
+  // Assert
+  expect(result.current.count).toBe(1);
+});
+```
+
+### Query by User-Visible Elements
+
+```typescript
+// Good - query by text, role, label
+screen.getByText('Submit');
+screen.getByRole('button', { name: 'Submit' });
+screen.getByLabelText('Email');
+
+// Bad - query by test ID (only when necessary)
+screen.getByTestId('submit-button');
+```
+
+### Use Realistic Interactions
+
+```typescript
+import userEvent from '@testing-library/user-event';
+
+// Good - realistic user interaction
+await userEvent.click(button);
+await userEvent.type(input, 'test@example.com');
+
+// Bad - synthetic events
+fireEvent.click(button);
+fireEvent.change(input, { target: { value: 'test@example.com' } });
+```
+
+### Clean Up Mocks
+
+```typescript
+describe('UserService', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should call repository', () => {
+    // Test implementation
+  });
+});
+```
+
+### Test Error Cases
+
+```typescript
+describe('UserService.findById', () => {
+  it('should return user when found', async () => {
+    // Happy path test
+  });
+
+  it('should throw NotFoundException when not found', async () => {
+    jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+
+    await expect(service.findById('invalid')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should handle database errors', async () => {
+    jest.spyOn(repository, 'findOne').mockRejectedValue(new Error('DB Error'));
+
+    await expect(service.findById('id')).rejects.toThrow();
+  });
+});
+```
+
+## Mocking
+
+### Mock External Dependencies
+
+```typescript
+import { ExternalApiService } from '../external-api.service';
+
+jest.mock('../external-api.service');
+
+const mockExternalApi = ExternalApiService as jest.MockedClass<
+  typeof ExternalApiService
+>;
+
+beforeEach(() => {
+  mockExternalApi.prototype.fetchData.mockResolvedValue({ data: 'test' });
+});
+```
+
+### Mock GraphQL Client
+
+```typescript
+import { MockedProvider } from '@apollo/client/testing';
+
+const mocks = [
+  {
+    request: {
+      query: GET_USER_QUERY,
+      variables: { id: 'user-id' },
+    },
+    result: {
+      data: {
+        user: {
+          id: 'user-id',
+          firstName: 'John',
+          lastName: 'Doe',
+        },
+      },
+    },
+  },
+];
+
+render(
+  <MockedProvider mocks={mocks}>
+    <UserProfile userId="user-id" />
+  </MockedProvider>,
+);
+```
+
+## Storybook
+
+Test UI components visually:
+
+```typescript
+import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from './button.component';
+
+const meta: Meta<typeof Button> = {
+  component: Button,
+  title: 'UI/Button',
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof Button>;
+
+export const Primary: Story = {
+  args: {
+    label: 'Click me',
+    variant: 'primary',
+    onClick: () => console.log('Clicked'),
+  },
+};
+
+export const Secondary: Story = {
+  args: {
+    label: 'Click me',
+    variant: 'secondary',
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    label: 'Disabled',
+    disabled: true,
+  },
+};
+```
+
+### Run Storybook
+
+```bash
+# Start Storybook
+npx nx storybook:build twenty-front
+
+# Test Storybook
+npx nx storybook:test twenty-front
+```
+
+## Coverage
+
+Check test coverage:
+
+```bash
+# Run with coverage
+npx nx test twenty-front --coverage
+npx nx test twenty-server --coverage
+
+# View coverage report
+open packages/twenty-front/coverage/lcov-report/index.html
+```
+
+### Coverage Goals
+
+- **Statements**: > 80%
+- **Branches**: > 75%
+- **Functions**: > 80%
+- **Lines**: > 80%
+
+## CI/CD Testing
+
+Tests run automatically in CI:
+
+- **On PR** - All tests must pass
+- **On commit** - Linting and type checking
+- **Pre-merge** - Full test suite
+
+### Local CI Testing
+
+Run the same checks as CI:
+
+```bash
+# Lint
+npx nx lint:diff-with-main twenty-front
+npx nx lint:diff-with-main twenty-server
+
+# Type check
+npx nx typecheck twenty-front
+npx nx typecheck twenty-server
+
+# Test
+npx nx test twenty-front
+npx nx test twenty-server
+
+# Integration tests
+npx nx run twenty-server:test:integration:with-db-reset
+```
+
+## Debugging Tests
+
+### Debug in VS Code
+
+Add to `.vscode/launch.json`:
+
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "Jest Debug",
+  "program": "${workspaceFolder}/node_modules/.bin/jest",
+  "args": [
+    "--runInBand",
+    "--no-cache",
+    "--watchAll=false",
+    "${file}"
+  ],
+  "console": "integratedTerminal",
+  "internalConsoleOptions": "neverOpen"
+}
+```
+
+### Debug Single Test
+
+```typescript
+// Add .only to run single test
+it.only('should do something', () => {
+  // Test code
+});
+```
+
+### Console Debugging
+
+```typescript
+import { screen, debug } from '@testing-library/react';
+
+// Print DOM
+debug();
+
+// Print specific element
+debug(screen.getByRole('button'));
+
+// Log component state
+console.log(result.current);
+```
+
+## Common Testing Patterns
+
+### Testing Async Operations
+
+```typescript
+it('should load user data', async () => {
+  render(<UserProfile userId="user-id" />);
+
+  // Wait for loading to finish
+  await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+  });
+
+  // Verify data loaded
+  expect(screen.getByText('John Doe')).toBeInTheDocument();
+});
+```
+
+### Testing Forms
+
+```typescript
+it('should submit form with valid data', async () => {
+  const onSubmit = jest.fn();
+  render(<UserForm onSubmit={onSubmit} />);
+
+  await userEvent.type(screen.getByLabelText('First Name'), 'John');
+  await userEvent.type(screen.getByLabelText('Last Name'), 'Doe');
+  await userEvent.type(screen.getByLabelText('Email'), 'john@example.com');
+
+  await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+  expect(onSubmit).toHaveBeenCalledWith({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+  });
+});
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Code Style" icon="paintbrush" href="/developers/contributing/code-style">
+    Follow code conventions
+  </Card>
+  <Card title="Getting Started" icon="rocket" href="/developers/contributing/getting-started">
+    Start contributing
+  </Card>
+  <Card title="Local Setup" icon="laptop-code" href="/developers/local-setup">
+    Set up dev environment
+  </Card>
+  <Card title="Architecture" icon="sitemap" href="/developers/architecture">
+    Understand the codebase
+  </Card>
+</CardGroup>

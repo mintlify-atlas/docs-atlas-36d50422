@@ -1,0 +1,607 @@
+---
+title: Configuration
+description: Configure your Twenty instance with environment variables
+icon: sliders
+---
+
+Configure Twenty to match your infrastructure, security requirements, and integration needs.
+
+## Configuration Overview
+
+Twenty is configured primarily through environment variables. Configuration can be set in:
+
+- `.env` file (local development)
+- Docker Compose `.env` file
+- Kubernetes ConfigMaps and Secrets
+- System environment variables
+
+## Core Configuration
+
+### Server Settings
+
+<ParamField path="NODE_ENV" type="string" default="development">
+  Environment mode: `development` or `production`
+</ParamField>
+
+<ParamField path="SERVER_URL" type="string" required>
+  Public URL where Twenty is accessible (e.g., `https://crm.yourcompany.com`)
+</ParamField>
+
+<ParamField path="FRONTEND_URL" type="string" default="http://localhost:3001">
+  Frontend application URL (for development)
+</ParamField>
+
+<ParamField path="PORT" type="number" default="3000">
+  Port for the server to listen on
+</ParamField>
+
+<ParamField path="APP_SECRET" type="string" required>
+  Secret key for encryption and JWT signing. Must be at least 32 characters.
+</ParamField>
+
+<Tip>
+  Generate a secure `APP_SECRET`:
+  ```bash
+  openssl rand -base64 32
+  ```
+</Tip>
+
+## Database Configuration
+
+### PostgreSQL
+
+<ParamField path="PG_DATABASE_URL" type="string" required>
+  PostgreSQL connection string:
+  ```
+  postgres://username:password@host:port/database
+  ```
+</ParamField>
+
+<ParamField path="PG_SSL_ALLOW_SELF_SIGNED" type="boolean" default="false">
+  Allow self-signed SSL certificates for PostgreSQL connections
+</ParamField>
+
+### Redis
+
+<ParamField path="REDIS_URL" type="string" required>
+  Redis connection string:
+  ```
+  redis://host:port
+  ```
+  Or with authentication:
+  ```
+  redis://:password@host:port
+  ```
+</ParamField>
+
+### ClickHouse (Optional)
+
+<ParamField path="ANALYTICS_ENABLED" type="boolean" default="false">
+  Enable analytics with ClickHouse
+</ParamField>
+
+<ParamField path="CLICKHOUSE_URL" type="string">
+  ClickHouse connection string for analytics:
+  ```
+  http://default:password@localhost:8123/twenty
+  ```
+</ParamField>
+
+## Storage Configuration
+
+### Local Storage
+
+<ParamField path="STORAGE_TYPE" type="string" default="local">
+  Storage backend: `local` or `s3`
+</ParamField>
+
+<ParamField path="STORAGE_LOCAL_PATH" type="string" default=".local-storage">
+  Path for local file storage
+</ParamField>
+
+### S3 Storage
+
+For production deployments, S3-compatible storage is recommended:
+
+<ParamField path="STORAGE_TYPE" type="string">
+  Set to `s3` to enable S3 storage
+</ParamField>
+
+<ParamField path="STORAGE_S3_REGION" type="string">
+  AWS region (e.g., `us-east-1`, `eu-west-3`)
+</ParamField>
+
+<ParamField path="STORAGE_S3_NAME" type="string">
+  S3 bucket name
+</ParamField>
+
+<ParamField path="STORAGE_S3_ENDPOINT" type="string">
+  Custom S3 endpoint for S3-compatible services (MinIO, DigitalOcean Spaces, etc.)
+</ParamField>
+
+<CodeGroup>
+```bash AWS S3
+STORAGE_TYPE=s3
+STORAGE_S3_REGION=us-east-1
+STORAGE_S3_NAME=twenty-uploads
+```
+
+```bash MinIO
+STORAGE_TYPE=s3
+STORAGE_S3_REGION=us-east-1
+STORAGE_S3_NAME=twenty
+STORAGE_S3_ENDPOINT=https://minio.yourcompany.com
+```
+
+```bash DigitalOcean Spaces
+STORAGE_TYPE=s3
+STORAGE_S3_REGION=nyc3
+STORAGE_S3_NAME=your-space-name
+STORAGE_S3_ENDPOINT=https://nyc3.digitaloceanspaces.com
+```
+</CodeGroup>
+
+## Authentication Configuration
+
+### Password Authentication
+
+<ParamField path="AUTH_PASSWORD_ENABLED" type="boolean" default="true">
+  Enable email/password authentication
+</ParamField>
+
+<ParamField path="SIGN_IN_PREFILLED" type="boolean" default="false">
+  Prefill login credentials (development only)
+</ParamField>
+
+### Google OAuth
+
+<ParamField path="AUTH_GOOGLE_ENABLED" type="boolean" default="false">
+  Enable Google OAuth sign-in
+</ParamField>
+
+<ParamField path="AUTH_GOOGLE_CLIENT_ID" type="string">
+  Google OAuth client ID from Google Cloud Console
+</ParamField>
+
+<ParamField path="AUTH_GOOGLE_CLIENT_SECRET" type="string">
+  Google OAuth client secret
+</ParamField>
+
+<ParamField path="AUTH_GOOGLE_CALLBACK_URL" type="string">
+  OAuth callback URL: `{SERVER_URL}/auth/google/redirect`
+</ParamField>
+
+<ParamField path="AUTH_GOOGLE_APIS_CALLBACK_URL" type="string">
+  APIs callback URL: `{SERVER_URL}/auth/google-apis/get-access-token`
+</ParamField>
+
+### Microsoft OAuth
+
+<ParamField path="AUTH_MICROSOFT_ENABLED" type="boolean" default="false">
+  Enable Microsoft OAuth sign-in
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_CLIENT_ID" type="string">
+  Microsoft OAuth client ID from Azure Portal
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_CLIENT_SECRET" type="string">
+  Microsoft OAuth client secret
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_CALLBACK_URL" type="string">
+  OAuth callback URL: `{SERVER_URL}/auth/microsoft/redirect`
+</ParamField>
+
+<ParamField path="AUTH_MICROSOFT_APIS_CALLBACK_URL" type="string">
+  APIs callback URL: `{SERVER_URL}/auth/microsoft-apis/get-access-token`
+</ParamField>
+
+## Email Configuration
+
+### Email Settings
+
+<ParamField path="EMAIL_DRIVER" type="string" default="logger">
+  Email driver: `smtp` for production, `logger` for development/testing
+</ParamField>
+
+<ParamField path="EMAIL_FROM_ADDRESS" type="string">
+  Sender email address (e.g., `contact@yourcompany.com`)
+</ParamField>
+
+<ParamField path="EMAIL_FROM_NAME" type="string">
+  Sender display name (e.g., `John from YourCompany`)
+</ParamField>
+
+<ParamField path="EMAIL_SYSTEM_ADDRESS" type="string">
+  System email address for automated messages
+</ParamField>
+
+### SMTP Configuration
+
+<ParamField path="EMAIL_SMTP_HOST" type="string">
+  SMTP server hostname (e.g., `smtp.gmail.com`)
+</ParamField>
+
+<ParamField path="EMAIL_SMTP_PORT" type="number">
+  SMTP server port (typically `587` for TLS or `465` for SSL)
+</ParamField>
+
+<ParamField path="EMAIL_SMTP_USER" type="string">
+  SMTP username
+</ParamField>
+
+<ParamField path="EMAIL_SMTP_PASSWORD" type="string">
+  SMTP password or app-specific password
+</ParamField>
+
+<CodeGroup>
+```bash Gmail
+EMAIL_DRIVER=smtp
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORT=465
+EMAIL_SMTP_USER=your-email@gmail.com
+EMAIL_SMTP_PASSWORD=your-app-password
+EMAIL_FROM_ADDRESS=your-email@gmail.com
+```
+
+```bash SendGrid
+EMAIL_DRIVER=smtp
+EMAIL_SMTP_HOST=smtp.sendgrid.net
+EMAIL_SMTP_PORT=587
+EMAIL_SMTP_USER=apikey
+EMAIL_SMTP_PASSWORD=your-sendgrid-api-key
+EMAIL_FROM_ADDRESS=noreply@yourcompany.com
+```
+
+```bash AWS SES
+EMAIL_DRIVER=smtp
+EMAIL_SMTP_HOST=email-smtp.us-east-1.amazonaws.com
+EMAIL_SMTP_PORT=587
+EMAIL_SMTP_USER=your-ses-username
+EMAIL_SMTP_PASSWORD=your-ses-password
+EMAIL_FROM_ADDRESS=noreply@yourcompany.com
+```
+</CodeGroup>
+
+### Email Verification
+
+<ParamField path="IS_EMAIL_VERIFICATION_REQUIRED" type="boolean" default="false">
+  Require email verification for new accounts
+</ParamField>
+
+<ParamField path="EMAIL_VERIFICATION_TOKEN_EXPIRES_IN" type="string" default="1h">
+  Verification token expiration time
+</ParamField>
+
+## Integration Providers
+
+### Gmail Integration
+
+<ParamField path="MESSAGING_PROVIDER_GMAIL_ENABLED" type="boolean" default="false">
+  Enable Gmail message sync
+</ParamField>
+
+<ParamField path="CALENDAR_PROVIDER_GOOGLE_ENABLED" type="boolean" default="false">
+  Enable Google Calendar sync
+</ParamField>
+
+### Microsoft Integration
+
+<ParamField path="MESSAGING_PROVIDER_MICROSOFT_ENABLED" type="boolean" default="false">
+  Enable Outlook message sync
+</ParamField>
+
+<ParamField path="CALENDAR_PROVIDER_MICROSOFT_ENABLED" type="boolean" default="false">
+  Enable Outlook Calendar sync
+</ParamField>
+
+### IMAP/SMTP/CalDAV
+
+<ParamField path="IS_IMAP_SMTP_CALDAV_ENABLED" type="boolean" default="true">
+  Enable generic IMAP/SMTP/CalDAV integrations
+</ParamField>
+
+## Security Configuration
+
+### Token Expiration
+
+<ParamField path="ACCESS_TOKEN_EXPIRES_IN" type="string" default="30m">
+  Access token lifetime
+</ParamField>
+
+<ParamField path="REFRESH_TOKEN_EXPIRES_IN" type="string" default="90d">
+  Refresh token lifetime
+</ParamField>
+
+<ParamField path="LOGIN_TOKEN_EXPIRES_IN" type="string" default="15m">
+  Login token lifetime
+</ParamField>
+
+<ParamField path="FILE_TOKEN_EXPIRES_IN" type="string" default="1d">
+  File access token lifetime
+</ParamField>
+
+<ParamField path="PASSWORD_RESET_TOKEN_EXPIRES_IN" type="string" default="5m">
+  Password reset token lifetime
+</ParamField>
+
+### Rate Limiting
+
+<ParamField path="API_RATE_LIMITING_TTL" type="number">
+  Rate limit window in milliseconds
+</ParamField>
+
+<ParamField path="API_RATE_LIMITING_LIMIT" type="number">
+  Maximum requests per window
+</ParamField>
+
+<ParamField path="MUTATION_MAXIMUM_AFFECTED_RECORDS" type="number" default="100">
+  Maximum records that can be affected by a single mutation
+</ParamField>
+
+### CAPTCHA
+
+<ParamField path="CAPTCHA_DRIVER" type="string">
+  CAPTCHA provider (e.g., `recaptcha`, `hcaptcha`)
+</ParamField>
+
+<ParamField path="CAPTCHA_SITE_KEY" type="string">
+  CAPTCHA site key
+</ParamField>
+
+<ParamField path="CAPTCHA_SECRET_KEY" type="string">
+  CAPTCHA secret key
+</ParamField>
+
+### SSL/TLS
+
+<ParamField path="SSL_KEY_PATH" type="string">
+  Path to SSL private key file
+</ParamField>
+
+<ParamField path="SSL_CERT_PATH" type="string">
+  Path to SSL certificate file
+</ParamField>
+
+## Feature Flags
+
+### Workspace Settings
+
+<ParamField path="IS_MULTIWORKSPACE_ENABLED" type="boolean" default="false">
+  Enable multiple workspace support
+</ParamField>
+
+<ParamField path="IS_WORKSPACE_CREATION_LIMITED_TO_SERVER_ADMINS" type="boolean" default="false">
+  Restrict workspace creation to server administrators
+</ParamField>
+
+<ParamField path="WORKSPACE_INACTIVE_DAYS_BEFORE_NOTIFICATION" type="number" default="7">
+  Days of inactivity before sending warning notification
+</ParamField>
+
+<ParamField path="WORKSPACE_INACTIVE_DAYS_BEFORE_SOFT_DELETION" type="number" default="14">
+  Days before soft-deleting inactive workspaces
+</ParamField>
+
+<ParamField path="WORKSPACE_INACTIVE_DAYS_BEFORE_DELETION" type="number" default="21">
+  Days before permanently deleting inactive workspaces
+</ParamField>
+
+### Configuration Storage
+
+<ParamField path="IS_CONFIG_VARIABLES_IN_DB_ENABLED" type="boolean" default="false">
+  Store configuration variables in database instead of environment
+</ParamField>
+
+### Billing
+
+<ParamField path="IS_BILLING_ENABLED" type="boolean" default="false">
+  Enable billing and subscription features
+</ParamField>
+
+<ParamField path="BILLING_PLAN_REQUIRED_LINK" type="string">
+  URL to redirect users when subscription is required
+</ParamField>
+
+## Serverless Configuration
+
+<ParamField path="CODE_INTERPRETER_TYPE" type="string" default="local">
+  Code execution environment: `local` or `serverless`
+</ParamField>
+
+<ParamField path="SERVERLESS_TYPE" type="string" default="local">
+  Serverless provider: `local`, `aws`, or `azure`
+</ParamField>
+
+<ParamField path="SERVERLESS_LOGS_ENABLED" type="boolean" default="true">
+  Enable logging for serverless functions
+</ParamField>
+
+## Observability
+
+### Logging
+
+<ParamField path="LOGGER_DRIVER" type="string" default="console">
+  Logger output: `console` or other drivers
+</ParamField>
+
+<ParamField path="LOGGER_IS_BUFFER_ENABLED" type="boolean" default="true">
+  Buffer log messages for batch processing
+</ParamField>
+
+<ParamField path="LOG_LEVELS" type="string" default="error,warn,log">
+  Comma-separated log levels to output
+</ParamField>
+
+### Error Tracking
+
+<ParamField path="EXCEPTION_HANDLER_DRIVER" type="string">
+  Exception handler: `sentry` or other providers
+</ParamField>
+
+<ParamField path="SENTRY_DSN" type="string">
+  Sentry DSN for backend error tracking
+</ParamField>
+
+<ParamField path="SENTRY_FRONT_DSN" type="string">
+  Sentry DSN for frontend error tracking
+</ParamField>
+
+<ParamField path="SENTRY_ENVIRONMENT" type="string">
+  Environment name in Sentry (e.g., `production`, `staging`)
+</ParamField>
+
+### Metrics
+
+<ParamField path="METER_DRIVER" type="string">
+  Metrics driver: `opentelemetry`, `console`, or comma-separated for multiple
+</ParamField>
+
+## Support Configuration
+
+<ParamField path="SUPPORT_DRIVER" type="string">
+  Support widget driver: `front` for Front chat
+</ParamField>
+
+<ParamField path="SUPPORT_FRONT_CHAT_ID" type="string">
+  Front chat widget ID
+</ParamField>
+
+<ParamField path="SUPPORT_FRONT_HMAC_KEY" type="string">
+  Front chat HMAC key for user verification
+</ParamField>
+
+## Security Features
+
+### HTTP Tool Safe Mode
+
+<ParamField path="HTTP_TOOL_SAFE_MODE_ENABLED" type="boolean" default="true">
+  Restrict HTTP requests from workflows to prevent SSRF attacks
+</ParamField>
+
+<ParamField path="ALLOW_REQUESTS_TO_TWENTY_ICONS" type="boolean" default="true">
+  Allow workflows to fetch icons from Twenty's icon service
+</ParamField>
+
+### Chrome Extension
+
+<ParamField path="CHROME_EXTENSION_ID" type="string">
+  Chrome extension ID for browser integration
+</ParamField>
+
+## Cloudflare Configuration
+
+<ParamField path="CLOUDFLARE_API_KEY" type="string">
+  Cloudflare API key for CDN integration
+</ParamField>
+
+<ParamField path="CLOUDFLARE_ZONE_ID" type="string">
+  Cloudflare zone ID
+</ParamField>
+
+<ParamField path="CLOUDFLARE_WEBHOOK_SECRET" type="string">
+  Secret for validating Cloudflare webhooks
+</ParamField>
+
+## Migration Settings
+
+<ParamField path="DISABLE_DB_MIGRATIONS" type="boolean" default="false">
+  Disable automatic database migrations on startup
+</ParamField>
+
+<ParamField path="DISABLE_CRON_JOBS_REGISTRATION" type="boolean" default="false">
+  Disable automatic cron job registration (useful for worker-only containers)
+</ParamField>
+
+## Example Configurations
+
+### Development Environment
+
+```bash .env
+NODE_ENV=development
+PG_DATABASE_URL=postgres://postgres:postgres@localhost:5432/default
+REDIS_URL=redis://localhost:6379
+APP_SECRET=dev-secret-change-in-production
+SIGN_IN_PREFILLED=true
+FRONTEND_URL=http://localhost:3001
+SERVER_URL=http://localhost:3000
+STORAGE_TYPE=local
+STORAGE_LOCAL_PATH=.local-storage
+EMAIL_DRIVER=logger
+```
+
+### Production Environment
+
+```bash .env
+NODE_ENV=production
+PG_DATABASE_URL=postgres://user:password@db.yourcompany.com:5432/twenty
+REDIS_URL=redis://:password@redis.yourcompany.com:6379
+APP_SECRET=your-secure-random-string-from-openssl
+SERVER_URL=https://crm.yourcompany.com
+
+# Storage
+STORAGE_TYPE=s3
+STORAGE_S3_REGION=us-east-1
+STORAGE_S3_NAME=twenty-production-uploads
+
+# Email
+EMAIL_DRIVER=smtp
+EMAIL_SMTP_HOST=smtp.sendgrid.net
+EMAIL_SMTP_PORT=587
+EMAIL_SMTP_USER=apikey
+EMAIL_SMTP_PASSWORD=your-sendgrid-api-key
+EMAIL_FROM_ADDRESS=noreply@yourcompany.com
+EMAIL_FROM_NAME=YourCompany CRM
+
+# Auth
+AUTH_GOOGLE_ENABLED=true
+AUTH_GOOGLE_CLIENT_ID=your-client-id
+AUTH_GOOGLE_CLIENT_SECRET=your-client-secret
+AUTH_GOOGLE_CALLBACK_URL=https://crm.yourcompany.com/auth/google/redirect
+
+# Monitoring
+EXCEPTION_HANDLER_DRIVER=sentry
+SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+SENTRY_ENVIRONMENT=production
+LOG_LEVELS=error,warn
+
+# Security
+API_RATE_LIMITING_TTL=60000
+API_RATE_LIMITING_LIMIT=100
+```
+
+## Validation
+
+Verify your configuration:
+
+<CodeGroup>
+```bash Check Server
+curl http://localhost:3000/healthz
+```
+
+```bash Check Database
+psql $PG_DATABASE_URL -c "SELECT version();"
+```
+
+```bash Check Redis
+redis-cli -u $REDIS_URL ping
+```
+</CodeGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Docker Compose" icon="docker" href="/developers/self-hosting/docker-compose">
+    Deploy with Docker Compose
+  </Card>
+  <Card title="Kubernetes" icon="dharmachakra" href="/developers/self-hosting/kubernetes">
+    Deploy on Kubernetes
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/developers/self-hosting/troubleshooting">
+    Debug configuration issues
+  </Card>
+  <Card title="Authentication" icon="shield" href="/developers/api/authentication">
+    Configure API authentication
+  </Card>
+</CardGroup>

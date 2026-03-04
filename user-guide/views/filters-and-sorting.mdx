@@ -1,0 +1,660 @@
+---
+title: Filters and Sorting
+description: Find exactly what you need
+icon: filter
+---
+
+Filters and sorting help you focus on the data that matters. Build powerful queries to find records quickly and organize them logically.
+
+## Understanding Filters
+
+Filters limit which records appear in a view based on conditions you set:
+
+```yaml
+Show me:
+- Opportunities where Stage = "Proposal"
+- AND Value > $50,000
+- AND Owner = Me
+```
+
+Only matching records appear in the view.
+
+## Creating Filters
+
+<Steps>
+  <Step title="Open filter panel">
+    Click the filter icon in the view header.
+  </Step>
+  
+  <Step title="Add a condition">
+    Click **+ Add filter** to create a new condition.
+  </Step>
+  
+  <Step title="Choose a field">
+    Select which field to filter by (Status, Owner, Date, etc.).
+  </Step>
+  
+  <Step title="Select an operator">
+    Pick how to compare (equals, contains, greater than, etc.).
+  </Step>
+  
+  <Step title="Enter a value">
+    Type or select the value to filter for.
+  </Step>
+  
+  <Step title="Apply the filter">
+    The view updates to show only matching records.
+  </Step>
+</Steps>
+
+<Tip>
+Filters apply immediately as you build them. See results in real-time.
+</Tip>
+
+## Filter Operators
+
+Different field types support different operators:
+
+### Text Field Operators
+
+<Tabs>
+  <Tab title="Equals">
+    Exact match (case-sensitive).
+    
+    ```yaml
+    Status equals "Active"
+    ```
+    
+    Shows records where Status is exactly "Active".
+  </Tab>
+  
+  <Tab title="Contains">
+    Partial match anywhere in the text.
+    
+    ```yaml
+    Company Name contains "Tech"
+    ```
+    
+    Matches: "TechCorp", "Alpha Tech", "Technology Solutions".
+  </Tab>
+  
+  <Tab title="Starts with">
+    Match at the beginning.
+    
+    ```yaml
+    Email starts with "sales@"
+    ```
+    
+    Matches: "sales@company.com", "sales@acme.org".
+  </Tab>
+  
+  <Tab title="Ends with">
+    Match at the end.
+    
+    ```yaml
+    Website ends with ".com"
+    ```
+    
+    Matches: "company.com", "website.com".
+  </Tab>
+  
+  <Tab title="Is empty">
+    Field has no value.
+    
+    ```yaml
+    Notes is empty
+    ```
+    
+    Shows records with blank notes.
+  </Tab>
+  
+  <Tab title="Is not empty">
+    Field has any value.
+    
+    ```yaml
+    Phone is not empty
+    ```
+    
+    Shows records with phone numbers.
+  </Tab>
+</Tabs>
+
+### Number Field Operators
+
+| Operator | Example | Matches |
+|----------|---------|----------|
+| Equals | Value = 1000 | Exactly 1000 |
+| Not equals | Value ≠ 0 | Any non-zero value |
+| Greater than | Value > 5000 | 5001, 10000, etc. |
+| Greater than or equal | Value ≥ 5000 | 5000, 5001, etc. |
+| Less than | Value < 1000 | 0, 999, etc. |
+| Less than or equal | Value ≤ 1000 | 0, 999, 1000 |
+| Between | Value between 100 and 500 | 100-500 inclusive |
+| Is empty | Value is empty | No value set |
+| Is not empty | Value is not empty | Has any number |
+
+### Date Field Operators
+
+<AccordionGroup>
+  <Accordion title="Exact Dates">
+    Match specific dates:
+    
+    ```yaml
+    Due Date is 2026-03-15
+    Due Date is not 2026-03-15
+    ```
+  </Accordion>
+  
+  <Accordion title="Date Ranges">
+    Compare dates:
+    
+    ```yaml
+    Start Date is after 2026-01-01
+    End Date is before 2026-12-31
+    Created Date is between 2026-01-01 and 2026-03-31
+    ```
+  </Accordion>
+  
+  <Accordion title="Relative Dates">
+    Filter by dynamic time periods:
+    
+    **Today/Yesterday/Tomorrow:**
+    ```yaml
+    Due Date is today
+    Due Date is yesterday
+    Due Date is tomorrow
+    ```
+    
+    **This Week/Month/Year:**
+    ```yaml
+    Created Date is this week
+    Updated Date is this month
+    Close Date is this year
+    ```
+    
+    **Last/Next Periods:**
+    ```yaml
+    Due Date is last week
+    Due Date is next month
+    Created Date is last 7 days
+    Close Date is next 30 days
+    ```
+    
+    **Past/Future:**
+    ```yaml
+    Due Date is in the past
+    Start Date is in the future
+    ```
+  </Accordion>
+  
+  <Accordion title="Empty/Not Empty">
+    Check if date is set:
+    
+    ```yaml
+    Due Date is empty (no deadline set)
+    Completed Date is not empty (task is done)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+Relative date filters update automatically. "Due Date is today" always shows today's tasks.
+</Info>
+
+### Select Field Operators
+
+```yaml
+# Single select
+Status is "In Progress"
+Status is not "Completed"
+Status is any of ["New", "In Progress"]
+Status is none of ["Cancelled", "On Hold"]
+Status is empty
+
+# Multi-select
+Tags contains "High Priority"
+Tags contains all of ["Client-Facing", "Urgent"]
+Tags contains any of ["Internal", "Research"]
+Tags is empty
+```
+
+### Boolean Field Operators
+
+```yaml
+Is Active is true
+Is Complete is false
+Is Verified is empty (not set)
+```
+
+### Relation Field Operators
+
+```yaml
+# Direct relation
+Company is "Acme Corp"
+Owner is Me
+Assigned To is any of [Alice, Bob]
+
+# Relation properties (filter by related record fields)
+Company.Industry is "Technology"
+Company.Annual Revenue > 1000000
+Owner.Role is "Sales Manager"
+
+# Empty/not empty
+Company is empty (no company assigned)
+Team Members is not empty (has team)
+```
+
+<Tip>
+Relation filters let you query across objects. Filter projects by company industry, or tasks by assignee role.
+</Tip>
+
+## Combining Filters
+
+Use multiple filters together to build complex queries.
+
+### AND Logic
+
+All conditions must be true:
+
+```yaml
+Show records where:
+  Status = "In Progress"
+  AND Owner = Me
+  AND Due Date is this week
+```
+
+Only records matching ALL three conditions appear.
+
+### OR Logic
+
+Any condition can be true:
+
+```yaml
+Show records where:
+  Priority = "High"
+  OR Due Date is overdue
+  OR Owner = Me
+```
+
+Records matching ANY condition appear.
+
+### Mixed Logic
+
+Combine AND and OR with groups:
+
+```yaml
+Show records where:
+  (
+    Priority = "High"
+    OR Priority = "Urgent"
+  )
+  AND Status ≠ "Completed"
+  AND (
+    Owner = Me
+    OR Created By = Me
+  )
+```
+
+Read as: High or Urgent priority, not completed, and I'm the owner or creator.
+
+### Creating Filter Groups
+
+<Steps>
+  <Step title="Add first filter">
+    Create a basic filter condition.
+  </Step>
+  
+  <Step title="Click AND/OR toggle">
+    Choose how to combine with next filter.
+  </Step>
+  
+  <Step title="Add more filters">
+    Build up your query with additional conditions.
+  </Step>
+  
+  <Step title="Group related filters">
+    Click **Add Group** to create nested logic.
+  </Step>
+  
+  <Step title="Set group operator">
+    Choose AND or OR for filters within the group.
+  </Step>
+</Steps>
+
+## Filter Examples
+
+### Example 1: My Open High-Value Opportunities
+
+```yaml
+Object: Opportunities
+Filters:
+  Owner is Me
+  AND Stage is any of ["Qualification", "Proposal", "Negotiation"]
+  AND Amount > 50000
+```
+
+**Use case:** Focus on your most important active deals.
+
+### Example 2: Overdue Tasks for My Team
+
+```yaml
+Object: Tasks
+Filters:
+  (
+    Assigned To is any of [Team Member 1, Team Member 2, Team Member 3]
+    OR Created By is Me
+  )
+  AND Due Date is in the past
+  AND Status ≠ "Completed"
+```
+
+**Use case:** Find tasks that need attention.
+
+### Example 3: Tech Companies Added Recently
+
+```yaml
+Object: Companies
+Filters:
+  Industry is "Technology"
+  AND Created Date is last 30 days
+  AND Status is "Active"
+  AND Annual Revenue > 1000000
+```
+
+**Use case:** Track new high-value prospects.
+
+### Example 4: Projects Without Deadlines
+
+```yaml
+Object: Projects
+Filters:
+  End Date is empty
+  AND Status is not "Completed"
+  AND Created Date is before 2026-01-01
+```
+
+**Use case:** Find old projects that need deadline updates.
+
+## Sorting
+
+Control the order records appear in views.
+
+### Adding Sort
+
+<Steps>
+  <Step title="Open sort menu">
+    Click the sort icon in the view header.
+  </Step>
+  
+  <Step title="Choose field">
+    Select which field to sort by.
+  </Step>
+  
+  <Step title="Choose direction">
+    Pick ascending (A-Z, 1-9, oldest first) or descending (Z-A, 9-1, newest first).
+  </Step>
+  
+  <Step title="Sort applies">
+    Records reorder immediately.
+  </Step>
+</Steps>
+
+### Sort Examples
+
+**Alphabetical:**
+```yaml
+Sort by Company Name (A → Z)
+```
+
+**Chronological:**
+```yaml
+Sort by Created Date (newest first)
+Sort by Due Date (soonest first)
+```
+
+**Numerical:**
+```yaml
+Sort by Deal Value (highest first)
+Sort by Priority Score (lowest first)
+```
+
+**Status Order:**
+```yaml
+Sort by Status (custom order based on select options)
+```
+
+### Multi-Level Sorting
+
+Sort by multiple fields:
+
+```yaml
+1. Sort by Priority (High → Low)
+2. Then by Due Date (soonest first)
+3. Then by Company Name (A → Z)
+```
+
+Records with the same priority are sorted by due date, and same due date by company name.
+
+<Steps>
+  <Step title="Add first sort">
+    Choose primary sort field.
+  </Step>
+  
+  <Step title="Click Add Sort">
+    Add a secondary sort condition.
+  </Step>
+  
+  <Step title="Continue adding">
+    Add more sort levels as needed (up to 3 recommended).
+  </Step>
+  
+  <Step title="Reorder sorts">
+    Drag sort conditions to change priority.
+  </Step>
+</Steps>
+
+### Sort Direction
+
+**Ascending (↑):**
+- Text: A → Z
+- Numbers: 0 → 9
+- Dates: Oldest → Newest
+- Boolean: False → True
+
+**Descending (↓):**
+- Text: Z → A
+- Numbers: 9 → 0  
+- Dates: Newest → Oldest
+- Boolean: True → False
+
+### Null Values
+
+Empty fields appear:
+- **Ascending:** At the end
+- **Descending:** At the end
+
+To show empty values first, create a filter group.
+
+## Saving Views with Filters and Sorting
+
+Save your filter and sort configuration:
+
+<Steps>
+  <Step title="Set up filters and sorting">
+    Configure the view exactly how you want it.
+  </Step>
+  
+  <Step title="Click view options">
+    Open the view dropdown.
+  </Step>
+  
+  <Step title="Save as new view">
+    Choose **Save as...** to create a new view, or **Save** to update current.
+  </Step>
+  
+  <Step title="Name the view">
+    Give it a descriptive name:
+    ```
+    High Value Opportunities - My Active Deals
+    Overdue Tasks - Team View
+    Recent Tech Companies
+    ```
+  </Step>
+</Steps>
+
+The view saves your filters, sorting, columns, and other settings.
+
+## Quick Filters
+
+Temporary filters without changing the view:
+
+1. Click the filter icon in a column header
+2. Choose operator and value
+3. Filter applies immediately
+4. Click X to remove
+
+Quick filters don't save to the view.
+
+## Filter Performance
+
+### Fast Filters
+
+These filter types perform well even with many records:
+
+- Select field equality (Status = "Active")
+- Boolean checks (Is Active = true)
+- Relation equality (Owner = Me)
+- Simple date comparisons
+
+### Slower Filters
+
+Use these sparingly on large datasets:
+
+- Text "contains" searches
+- Relation field properties (Company.Industry = "Tech")
+- Complex multi-level OR groups
+- JSON field queries
+
+<Tip>
+Combine fast and slow filters. Apply fast filters first to narrow results, then slow filters on the subset.
+</Tip>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Create focused views">
+    Instead of one view with changing filters:
+    - Create separate views for common filters
+    - Name them descriptively
+    - Share with relevant team members
+    
+    This is faster than rebuilding filters each time.
+  </Accordion>
+  
+  <Accordion title="Use relative dates">
+    Prefer dynamic date filters:
+    
+    ✅ **Good:**
+    ```yaml
+    Due Date is this week
+    Created Date is last 30 days
+    ```
+    
+    ❌ **Avoid:**
+    ```yaml
+    Due Date is 2026-03-17
+    ```
+    
+    Relative filters stay relevant without updates.
+  </Accordion>
+  
+  <Accordion title="Combine filters efficiently">
+    Structure filter groups logically:
+    
+    ✅ **Efficient:**
+    ```yaml
+    Status is "Active"
+    AND (
+      Owner is Me
+      OR Created By is Me
+    )
+    ```
+    
+    ❌ **Inefficient:**
+    ```yaml
+    (
+      Status is "Active" AND Owner is Me
+    )
+    OR (
+      Status is "Active" AND Created By is Me
+    )
+    ```
+    
+    Both work, but the first is cleaner and faster.
+  </Accordion>
+  
+  <Accordion title="Sort meaningfully">
+    Choose sort orders that help your workflow:
+    
+    - **Tasks:** Due date (soonest first), then priority
+    - **Leads:** Score (highest first), then created date
+    - **Deals:** Stage (pipeline order), then value
+    - **Projects:** Status, then deadline
+  </Accordion>
+  
+  <Accordion title="Test complex filters">
+    When building multi-condition filters:
+    1. Start with one condition
+    2. Verify it works
+    3. Add another
+    4. Check results
+    5. Continue building
+    
+    This prevents confusion from complicated queries.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting Filters
+
+### No Results Showing
+
+**Possible causes:**
+- Filters are too restrictive
+- No records match all conditions
+- Date filter using wrong format
+
+**Solution:** Remove filters one by one to find the issue.
+
+### Unexpected Results
+
+**Possible causes:**
+- AND/OR logic not structured correctly
+- Filter groups need parentheses
+- Field values are empty
+
+**Solution:** Simplify filters and rebuild step by step.
+
+### Slow Performance
+
+**Possible causes:**
+- Too many text "contains" filters
+- Complex relation filters
+- Large dataset
+
+**Solution:** Use indexed fields (select, boolean, relations) when possible.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Table Views" icon="table" href="/user-guide/views/table-views">
+    Apply filters in table format
+  </Card>
+  
+  <Card title="Kanban Views" icon="columns" href="/user-guide/views/kanban-views">
+    Filter kanban boards by stage
+  </Card>
+  
+  <Card title="Workflow Automation" icon="bolt" href="/user-guide/workflows/automation">
+    Create workflows triggered by filter conditions
+  </Card>
+</CardGroup>
